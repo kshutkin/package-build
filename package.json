@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "license": "MIT",
-  "name": "package-build",
+  "name": "pkgbld",
   "author": {
     "name": "Konstantin Shutkin"
   },
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/kshutkin/package-build/README.md",
   "keywords": [
-    "package-build",
+    "pkgbld",
     "build",
     "exports",
     "rollup"
