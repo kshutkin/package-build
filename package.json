@@ -15,14 +15,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kshutkin/rollup-extras.git"
+    "url": "git+https://github.com/kshutkin/package-build.git"
   },
   "bugs": {
     "url": "https://github.com/kshutkin/rollup-extras/issues"
   },
-  "homepage": "https://github.com/kshutkin/rollup-extras/plugin-clean/README.md",
+  "homepage": "https://github.com/kshutkin/package-build/README.md",
   "keywords": [
-    "package-build"
+    "package-build",
+    "build",
+    "exports",
+    "rollup"
   ],
   "scripts": {
     "build": "rimraf dist && rollup -c && node binify.js",
