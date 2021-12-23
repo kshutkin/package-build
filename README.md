@@ -1,4 +1,4 @@
-# Package Build
+# pkgbld
 
 Rollup based build tool for building libraries based on package.json config and simple CLI options.
 
@@ -12,19 +12,19 @@ It is created to easily build libraries that contains mutliple subpackages (expo
 
 Using npm:
 ```
-npm install --save-dev package-build
+npm install --save-dev pkgbld
 ```
 
 ## package.json
 
-`package-build` expects name field to be filled in package.json file. `exports` field defined what entries/outputs should be build for this package.
+`pkgbld` expects name field to be filled in package.json file. `exports` field defined what entries/outputs should be build for this package.
 
 ## CLI options
 
 ### umd
 
 ```
-package-build --umd=index,core
+pkgbld --umd=index,core
 ```
 
 Where `index,core` should be replaced by entry points that should be comiled in umd format, index is top level `'.'` entry point.
@@ -34,7 +34,7 @@ If `package.json` defined umd field option will be defaulted to `index`.
 ### compress
 
 ```
-package-build --compress=index,core
+pkgbld --compress=index,core
 ```
 
 Where `index,core` should be replaced by entry points that should be compressed using terser.
@@ -42,7 +42,7 @@ Where `index,core` should be replaced by entry points that should be compressed 
 ### sourcemaps
 
 ```
-package-build --sourcemaps=es,cjs
+pkgbld --sourcemaps=es,cjs
 ```
 
 Where `es,cjs` should be replaced by targets for which sourcemaps should be generated. Default `umd`.
@@ -52,7 +52,7 @@ Supported targets for this option: `es`, `cjs` and `umd`.
 ### formats
 
 ```
-package-build --formats=es
+pkgbld --formats=es
 ```
 
 Defines what formats to build, only supports `es` and `cjs` at the moment. Use `umd` flag to build umd target.
@@ -60,7 +60,7 @@ Defines what formats to build, only supports `es` and `cjs` at the moment. Use `
 ### preprocess
 
 ```
-package-build --preprocess=index
+pkgbld --preprocess=index
 ```
 
 Defines what entry points/files should be preprocessed using `rollup-plugin-preprocess`.
@@ -68,7 +68,7 @@ Defines what entry points/files should be preprocessed using `rollup-plugin-prep
 ### dir
 
 ```
-package-build --dir=dist
+pkgbld --dir=dist
 ```
 
 Directory to use for build.
