@@ -1,5 +1,12 @@
 Changelog
 
+# [1.1.0](https://github.com/kshutkin/package-build/compare/v1.0.0...v1.1.0) (2021-12-23)
+
+
+### Features
+
+* rename package ([#2](https://github.com/kshutkin/package-build/issues/2)) ([9ec814d](https://github.com/kshutkin/package-build/commit/9ec814dbb1cd9c0813aeecd50b363af9fdfc3738))
+
 # 1.0.0 (2021-12-23)
 
 
