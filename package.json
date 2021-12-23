@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "license": "MIT",
+  "name": "package-build",
+  "author": {
+    "name": "Konstantin Shutkin"
+  },
+  "funding": "https://www.donationalerts.com/r/excitingcode",
+  "bin": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=15"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kshutkin/rollup-extras.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kshutkin/rollup-extras/issues"
+  },
+  "homepage": "https://github.com/kshutkin/rollup-extras/plugin-clean/README.md",
+  "keywords": [
+    "package-build"
+  ],
+  "scripts": {
+    "build": "rimraf dist && rollup -c && node binify.js",
+    "lint": "eslint ./src",
+    "semantic-release": "npx semantic-release"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "6.0.1",
+    "@semantic-release/commit-analyzer": "9.0.1",
+    "@semantic-release/git": "10.0.1",
+    "@semantic-release/npm": "8.0.2",
+    "@semantic-release/release-notes-generator": "10.0.2",
+    "@types/lodash": "4.14.178",
+    "@typescript-eslint/eslint-plugin": "5.8.0",
+    "@typescript-eslint/parser": "5.8.0",
+    "conventional-changelog-angular": "5.0.13",
+    "eslint": "8.5.0",
+    "semantic-release": "18.0.0",
+    "rimfar": "3.0.2-omega"
+  },
+  "dependencies": {
+    "@niceties/logger": "1.0.4",
+    "is-builtin-module": "3.1.0",
+    "lodash": "4.17.21",
+    "rollup": "2.60.1",
+    "rollup-plugin-terser": "7.0.2",
+    "rollup-plugin-typescript2": "0.31.1",
+    "rollup-plugin-preprocess": "0.0.4",
+    "@rollup/plugin-commonjs": "21.0.1",
+    "@rollup/plugin-node-resolve": "13.0.6",
+    "typescript": "4.5.x",
+    "minimist": "1.2.5"
+  }
+}
