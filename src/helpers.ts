@@ -7,8 +7,8 @@ import { getCliOptions } from './get-cli-options';
 export function getHelpers(pkg: any) {
     const scopeTest = /(@.+)\/.+$/g.exec(pkg.name);
     let scope: string | undefined = undefined;
-    if (scopeTest && scopeTest[0]) {
-        scope = scopeTest[0];
+    if (scopeTest && scopeTest[1]) {
+        scope = scopeTest[1];
     }
 
     const external = scope != null 
