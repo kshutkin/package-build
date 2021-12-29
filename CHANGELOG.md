@@ -1,5 +1,12 @@
 Changelog
 
+## [1.1.2](https://github.com/kshutkin/package-build/compare/v1.1.1...v1.1.2) (2021-12-29)
+
+
+### Bug Fixes
+
+* write new line at the end of package.json ([47b9b42](https://github.com/kshutkin/package-build/commit/47b9b42ee653a4abf12a6b24bee048925eda6e23))
+
 ## [1.1.1](https://github.com/kshutkin/package-build/compare/v1.1.0...v1.1.1) (2021-12-27)
 
 
