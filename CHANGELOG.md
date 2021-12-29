@@ -1,5 +1,12 @@
 Changelog
 
+## [1.1.1](https://github.com/kshutkin/package-build/compare/v1.1.0...v1.1.1) (2021-12-27)
+
+
+### Bug Fixes
+
+* scope check ([b2c9b70](https://github.com/kshutkin/package-build/commit/b2c9b70f11c72870b0427954def24d22dde5ddf7))
+
 # [1.1.0](https://github.com/kshutkin/package-build/compare/v1.0.0...v1.1.0) (2021-12-23)
 
 
