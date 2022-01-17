@@ -71,7 +71,7 @@ Defines what entry points/files should be preprocessed using `rollup-plugin-prep
 pkgbld --dir=dist
 ```
 
-Directory to use for build.
+Directory to put output files.
 
 # License
 
