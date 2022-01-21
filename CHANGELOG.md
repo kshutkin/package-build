@@ -1,5 +1,13 @@
 Changelog
 
+## [1.1.5](https://github.com/kshutkin/package-build/compare/v1.1.4...v1.1.5) (2022-01-21)
+
+
+### Bug Fixes
+
+* upgrade @niceties/logger from 1.0.4 to 1.1.0 ([#6](https://github.com/kshutkin/package-build/issues/6)) ([809f0d6](https://github.com/kshutkin/package-build/commit/809f0d629a23ca0e3b1e9e8e1088b604bdbc6f34))
+* upgrade @rollup/plugin-node-resolve from 13.1.1 to 13.1.2 ([#7](https://github.com/kshutkin/package-build/issues/7)) ([de3987b](https://github.com/kshutkin/package-build/commit/de3987bf66bcfc909c470a73a1188c64e62e42bc))
+
 ## [1.1.4](https://github.com/kshutkin/package-build/compare/v1.1.3...v1.1.4) (2022-01-17)
 
 
