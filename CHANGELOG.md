@@ -1,5 +1,13 @@
 Changelog
 
+## [1.1.10](https://github.com/kshutkin/package-build/compare/v1.1.9...v1.1.10) (2022-02-12)
+
+
+### Bug Fixes
+
+* upgrade rollup from 2.64.0 to 2.65.0 ([#14](https://github.com/kshutkin/package-build/issues/14)) ([de57c6c](https://github.com/kshutkin/package-build/commit/de57c6ccd52430a808b87569b6ae3912703aa6a7))
+* upgrade typescript from 4.5.4 to 4.5.5 ([#13](https://github.com/kshutkin/package-build/issues/13)) ([0589ad5](https://github.com/kshutkin/package-build/commit/0589ad5b7e3fa444eb96d1ef440722363cb4df62))
+
 ## [1.1.9](https://github.com/kshutkin/package-build/compare/v1.1.8...v1.1.9) (2022-02-06)
 
 
