@@ -34,10 +34,10 @@ If `package.json` defined umd field option will be defaulted to `index`.
 ### compress
 
 ```
-pkgbld --compress=index,core
+pkgbld --compress=es,umd
 ```
 
-Where `index,core` should be replaced by entry points that should be compressed using terser.
+Where `es,umd` should be replaced by formats that should be compressed using terser.
 
 ### sourcemaps
 
