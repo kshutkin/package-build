@@ -1,5 +1,12 @@
 Changelog
 
+## [1.1.19](https://github.com/kshutkin/package-build/compare/v1.1.18...v1.1.19) (2022-03-17)
+
+
+### Bug Fixes
+
+* upgrade @rollup/plugin-commonjs from 21.0.1 to 21.0.2 ([#23](https://github.com/kshutkin/package-build/issues/23)) ([d19d60d](https://github.com/kshutkin/package-build/commit/d19d60d9d59da990c940ea06f173136ef8cac4fc))
+
 ## [1.1.18](https://github.com/kshutkin/package-build/compare/v1.1.17...v1.1.18) (2022-03-16)
 
 
