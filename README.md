@@ -63,7 +63,7 @@ Defines what formats to build, only supports `es` and `cjs` at the moment. Use `
 pkgbld --preprocess=index
 ```
 
-Defines what entry points/files should be preprocessed using `rollup-plugin-preprocess`.
+Defines what entry points/files should be preprocessed using `rollup-plugin-preprocess`. For the entry point will be defined variable esm (for esm target) or cjs (for others) depending on the target type. Please request more variables / more granular logic if you want more.
 
 ### dir
 
