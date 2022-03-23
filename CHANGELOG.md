@@ -1,5 +1,12 @@
 Changelog
 
+## [1.2.1](https://github.com/kshutkin/package-build/compare/v1.2.0...v1.2.1) (2022-03-23)
+
+
+### Bug Fixes
+
+* readme url ([9af2f96](https://github.com/kshutkin/package-build/commit/9af2f966a1e43fa2639610fb87199a259fc47c62))
+
 # [1.2.0](https://github.com/kshutkin/package-build/compare/v1.1.20...v1.2.0) (2022-03-23)
 
 
