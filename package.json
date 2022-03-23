@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/kshutkin/rollup-extras/issues"
   },
-  "homepage": "https://github.com/kshutkin/package-build/README.md",
+  "homepage": "https://github.com/kshutkin/package-build#readme",
   "keywords": [
     "pkgbld",
     "build",
