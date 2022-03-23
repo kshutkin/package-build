@@ -1,5 +1,12 @@
 Changelog
 
+# [1.2.0](https://github.com/kshutkin/package-build/compare/v1.1.20...v1.2.0) (2022-03-23)
+
+
+### Features
+
+* export ./package.json ([41eb421](https://github.com/kshutkin/package-build/commit/41eb4218e2d16535922d7cf3c2b0b73e561530f6))
+
 ## [1.1.20](https://github.com/kshutkin/package-build/compare/v1.1.19...v1.1.20) (2022-03-23)
 
 
