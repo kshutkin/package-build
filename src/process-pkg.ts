@@ -27,6 +27,8 @@ export function processPackage(pkg: any, config: ReturnType<typeof getCliOptions
     if (pkg.exports['.'] == null) {
         pkg.exports['.'] = {};
     }
+
+    pkg.exports['./package.json'] = './package.json';
     
     if (typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/index.umd.js`;
@@ -56,6 +58,7 @@ export function processPackage(pkg: any, config: ReturnType<typeof getCliOptions
     }
     
     for (const id in pkg.exports) {
+        if (id === './package.json') continue;
         const basename = id == '.' ? 'index' : path.basename(id);
         if (typeof pkg.exports[id] !== 'object') {
             pkg.exports[id] = {};
