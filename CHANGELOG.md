@@ -1,5 +1,13 @@
 Changelog
 
+## [1.1.20](https://github.com/kshutkin/package-build/compare/v1.1.19...v1.1.20) (2022-03-23)
+
+
+### Bug Fixes
+
+* package.json & package-lock.json to reduce vulnerabilities ([#24](https://github.com/kshutkin/package-build/issues/24)) ([b6d0c29](https://github.com/kshutkin/package-build/commit/b6d0c291a7db083e8241770e85252020c7f29574))
+* upgrade typescript from 4.5.5 to 4.6.2 ([#25](https://github.com/kshutkin/package-build/issues/25)) ([c2d9b4f](https://github.com/kshutkin/package-build/commit/c2d9b4f5f50fab1c8b229fca39aab1dea2be6c8d))
+
 ## [1.1.19](https://github.com/kshutkin/package-build/compare/v1.1.18...v1.1.19) (2022-03-17)
 
 
