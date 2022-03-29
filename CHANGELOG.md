@@ -1,5 +1,12 @@
 Changelog
 
+## [1.2.5](https://github.com/kshutkin/package-build/compare/v1.2.4...v1.2.5) (2022-03-29)
+
+
+### Bug Fixes
+
+* upgrade rollup from 2.69.2 to 2.70.0 ([#29](https://github.com/kshutkin/package-build/issues/29)) ([7128ef8](https://github.com/kshutkin/package-build/commit/7128ef8f3567e6e79a4dbbe800bc953717b56dce))
+
 ## [1.2.4](https://github.com/kshutkin/package-build/compare/v1.2.3...v1.2.4) (2022-03-28)
 
 
