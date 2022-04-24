@@ -1,5 +1,12 @@
 Changelog
 
+## [1.2.9](https://github.com/kshutkin/package-build/compare/v1.2.8...v1.2.9) (2022-04-24)
+
+
+### Bug Fixes
+
+* upgrade @niceties/logger from 1.1.1 to 1.1.3 ([#31](https://github.com/kshutkin/package-build/issues/31)) ([756f24e](https://github.com/kshutkin/package-build/commit/756f24e5633ac856cdfbe16917a789e161fe25a1))
+
 ## [1.2.8](https://github.com/kshutkin/package-build/compare/v1.2.7...v1.2.8) (2022-04-18)
 
 
