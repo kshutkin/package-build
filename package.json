@@ -1,5 +1,5 @@
 {
-  "version": "1.2.6",
+  "version": "1.2.8",
   "license": "MIT",
   "name": "pkgbld",
   "author": {
@@ -54,9 +54,9 @@
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.31.2",
     "rollup-plugin-preprocess": "0.0.4",
-    "@rollup/plugin-commonjs": "21.0.2",
+    "@rollup/plugin-commonjs": "21.0.3",
     "@rollup/plugin-node-resolve": "13.1.3",
-    "typescript": "4.6.2",
+    "typescript": "4.6.3",
     "minimist": "1.2.6"
   }
 }

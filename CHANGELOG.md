@@ -1,5 +1,19 @@
 Changelog
 
+## [1.2.8](https://github.com/kshutkin/package-build/compare/v1.2.7...v1.2.8) (2022-04-18)
+
+
+### Bug Fixes
+
+* upgrade @rollup/plugin-commonjs from 21.0.2 to 21.0.3 ([#33](https://github.com/kshutkin/package-build/issues/33)) ([d23bb36](https://github.com/kshutkin/package-build/commit/d23bb36f4156f1cc4c723e7c16744afd55e618aa))
+
+## [1.2.7](https://github.com/kshutkin/package-build/compare/v1.2.6...v1.2.7) (2022-04-15)
+
+
+### Bug Fixes
+
+* upgrade typescript from 4.6.2 to 4.6.3 ([#32](https://github.com/kshutkin/package-build/issues/32)) ([877e431](https://github.com/kshutkin/package-build/commit/877e431835f742c88ce63fd92d667263888b5ccf))
+
 ## [1.2.6](https://github.com/kshutkin/package-build/compare/v1.2.5...v1.2.6) (2022-04-05)
 
 
