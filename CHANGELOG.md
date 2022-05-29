@@ -1,5 +1,13 @@
 Changelog
 
+## [1.2.14](https://github.com/kshutkin/package-build/compare/v1.2.13...v1.2.14) (2022-05-29)
+
+
+### Bug Fixes
+
+* upgrade @rollup/plugin-node-resolve from 13.2.1 to 13.3.0 ([#40](https://github.com/kshutkin/package-build/issues/40)) ([4f8e3d1](https://github.com/kshutkin/package-build/commit/4f8e3d1acc8aa1eddbbdef8c4faa957e9fcbe2e4))
+* upgrade rollup from 2.70.2 to 2.71.1 ([#39](https://github.com/kshutkin/package-build/issues/39)) ([78261a8](https://github.com/kshutkin/package-build/commit/78261a8b2ec2cbaa0f3aafa7ebab6892e519061a))
+
 ## [1.2.13](https://github.com/kshutkin/package-build/compare/v1.2.12...v1.2.13) (2022-05-20)
 
 
