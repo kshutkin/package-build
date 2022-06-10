@@ -43,7 +43,7 @@
     "@typescript-eslint/parser": "5.8.0",
     "conventional-changelog-angular": "5.0.13",
     "eslint": "8.5.0",
-    "semantic-release": "18.0.0",
+    "semantic-release": "19.0.3",
     "rimfar": "3.0.2-omega"
   },
   "dependencies": {
