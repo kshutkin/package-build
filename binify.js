@@ -6,4 +6,4 @@ bin = '#!/usr/bin/env node\n' + bin;
 
 fs.writeFileSync('dist/index.js', bin);
 
-fs.chmodSync('dist/index.js', 0755);
+fs.chmodSync('dist/index.js', 0o755);
