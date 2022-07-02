@@ -1,5 +1,12 @@
 Changelog
 
+# [1.3.0](https://github.com/kshutkin/package-build/compare/v1.2.24...v1.3.0) (2022-07-02)
+
+
+### Features
+
+* improve build process ([aedc4a6](https://github.com/kshutkin/package-build/commit/aedc4a63d2e5ead8ae2518be0a76640cdbcb492e))
+
 ## [1.2.24](https://github.com/kshutkin/package-build/compare/v1.2.23...v1.2.24) (2022-06-29)
 
 
