@@ -5,6 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import preprocess from 'rollup-plugin-preprocess';
 import clean from '@rollup-extras/plugin-clean';
+import binify from '@rollup-extras/plugin-binify';
 
 const input = 'src/index.ts';
 
@@ -14,7 +15,8 @@ const plugins = [
     clean(),
     resolve(),
     commonjs(),
-    typescript()
+    typescript(),
+    binify()
 ];
 
 const external = (id) => id.indexOf('node_modules') >= 0 || isBuiltinModule(id);
