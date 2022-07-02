@@ -5,7 +5,6 @@
   "author": {
     "name": "Konstantin Shutkin"
   },
-  "funding": "https://www.donationalerts.com/r/excitingcode",
   "bin": "./dist/index.js",
   "files": [
     "dist"
@@ -28,7 +27,7 @@
     "rollup"
   ],
   "scripts": {
-    "build": "rimraf dist && rollup -c && node binify.js",
+    "build": "rollup -c",
     "lint": "eslint ./src",
     "semantic-release": "npx semantic-release"
   },
@@ -44,7 +43,8 @@
     "conventional-changelog-angular": "5.0.13",
     "eslint": "8.5.0",
     "semantic-release": "19.0.3",
-    "rimfar": "3.0.2-omega"
+    "@rollup-extras/plugin-clean": "1.2.4",
+    "@rollup-extras/plugin-binify": "1.0.0"
   },
   "dependencies": {
     "@niceties/logger": "1.1.3",
