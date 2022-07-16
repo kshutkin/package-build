@@ -1,5 +1,12 @@
 Changelog
 
+## [1.4.3](https://github.com/kshutkin/package-build/compare/v1.4.2...v1.4.3) (2022-07-16)
+
+
+### Bug Fixes
+
+* upgrade @rollup/plugin-commonjs from 22.0.0 to 22.0.1 ([#58](https://github.com/kshutkin/package-build/issues/58)) ([6fd7ef5](https://github.com/kshutkin/package-build/commit/6fd7ef50dffd1e05a2c3ed884371294f595b726c))
+
 ## [1.4.2](https://github.com/kshutkin/package-build/compare/v1.4.1...v1.4.2) (2022-07-12)
 
 
