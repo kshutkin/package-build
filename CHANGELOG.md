@@ -1,5 +1,12 @@
 Changelog
 
+## [1.4.8](https://github.com/kshutkin/package-build/compare/v1.4.7...v1.4.8) (2022-08-21)
+
+
+### Bug Fixes
+
+* upgrade is-builtin-module from 3.1.0 to 3.2.0 ([#65](https://github.com/kshutkin/package-build/issues/65)) ([cc3ad6f](https://github.com/kshutkin/package-build/commit/cc3ad6f61041d9f0ed099bdf7cdfece53df72bc3))
+
 ## [1.4.7](https://github.com/kshutkin/package-build/compare/v1.4.6...v1.4.7) (2022-08-17)
 
 
