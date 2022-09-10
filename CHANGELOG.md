@@ -1,5 +1,12 @@
 Changelog
 
+## [1.4.14](https://github.com/kshutkin/package-build/compare/v1.4.13...v1.4.14) (2022-09-10)
+
+
+### Bug Fixes
+
+* upgrade rollup-plugin-typescript2 from 0.32.1 to 0.33.0 ([#70](https://github.com/kshutkin/package-build/issues/70)) ([d10ad0f](https://github.com/kshutkin/package-build/commit/d10ad0f05e506e3383e240f91805110b3085c5a1))
+
 ## [1.4.13](https://github.com/kshutkin/package-build/compare/v1.4.12...v1.4.13) (2022-09-09)
 
 
