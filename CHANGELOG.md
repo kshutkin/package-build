@@ -1,5 +1,12 @@
 Changelog
 
+## [1.4.16](https://github.com/kshutkin/package-build/compare/v1.4.15...v1.4.16) (2022-09-18)
+
+
+### Bug Fixes
+
+* upgrade typescript from 4.7.4 to 4.8.2 ([#71](https://github.com/kshutkin/package-build/issues/71)) ([13ec6ad](https://github.com/kshutkin/package-build/commit/13ec6adf014ed1f8783b6cfefa7902aa949e67c9))
+
 ## [1.4.15](https://github.com/kshutkin/package-build/compare/v1.4.14...v1.4.15) (2022-09-18)
 
 
