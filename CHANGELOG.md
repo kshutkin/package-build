@@ -1,5 +1,12 @@
 Changelog
 
+## [1.4.15](https://github.com/kshutkin/package-build/compare/v1.4.14...v1.4.15) (2022-09-18)
+
+
+### Bug Fixes
+
+* move plugin-clean to dependencies ([79eb798](https://github.com/kshutkin/package-build/commit/79eb79859a53c6b43554a0323e39fd3cd7d99584))
+
 ## [1.4.14](https://github.com/kshutkin/package-build/compare/v1.4.13...v1.4.14) (2022-09-10)
 
 
