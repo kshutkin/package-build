@@ -1,5 +1,12 @@
 Changelog
 
+## [1.4.17](https://github.com/kshutkin/package-build/compare/v1.4.16...v1.4.17) (2022-09-21)
+
+
+### Bug Fixes
+
+* upgrade rollup from 2.78.1 to 2.79.0 ([#72](https://github.com/kshutkin/package-build/issues/72)) ([f9ba148](https://github.com/kshutkin/package-build/commit/f9ba148e7ebc705c144e89e732ef9e0f16de02dc))
+
 ## [1.4.16](https://github.com/kshutkin/package-build/compare/v1.4.15...v1.4.16) (2022-09-18)
 
 
