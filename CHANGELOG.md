@@ -1,5 +1,17 @@
 Changelog
 
+# [1.5.0](https://github.com/kshutkin/package-build/compare/v1.4.17...v1.5.0) (2022-09-29)
+
+
+### Bug Fixes
+
+* upgrade typescript from 4.8.2 to 4.8.3 ([#74](https://github.com/kshutkin/package-build/issues/74)) ([fac0199](https://github.com/kshutkin/package-build/commit/fac0199841f254a2a32838ed1a80057bcd0374ea))
+
+
+### Features
+
+* upgrade @rollup/plugin-node-resolve from 13.3.0 to 14.0.0 ([#73](https://github.com/kshutkin/package-build/issues/73)) ([c773ee5](https://github.com/kshutkin/package-build/commit/c773ee5a5f6150c1369e9652288d5089512422ab))
+
 ## [1.4.17](https://github.com/kshutkin/package-build/compare/v1.4.16...v1.4.17) (2022-09-21)
 
 
