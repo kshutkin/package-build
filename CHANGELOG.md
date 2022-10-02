@@ -1,5 +1,12 @@
 Changelog
 
+## [1.5.1](https://github.com/kshutkin/package-build/compare/v1.5.0...v1.5.1) (2022-10-02)
+
+
+### Bug Fixes
+
+* upgrade @rollup/plugin-node-resolve from 14.0.0 to 14.0.1 ([#75](https://github.com/kshutkin/package-build/issues/75)) ([f9cc31e](https://github.com/kshutkin/package-build/commit/f9cc31e143a76920644cb588a1cfa4b4b2deb63b))
+
 # [1.5.0](https://github.com/kshutkin/package-build/compare/v1.4.17...v1.5.0) (2022-09-29)
 
 
