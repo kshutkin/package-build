@@ -1,7 +1,7 @@
 import { RollupOptions } from 'rollup';
 import { getCliOptions } from './get-cli-options';
 import { getBuildPlugins, getOutputPlugins } from './get-plugins';
-import { getHelpers, isExternalInput, umdFilter } from './helpers';
+import { getHelpers, umdFilter } from './helpers';
 
 export function getRollupConfigs(inputs: string[], config: ReturnType<typeof getCliOptions>, helpers: ReturnType<typeof getHelpers>) {
     const configs: RollupOptions[] = [];
@@ -19,9 +19,7 @@ export function getRollupConfigs(inputs: string[], config: ReturnType<typeof get
                 sourcemap: config.sourcemapTargets.includes('es')
             },
     
-            plugins: getBuildPlugins('es', config),
-    
-            external: helpers.external
+            plugins: getBuildPlugins('es', config)
         });
     }
 
@@ -39,9 +37,7 @@ export function getRollupConfigs(inputs: string[], config: ReturnType<typeof get
                 sourcemap: config.sourcemapTargets.includes('cjs')
             },
     
-            plugins: getBuildPlugins('cjs', config),
-    
-            external: helpers.external
+            plugins: getBuildPlugins('cjs', config)
         });
     }
 
@@ -57,9 +53,7 @@ export function getRollupConfigs(inputs: string[], config: ReturnType<typeof get
             sourcemap: config.sourcemapTargets.includes('umd')
         },
 
-        plugins: getBuildPlugins('umd', config),
-
-        external: (id: string) => helpers.external(id) || isExternalInput(id, inputs, currentInput)
+        plugins: getBuildPlugins('umd', config, inputs, currentInput)
     }));
 
     if (umdConfigs && umdConfigs.length) {

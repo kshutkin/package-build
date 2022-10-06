@@ -1,20 +1,9 @@
-import isBuiltinModule from 'is-builtin-module';
 import path from 'path';
 import camelCase from 'lodash/camelCase';
 import { getCliOptions } from './get-cli-options';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getHelpers(pkg: any) {
-    const scopeTest = /(@.+)\/.+$/g.exec(pkg.name);
-    let scope: string | undefined = undefined;
-    if (scopeTest && scopeTest[1]) {
-        scope = scopeTest[1];
-    }
-
-    const external = scope != null 
-        ? (id: string | string[]) => id.indexOf('node_modules') >= 0 || id.indexOf(scope as string) >= 0 || isBuiltinModule(id)
-        : (id: string | string[]) => id.indexOf('node_modules') >= 0 || isBuiltinModule(id);
-
     function getGlobalName(anInput: string) {
         return camelCase(path.join(pkg.name, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
     }
@@ -27,7 +16,6 @@ export function getHelpers(pkg: any) {
     }
 
     return {
-        external,
         getGlobalName,
         getExternalGlobalName,
         umdFilter

@@ -1,11 +1,10 @@
-import isBuiltinModule from 'is-builtin-module';
-
 import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import preprocess from 'rollup-plugin-preprocess';
 import clean from '@rollup-extras/plugin-clean';
 import binify from '@rollup-extras/plugin-binify';
+import externals from '@rollup-extras/plugin-externals';
 
 const input = 'src/index.ts';
 
@@ -13,13 +12,12 @@ const dest = 'dist';
 
 const plugins = [
     clean(),
+    externals(),
     resolve(),
     commonjs(),
     typescript(),
     binify()
 ];
-
-const external = (id) => id.indexOf('node_modules') >= 0 || isBuiltinModule(id);
 
 export default {
     input,
@@ -31,7 +29,5 @@ export default {
         chunkFileNames: '[name].js'
     },
 
-    plugins: [preprocess({ include: [ 'src/index.ts' ], context: { esm: false } }), ...plugins],
-
-    external
+    plugins: [preprocess({ include: [ 'src/index.ts' ], context: { esm: false } }), ...plugins]
 };
