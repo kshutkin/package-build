@@ -1,5 +1,12 @@
 Changelog
 
+# [1.6.0](https://github.com/kshutkin/package-build/compare/v1.5.5...v1.6.0) (2022-10-06)
+
+
+### Features
+
+* added sourcedir cli option ([6869ab5](https://github.com/kshutkin/package-build/commit/6869ab59a9549dd2ade90c4e5366ad5f11d62e28))
+
 ## [1.5.5](https://github.com/kshutkin/package-build/compare/v1.5.4...v1.5.5) (2022-10-06)
 
 
