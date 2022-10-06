@@ -1,5 +1,12 @@
 Changelog
 
+## [1.5.4](https://github.com/kshutkin/package-build/compare/v1.5.3...v1.5.4) (2022-10-06)
+
+
+### Bug Fixes
+
+* actually use @rollup-extras/plugin-clean ([4050d61](https://github.com/kshutkin/package-build/commit/4050d61976de05ecfa922b196c14c167d78ea958))
+
 ## [1.5.3](https://github.com/kshutkin/package-build/compare/v1.5.2...v1.5.3) (2022-10-04)
 
 
