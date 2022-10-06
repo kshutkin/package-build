@@ -72,7 +72,7 @@ export function processPackage(pkg: any, config: ReturnType<typeof getCliOptions
             }
         }
     
-        input.push(`./src/${basename}.ts`);
+        input.push(`./${config.sourceDir}/${basename}.ts`);
     }
 
     return input;

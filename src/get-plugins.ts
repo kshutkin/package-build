@@ -17,7 +17,7 @@ export function getBuildPlugins(format: InternalModuleFormat, config: ReturnType
         clean,
         externals({
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            external: (id, external) => external || (format === 'umd' ? isExternalInput(id, inputs!, currentInput!) : false)
+            external: (id, external) => external || (format === 'umd' ? isExternalInput(id, inputs!, currentInput!, config) : false)
         }),
         resolve(),
         commonjs(),
@@ -25,7 +25,7 @@ export function getBuildPlugins(format: InternalModuleFormat, config: ReturnType
     ];
 
     if (config.preprocess.length) {
-        result.unshift(preprocess({ include: config.preprocess.map(name => `src/${name}.ts`), context: getPreprocessContext(format) }));
+        result.unshift(preprocess({ include: config.preprocess.map(name => `${config.sourceDir}/${name}.ts`), context: getPreprocessContext(format) }));
     }
 
     return result as Plugin[];

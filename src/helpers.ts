@@ -34,12 +34,12 @@ export function toArray<T>(object: T) {
     return [object];
 }
 
-export function isExternalInput(id: string, inputs: string | string[], currentInput: string) {
+export function isExternalInput(id: string, inputs: string | string[], currentInput: string, config: ReturnType<typeof getCliOptions>) {
     let normalizedPath;
     if (path.isAbsolute(id)) {
         normalizedPath = './' + path.relative(process.cwd(), id);
     } else {
-        normalizedPath = './' + path.join('src', id + '.ts');
+        normalizedPath = './' + path.join(config.sourceDir, id + '.ts');
     }
     return normalizedPath !== currentInput && inputs.includes(normalizedPath);
 }

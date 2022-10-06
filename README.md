@@ -73,6 +73,14 @@ pkgbld --dir=dist
 
 Directory to put output files.
 
+### sourcedir
+
+```
+pkgbld --sourcedir=src
+```
+
+Directory to search for input files.
+
 # License
 
 [MIT](./LICENSE)

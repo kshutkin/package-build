@@ -6,7 +6,8 @@ const defaults = {
     compressTargets: ['umd'],
     sourcemapTargets: ['umd'],
     preprocess: [],
-    dir: 'dist'
+    dir: 'dist',
+    sourceDir: 'src'
 };
 
 export function getCliOptions() {
@@ -17,6 +18,7 @@ export function getCliOptions() {
     const formats = parsedArgs.formats?.split(',').map((arg: string) => arg.trim()) ?? defaults.formats;
     const preprocess = parsedArgs.preprocess?.split(',').map((arg: string) => arg.trim()) ?? defaults.preprocess;
     const dir = parsedArgs.dir ?? defaults.dir;
+    const sourceDir = parsedArgs.sourceDir ?? defaults.sourceDir;
 
     return {
         umdTargets,
@@ -24,13 +26,15 @@ export function getCliOptions() {
         sourcemapTargets,
         formats,
         preprocess,
-        dir
+        dir,
+        sourceDir
     } as {
         umdTargets: string[],
         compressTargets: string[],
         sourcemapTargets: string[],
         formats: string[],
         preprocess: string[],
-        dir: string
+        dir: string,
+        sourceDir: string
     };
 }
