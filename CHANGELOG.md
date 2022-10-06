@@ -1,5 +1,13 @@
 Changelog
 
+## [1.5.5](https://github.com/kshutkin/package-build/compare/v1.5.4...v1.5.5) (2022-10-06)
+
+
+### Bug Fixes
+
+* missing package ([3586984](https://github.com/kshutkin/package-build/commit/35869848eaaae8eb56c45e42459b234988b58218))
+* use externals, shared instance for clean plugin ([1ff0cee](https://github.com/kshutkin/package-build/commit/1ff0cee2bd318bdc6b9fd1327fef25a7745489b9))
+
 ## [1.5.4](https://github.com/kshutkin/package-build/compare/v1.5.3...v1.5.4) (2022-10-06)
 
 
