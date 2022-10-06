@@ -3,12 +3,14 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import preprocess from 'rollup-plugin-preprocess';
 import { terser } from 'rollup-plugin-terser';
+import clean from '@rollup-extras/plugin-clean';
 
 import { InternalModuleFormat, Plugin } from 'rollup';
 import { getCliOptions } from './get-cli-options';
 
 export function getBuildPlugins(format: InternalModuleFormat, config: ReturnType<typeof getCliOptions>): Plugin[] {
     const result = [
+        clean(),
         resolve(),
         commonjs(),
         typescript()

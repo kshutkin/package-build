@@ -8,7 +8,6 @@ import { getRollupConfigs } from './get-rollup-configs';
 import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray } from './helpers';
 import { processPackage } from './process-pkg';
 import { writePackage } from './write-pkg';
-import { cleanupDir } from './cleanup';
 
 async function execute() {
     try {
@@ -17,7 +16,6 @@ async function execute() {
         const inputs = processPackage(pkg, config);
         const helpers = getHelpers(pkg);
         const rollupConfigs = getRollupConfigs(inputs, config, helpers);
-        await cleanupDir(config.dir);
 
         for (const config of rollupConfigs) {
             const logger = createLogger();
