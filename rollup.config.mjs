@@ -29,5 +29,5 @@ export default {
         chunkFileNames: '[name].js'
     },
 
-    plugins: [preprocess({ include: [ 'src/index.ts' ], context: { esm: false } }), ...plugins]
+    plugins: [preprocess.default({ include: [ 'src/index.ts' ], context: { esm: false } }), ...plugins]
 };
