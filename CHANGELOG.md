@@ -1,5 +1,12 @@
 Changelog
 
+# [1.7.0](https://github.com/kshutkin/package-build/compare/v1.6.0...v1.7.0) (2022-10-14)
+
+
+### Features
+
+* move to rollup 3.x ([#79](https://github.com/kshutkin/package-build/issues/79)) ([212e351](https://github.com/kshutkin/package-build/commit/212e351eb56fdc2a640c9e6185182dfd62215522))
+
 # [1.6.0](https://github.com/kshutkin/package-build/compare/v1.5.5...v1.6.0) (2022-10-06)
 
 
