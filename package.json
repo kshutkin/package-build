@@ -10,7 +10,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=15"
+    "node": ">=16"
   },
   "repository": {
     "type": "git",
