@@ -43,7 +43,7 @@
     "conventional-changelog-angular": "5.0.13",
     "eslint": "8.5.0",
     "semantic-release": "19.0.3",
-    "@rollup-extras/plugin-binify": "1.0.0"
+    "@rollup-extras/plugin-binify": "1.1.0"
   },
   "dependencies": {
     "@niceties/logger": "1.1.4",
