@@ -58,5 +58,10 @@
     "@rollup-extras/plugin-externals": "1.1.0",
     "typescript": "4.8.4",
     "minimist": "1.2.7"
+  },
+  "overrides": {
+    "rollup-plugin-terser@7.0.2": {
+      "rollup": "3.1.0"
+    }
   }
 }
