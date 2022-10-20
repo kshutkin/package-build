@@ -1,5 +1,12 @@
 Changelog
 
+## [1.7.1](https://github.com/kshutkin/package-build/compare/v1.7.0...v1.7.1) (2022-10-20)
+
+
+### Bug Fixes
+
+* write main and type into subpackages package.json ([9246cdd](https://github.com/kshutkin/package-build/commit/9246cdd4946cf3b25fef1fc5397850a91612c46d))
+
 # [1.7.0](https://github.com/kshutkin/package-build/compare/v1.6.0...v1.7.0) (2022-10-14)
 
 
