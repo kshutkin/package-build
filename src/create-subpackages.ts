@@ -7,7 +7,9 @@ export async function createSubpackages(inputs: string[], config: ReturnType<typ
         const basename = path.basename(input, '.ts');
         if (basename !== 'index') {
             const pkg = {
-                types: `../${config.dir}/${basename}.d.ts`
+                type: 'module',
+                types: `../${config.dir}/${basename}.d.ts`,
+                main: `../${config.dir}/${basename}.mjs`
             };
 
             await fs.mkdir(basename, { recursive: true });
