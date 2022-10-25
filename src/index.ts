@@ -1,5 +1,5 @@
+import '@niceties/draftlog-appender';
 import { createLogger, LogLevel } from '@niceties/logger';
-
 import { OutputOptions, rollup, RollupOptions } from 'rollup';
 import { createSubpackages } from './create-subpackages';
 import { getCliOptions } from './get-cli-options';
