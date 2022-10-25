@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
+import { Json } from './types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function writePackage(pkgPath: string, pkg: any) {
+export async function writePackage(pkgPath: string, pkg: Json) {
     await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 }

@@ -14,7 +14,7 @@ async function execute() {
         const [pkgPath, pkg] = await getPackage();
         const config = getCliOptions();
         const inputs = processPackage(pkg, config);
-        const helpers = getHelpers(pkg);
+        const helpers = getHelpers((pkg as {name: string}).name);
         const rollupConfigs = getRollupConfigs(inputs, config, helpers);
 
         for (const config of rollupConfigs) {

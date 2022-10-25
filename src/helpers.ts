@@ -1,11 +1,11 @@
 import path from 'path';
 import camelCase from 'lodash/camelCase';
 import { getCliOptions } from './get-cli-options';
+import { OutputOptions } from 'rollup';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getHelpers(pkg: any) {
+export function getHelpers(name: string) {
     function getGlobalName(anInput: string) {
-        return camelCase(path.join(pkg.name, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
+        return camelCase(path.join(name, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
     }
 
     function getExternalGlobalName(id: string) {
@@ -27,9 +27,12 @@ export function umdFilter(config: ReturnType<typeof getCliOptions>, filename: st
     return config.umdTargets.includes(id);
 }
 
-export function toArray<T>(object: T) {
+export function toArray<T>(object: T | T[] | undefined) {
     if (Array.isArray(object)) {
         return object;
+    }
+    if (object == null) {
+        return [];
     }
     return [object];
 }
@@ -44,13 +47,16 @@ export function isExternalInput(id: string, inputs: string | string[], currentIn
     return normalizedPath !== currentInput && inputs.includes(normalizedPath);
 }
 
-export function formatInput(input: string[] | string | undefined): string | undefined {
-    return Array.isArray(input)? input.join(', ') : input;
+export function formatInput(input: string[] | string | undefined): string {
+    return Array.isArray(input)? input.join(', ') : (input ?? ''); // not sure if ?? '' needed
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function formatOutput(output: any, field: string): string | undefined {
-    return Array.isArray(output)? output.map(item => item[field]).join(', ') : output[field];
+export function formatOutput(output: OutputOptions | OutputOptions[] | undefined, field: 'dir' | 'format'): string {
+    // can we avoid it?
+    if (output == null) {
+        return '';
+    }
+    return Array.isArray(output) ? output.map(item => item[field]).join(', ') : (output[field] ?? '');
 }
 
 export function getTimeDiff(starting: number) {
@@ -59,4 +65,9 @@ export function getTimeDiff(starting: number) {
         return `${((now - starting) / 1000).toFixed(1)}s`;
     }
     return `${now - starting}ms`;
+}
+
+export function getDefaultExport<T extends { default?: unknown }>(importedModule: T) {
+    const defaultImport = importedModule.default;
+    return defaultImport ? defaultImport : importedModule;
 }

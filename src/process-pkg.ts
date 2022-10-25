@@ -1,18 +1,26 @@
+
+
 import path from 'path';
 import { getCliOptions } from './get-cli-options';
 import { createLogger, LogLevel } from '@niceties/logger';
 import { umdFilter } from './helpers';
+import { Json } from './types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function processPackage(pkg: any, config: ReturnType<typeof getCliOptions>): string[] {
+export function processPackage(pkg: Json, config: ReturnType<typeof getCliOptions>): string[] {
     const input = [];
     const logger = createLogger();
-    if (typeof pkg.name !== 'string') {
+
+    if (typeof pkg !== 'object' || Array.isArray(pkg)) {
+        logger.finish('expecting object on top level of package.json', LogLevel.error);
+        process.exit(-1);
+    }
+
+    if (typeof pkg?.name !== 'string') {
         logger.finish('expecting name to be a string in package.json', LogLevel.error);
         process.exit(-1);
     }
     
-    if (!Array.isArray(pkg.files)) {
+    if (!Array.isArray(pkg?.files)) {
         pkg.files = [];
     }
     
@@ -20,15 +28,15 @@ export function processPackage(pkg: any, config: ReturnType<typeof getCliOptions
         pkg.files.push(config.dir);
     }
     
-    if (typeof pkg.exports !== 'object') {
+    if (typeof pkg.exports !== 'object' && pkg.exports !== null) {
         pkg.exports = {};
     }
 
-    if (pkg.exports['.'] == null) {
-        pkg.exports['.'] = {};
+    if ((pkg.exports as Record<string, Json>)['.'] == null) {
+        (pkg.exports as Record<string, Json>)['.'] = {};
     }
 
-    pkg.exports['./package.json'] = './package.json';
+    (pkg.exports as Record<string, Json>)['./package.json'] = './package.json';
     
     if (typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/index.umd.js`;
@@ -41,16 +49,16 @@ export function processPackage(pkg: any, config: ReturnType<typeof getCliOptions
         pkg.main = `./${config.dir}/index.cjs`;
     }
     
-    if (pkg.main !== pkg.exports['.'].require) {
-        pkg.exports['.'].require = pkg.main;
+    if (pkg.main !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require) {
+        ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require = pkg.main;
     }
     
     if (typeof pkg.module !== 'string') {
         pkg.module = `./${config.dir}/index.mjs`;
     }
     
-    if (pkg.module !== pkg.exports['.']?.default) {
-        pkg.exports['.'].default = pkg.module;
+    if (pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
+        ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module;
     }
     
     if (umdFilter(config, 'index')) {
@@ -60,11 +68,11 @@ export function processPackage(pkg: any, config: ReturnType<typeof getCliOptions
     for (const id in pkg.exports) {
         if (id === './package.json') continue;
         const basename = id == '.' ? 'index' : path.basename(id);
-        if (typeof pkg.exports[id] !== 'object') {
-            pkg.exports[id] = {};
+        if (typeof (pkg.exports as Record<string, Json>)[id] !== 'object') {
+            (pkg.exports as Record<string, Json>)[id] = {};
         }
-        pkg.exports[id].require = `./${config.dir}/${basename}.cjs`;
-        pkg.exports[id].default = `./${config.dir}/${basename}.mjs`;
+        ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).require = `./${config.dir}/${basename}.cjs`;
+        ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).default = `./${config.dir}/${basename}.mjs`;
     
         if (basename !== 'index') {
             if (!pkg.files.includes(basename)) {
