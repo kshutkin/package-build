@@ -1,5 +1,12 @@
 Changelog
 
+# [1.8.0](https://github.com/kshutkin/package-build/compare/v1.7.1...v1.8.0) (2022-10-24)
+
+
+### Features
+
+* added main field so it is possible to import the package ([8b33670](https://github.com/kshutkin/package-build/commit/8b33670bc1071615e9ef475106449c4e16c759d5))
+
 ## [1.7.1](https://github.com/kshutkin/package-build/compare/v1.7.0...v1.7.1) (2022-10-20)
 
 
