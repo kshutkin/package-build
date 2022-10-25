@@ -1,5 +1,19 @@
 Changelog
 
+# [1.9.0](https://github.com/kshutkin/package-build/compare/v1.8.0...v1.9.0) (2022-10-25)
+
+
+### Bug Fixes
+
+* remove unused preprocess ([e032622](https://github.com/kshutkin/package-build/commit/e032622d9051e0d9ad86eb3583d4f3d02307abc4))
+* upgrade packages (externals fixes) ([6bd93f2](https://github.com/kshutkin/package-build/commit/6bd93f23ff4caf6ff9e33d7b531c074fe933fe88))
+
+
+### Features
+
+* upgrade packages ([1306db6](https://github.com/kshutkin/package-build/commit/1306db6a12288fd3bc34ea145ed8a2f3f00a4b38))
+* use draftlog appender ([4acde9d](https://github.com/kshutkin/package-build/commit/4acde9dbc2732f6a02b75ccbf1403e96a360fb4e))
+
 # [1.8.0](https://github.com/kshutkin/package-build/compare/v1.7.1...v1.8.0) (2022-10-24)
 
 
