@@ -1,5 +1,12 @@
 Changelog
 
+## [1.9.1](https://github.com/kshutkin/package-build/compare/v1.9.0...v1.9.1) (2022-11-01)
+
+
+### Bug Fixes
+
+* updated dependencies ([c295f86](https://github.com/kshutkin/package-build/commit/c295f8654651d7539499c664469a151adc15845e))
+
 # [1.9.0](https://github.com/kshutkin/package-build/compare/v1.8.0...v1.9.0) (2022-10-25)
 
 
