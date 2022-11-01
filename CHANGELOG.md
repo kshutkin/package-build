@@ -1,5 +1,12 @@
 Changelog
 
+## [1.9.2](https://github.com/kshutkin/package-build/compare/v1.9.1...v1.9.2) (2022-11-01)
+
+
+### Bug Fixes
+
+* upgrade draftlog appender so it is not used in CI environment ([d809640](https://github.com/kshutkin/package-build/commit/d809640b505eea6f32cbeabcd2ca0eae832685fb))
+
 ## [1.9.1](https://github.com/kshutkin/package-build/compare/v1.9.0...v1.9.1) (2022-11-01)
 
 
