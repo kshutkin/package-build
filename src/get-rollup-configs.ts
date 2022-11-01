@@ -56,7 +56,7 @@ export function getRollupConfigs(inputs: string[], config: ReturnType<typeof get
         plugins: getBuildPlugins('umd', config, inputs, currentInput)
     }));
 
-    if (umdConfigs && umdConfigs.length) {
+    if (umdConfigs.length) {
         configs.push(...umdConfigs);
     }
 

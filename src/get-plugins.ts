@@ -25,18 +25,12 @@ export function getBuildPlugins(format: InternalModuleFormat, config: ReturnType
     ];
 
     if (config.preprocess.length) {
-        result.unshift(preprocess({ include: config.preprocess.map(name => `${config.sourceDir}/${name}.ts`), context: getPreprocessContext(format) }));
+        const context = { [format == 'es' ? 'esm' : 'cjs']: true };
+
+        result.unshift(preprocess({ include: config.preprocess.map(name => `${config.sourceDir}/${name}.ts`), context }));
     }
 
     return result as Plugin[];
-}
-
-function getPreprocessContext(format: InternalModuleFormat) {
-    if (format == 'es') {
-        return { esm: true };
-    } else {
-        return { cjs: true };
-    }
 }
 
 export function getOutputPlugins(format: InternalModuleFormat, config: ReturnType<typeof getCliOptions>): Plugin[] {
