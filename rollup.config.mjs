@@ -6,7 +6,7 @@ import binify from '@rollup-extras/plugin-binify';
 import externals from '@rollup-extras/plugin-externals';
 
 // eslint-disable-next-line no-undef
-console.log(process.env.TERM);
+console.log(process.env.CI);
 
 const input = 'src/index.ts';
 
