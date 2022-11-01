@@ -5,6 +5,9 @@ import clean from '@rollup-extras/plugin-clean';
 import binify from '@rollup-extras/plugin-binify';
 import externals from '@rollup-extras/plugin-externals';
 
+// eslint-disable-next-line no-undef
+console.log(process.env.TERM);
+
 const input = 'src/index.ts';
 
 const dest = 'dist';
