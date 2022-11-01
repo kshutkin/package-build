@@ -17,7 +17,7 @@ npm install --save-dev pkgbld
 
 ## package.json
 
-`pkgbld` expects name field to be filled in package.json file. `exports` field defined what entries/outputs should be build for this package.
+`pkgbld` expects name field to be filled in the package.json file. `exports` field defines what entries/outputs should be build for this package.
 
 ## CLI options
 
