@@ -2,6 +2,7 @@ import path from 'path';
 import camelCase from 'lodash/camelCase';
 import { getCliOptions } from './get-cli-options';
 import { OutputOptions } from 'rollup';
+import kleur from 'kleur';
 
 export function getHelpers(name: string) {
     function getGlobalName(anInput: string) {
@@ -47,8 +48,8 @@ export function isExternalInput(id: string, inputs: string | string[], currentIn
     return normalizedPath !== currentInput && inputs.includes(normalizedPath);
 }
 
-export function formatInput(input: string[] | string | undefined): string {
-    return Array.isArray(input)? input.join(', ') : (input ?? ''); // not sure if ?? '' needed
+export function formatInput(input: string[] | string): string {
+    return (Array.isArray(input) ? input : [input ?? '']).map(item => kleur.magenta(path.basename(item, '.ts'))).join(', ');
 }
 
 export function formatOutput(output: OutputOptions | OutputOptions[] | undefined, field: 'dir' | 'format'): string {
@@ -56,7 +57,7 @@ export function formatOutput(output: OutputOptions | OutputOptions[] | undefined
     if (output == null) {
         return '';
     }
-    return Array.isArray(output) ? output.map(item => item[field]).join(', ') : (output[field] ?? '');
+    return (Array.isArray(output) ? output : [output ?? '']).map(item => kleur.cyan(item[field] as string)).join(', ');
 }
 
 export function getTimeDiff(starting: number) {
