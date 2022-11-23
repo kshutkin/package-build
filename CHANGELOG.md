@@ -1,5 +1,12 @@
 Changelog
 
+## [1.10.1](https://github.com/kshutkin/package-build/compare/v1.10.0...v1.10.1) (2022-11-23)
+
+
+### Bug Fixes
+
+* 🐛 bump rollup and typescript ([95206dd](https://github.com/kshutkin/package-build/commit/95206dd9d3037f9c20c2ebc6cf1464d2040ea9e1))
+
 # [1.10.0](https://github.com/kshutkin/package-build/compare/v1.9.2...v1.10.0) (2022-11-23)
 
 
