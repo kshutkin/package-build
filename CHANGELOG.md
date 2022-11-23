@@ -1,5 +1,12 @@
 Changelog
 
+# [1.10.0](https://github.com/kshutkin/package-build/compare/v1.9.2...v1.10.0) (2022-11-23)
+
+
+### Features
+
+* 🎸 build all inputs in parallel ([0bfe182](https://github.com/kshutkin/package-build/commit/0bfe1822f660ba22373b5447c093ae8b6764a615))
+
 ## [1.9.2](https://github.com/kshutkin/package-build/compare/v1.9.1...v1.9.2) (2022-11-01)
 
 
