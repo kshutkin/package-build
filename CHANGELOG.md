@@ -1,5 +1,12 @@
 Changelog
 
+## [1.10.2](https://github.com/kshutkin/package-build/compare/v1.10.1...v1.10.2) (2022-12-30)
+
+
+### Bug Fixes
+
+* upgrade typescript from 4.9.3 to 4.9.4 ([#82](https://github.com/kshutkin/package-build/issues/82)) ([97b9a05](https://github.com/kshutkin/package-build/commit/97b9a057405d9f20d1ffbe8e2718aaa328546ecc))
+
 ## [1.10.1](https://github.com/kshutkin/package-build/compare/v1.10.0...v1.10.1) (2022-11-23)
 
 
