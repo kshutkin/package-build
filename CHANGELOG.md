@@ -1,5 +1,12 @@
 Changelog
 
+## [1.10.4](https://github.com/kshutkin/package-build/compare/v1.10.3...v1.10.4) (2023-01-02)
+
+
+### Bug Fixes
+
+* upgrade @rollup/plugin-commonjs from 23.0.3 to 23.0.4 ([#83](https://github.com/kshutkin/package-build/issues/83)) ([925fc06](https://github.com/kshutkin/package-build/commit/925fc061fbcd2a0ec90bca54b3416f79dd7df5f4))
+
 ## [1.10.3](https://github.com/kshutkin/package-build/compare/v1.10.2...v1.10.3) (2023-01-02)
 
 
