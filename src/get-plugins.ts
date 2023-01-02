@@ -2,7 +2,7 @@ import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import preprocess from 'rollup-plugin-preprocess';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import cleanFactory from '@rollup-extras/plugin-clean';
 import externals from '@rollup-extras/plugin-externals';
 
