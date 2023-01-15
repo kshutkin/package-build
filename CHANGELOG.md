@@ -1,5 +1,13 @@
 Changelog
 
+=======
+## [1.11.1](https://github.com/kshutkin/package-build/compare/v1.11.0...v1.11.1) (2023-01-15)
+
+
+### Bug Fixes
+
+* updated plugin-externals ([c8000a3](https://github.com/kshutkin/package-build/commit/c8000a3dd3f2800696176b5aeba1c1132ef4a8c2))
+
 # [1.11.0](https://github.com/kshutkin/package-build/compare/v1.10.4...v1.11.0) (2023-01-02)
 
 
