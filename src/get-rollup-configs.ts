@@ -16,7 +16,7 @@ export function getRollupConfigs(inputs: string[], config: ReturnType<typeof get
                 entryFileNames: '[name].mjs',
                 chunkFileNames: '[name].mjs',
                 plugins: getOutputPlugins('es', config),
-                sourcemap: config.sourcemapTargets.includes('es')
+                sourcemap: config.sourcemapFormats.includes('es')
             },
     
             plugins: getBuildPlugins('es', config)
@@ -32,9 +32,8 @@ export function getRollupConfigs(inputs: string[], config: ReturnType<typeof get
                 dir: config.dir,
                 entryFileNames: '[name].cjs',
                 chunkFileNames: '[name].cjs',
-                exports: 'auto',
                 plugins: getOutputPlugins('cjs', config),
-                sourcemap: config.sourcemapTargets.includes('cjs')
+                sourcemap: config.sourcemapFormats.includes('cjs')
             },
     
             plugins: getBuildPlugins('cjs', config)
@@ -50,7 +49,7 @@ export function getRollupConfigs(inputs: string[], config: ReturnType<typeof get
             name: helpers.getGlobalName(currentInput),
             globals: helpers.getExternalGlobalName,
             plugins: getOutputPlugins('umd', config),
-            sourcemap: config.sourcemapTargets.includes('umd')
+            sourcemap: config.sourcemapFormats.includes('umd')
         },
 
         plugins: getBuildPlugins('umd', config, inputs, currentInput)

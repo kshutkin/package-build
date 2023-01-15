@@ -25,7 +25,7 @@ export function getHelpers(name: string) {
 
 export function umdFilter(config: ReturnType<typeof getCliOptions>, filename: string) {
     const id = path.basename(filename, '.ts');
-    return config.umdTargets.includes(id);
+    return config.umdInputs.includes(id);
 }
 
 export function toArray<T>(object: T | T[] | undefined) {
@@ -53,7 +53,7 @@ export function formatInput(input: string[] | string): string {
 }
 
 export function formatOutput(output: OutputOptions | OutputOptions[] | undefined, field: 'dir' | 'format'): string {
-    // can we avoid it?
+    //? can we avoid it
     if (output == null) {
         return '';
     }

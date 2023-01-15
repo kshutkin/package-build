@@ -40,8 +40,8 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
     
     if (typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/index.umd.js`;
-        if (!config.umdTargets.includes('index')) {
-            config.umdTargets.push('index');
+        if (!config.umdInputs.includes('index')) {
+            config.umdInputs.push('index');
         }
     }
 
@@ -81,6 +81,10 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
         }
     
         input.push(`./${config.sourceDir}/${basename}.ts`);
+    }
+
+    if (config.umdInputs.length > 0 && !config.formats.includes('umd')) {
+        config.formats.push('umd');
     }
 
     return input;

@@ -1,5 +1,12 @@
 Changelog
 
+# [1.11.0](https://github.com/kshutkin/package-build/compare/v1.10.4...v1.11.0) (2023-01-02)
+
+
+### Features
+
+* 🎸 update packages ([fb6663d](https://github.com/kshutkin/package-build/commit/fb6663d8096db053fc5f54369dd131aa87e0bec5))
+
 ## [1.10.4](https://github.com/kshutkin/package-build/compare/v1.10.3...v1.10.4) (2023-01-02)
 
 

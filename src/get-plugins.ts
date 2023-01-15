@@ -2,7 +2,7 @@ import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import preprocess from 'rollup-plugin-preprocess';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import cleanFactory from '@rollup-extras/plugin-clean';
 import externals from '@rollup-extras/plugin-externals';
 
@@ -24,9 +24,7 @@ export function getBuildPlugins(format: InternalModuleFormat, config: ReturnType
     ];
 
     if (config.preprocess.length) {
-        const context = { [format]: true };
-
-        result.unshift(preprocess({ include: config.preprocess.map(name => `${config.sourceDir}/${name}.ts`), context }));
+        result.unshift(preprocess({ include: config.preprocess.map(name => `${config.sourceDir}/${name}.ts`), context: { [format]: true } }));
     }
 
     return result;
@@ -36,7 +34,7 @@ export function getOutputPlugins(format: InternalModuleFormat, config: ReturnTyp
     const result: Plugin[] = [
         clean
     ];
-    if (config.compressTargets.includes(format)) {
+    if (config.compressFormats.includes(format)) {
         result.push(terser({
             mangle: {
                 properties: {
