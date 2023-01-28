@@ -1,5 +1,12 @@
 Changelog
 
+# [1.12.0](https://github.com/kshutkin/package-build/compare/v1.11.2...v1.12.0) (2023-01-28)
+
+
+### Features
+
+* new configs logic ([#84](https://github.com/kshutkin/package-build/issues/84)) ([3c1437a](https://github.com/kshutkin/package-build/commit/3c1437a6a5a7315cb4847ec15aeae806a9943728))
+
 ## [1.11.2](https://github.com/kshutkin/package-build/compare/v1.11.1...v1.11.2) (2023-01-27)
 
 
