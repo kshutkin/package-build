@@ -1,6 +1,12 @@
 Changelog
 
-=======
+## [1.11.2](https://github.com/kshutkin/package-build/compare/v1.11.1...v1.11.2) (2023-01-27)
+
+
+### Bug Fixes
+
+* upgrade @rollup/plugin-terser from 0.2.1 to 0.3.0 ([#85](https://github.com/kshutkin/package-build/issues/85)) ([1fcb93d](https://github.com/kshutkin/package-build/commit/1fcb93de1c5d15f22dcff376a042c3bda50277b3))
+
 ## [1.11.1](https://github.com/kshutkin/package-build/compare/v1.11.0...v1.11.1) (2023-01-15)
 
 
