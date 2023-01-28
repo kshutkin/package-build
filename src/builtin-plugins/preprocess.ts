@@ -9,7 +9,13 @@ export default async function(provide: Provider, config: ReturnType<typeof getCl
         const include = config.preprocess.map(name => `${config.sourceDir}/${name}.ts`);
 
         for (const format of config.formats as InternalModuleFormat[]) {
-            provide(() => pluginPreprocess({ include, context: { [format]: true } }), Priotiry.compress, { format });
+            if (format !== 'umd') {
+                provide(() => pluginPreprocess({ include, context: { [format]: true } }), Priotiry.preprocess, { format });
+            } else {
+                for (const currentInput of config.umdInputs) {
+                    provide(() => pluginPreprocess({ include, context: { umd: true } }), Priotiry.preprocess, { format, inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
+                }
+            }
         }
     }
 }

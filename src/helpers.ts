@@ -45,6 +45,9 @@ export function isExternalInput(id: string, inputs: string | string[], currentIn
     } else {
         normalizedPath = './' + path.join(config.sourceDir, id + '.ts');
     }
+    if (path.isAbsolute(currentInput)) {
+        currentInput = './' + path.relative(process.cwd(), currentInput);
+    }
     return normalizedPath !== currentInput && inputs.includes(normalizedPath);
 }
 
@@ -72,3 +75,5 @@ export function getDefaultExport<T extends { default?: unknown }>(importedModule
     const defaultImport = importedModule.default;
     return defaultImport ? defaultImport : importedModule;
 }
+
+export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;

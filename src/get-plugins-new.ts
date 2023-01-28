@@ -6,6 +6,7 @@ import externals from './builtin-plugins/externals';
 import preprocess from './builtin-plugins/preprocess';
 import resolve from './builtin-plugins/resolve';
 import terser from './builtin-plugins/terser';
+import typescript from './builtin-plugins/typescript';
 
 export const plugins = [
     clean,
@@ -13,11 +14,12 @@ export const plugins = [
     externals,
     preprocess,
     resolve,
-    terser
+    terser,
+    typescript
 ];
 
-export function createProvider(): [Provider, { plugin: Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[]] {
-    const plugins: { plugin: Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[] = [];
+export function createProvider(): [Provider, { plugin: () => Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[]] {
+    const plugins: { plugin: () => Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[] = [];
     return [(plugin: () => Plugin, priority: Priotiry, options?: {
         format?: InternalModuleFormat | InternalModuleFormat[],
         inputs?: string[],
