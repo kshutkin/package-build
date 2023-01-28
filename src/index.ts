@@ -4,7 +4,7 @@ import { rollup, RollupOptions } from 'rollup';
 import { createSubpackages } from './create-subpackages';
 import { getCliOptions } from './get-cli-options';
 import { getPackage } from './get-pkg';
-import { getRollupConfigs } from './get-rollup-configs-new';
+import { getRollupConfigs } from './get-rollup-configs';
 import { formatInput, formatOutput, getHelpers, toArray } from './helpers';
 import { mainLoggerText } from './messages';
 import { processPackage } from './process-pkg';

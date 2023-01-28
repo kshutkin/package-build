@@ -3,7 +3,6 @@
 import path from 'path';
 import { getCliOptions } from './get-cli-options';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { umdFilter } from './helpers';
 import { Json } from './types';
 
 export function processPackage(pkg: Json, config: ReturnType<typeof getCliOptions>): string[] {
@@ -61,7 +60,7 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
         ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module;
     }
     
-    if (umdFilter(config, 'index')) {
+    if (config.umdInputs.includes('index')) {
         pkg.unpkg = `./${config.dir}/index.umd.js`;
     }
     

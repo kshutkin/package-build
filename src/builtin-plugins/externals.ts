@@ -1,6 +1,6 @@
 import { InternalModuleFormat } from 'rollup';
 import { getCliOptions } from '../get-cli-options';
-import { isExternalInput } from '../helpers';
+import path from 'path';
 import { Priotiry, Provider } from '../types';
 
 export default async function(provide: Provider, config: ReturnType<typeof getCliOptions>, inputs: string[]) {
@@ -20,4 +20,17 @@ export default async function(provide: Provider, config: ReturnType<typeof getCl
             }), Priotiry.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
         }
     }
+}
+
+function isExternalInput(currentInput: string, inputs: string | string[], id: string, config: ReturnType<typeof getCliOptions>) {
+    let normalizedPath;
+    if (path.isAbsolute(currentInput)) {
+        normalizedPath = './' + path.relative(process.cwd(), currentInput);
+    } else {
+        normalizedPath = './' + path.join(config.sourceDir, currentInput + '.ts');
+    }
+    if (path.isAbsolute(id)) {
+        id = './' + path.relative(process.cwd(), id);
+    }
+    return normalizedPath !== id && inputs.includes(normalizedPath);
 }

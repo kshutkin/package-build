@@ -1,6 +1,5 @@
 import path from 'path';
 import camelCase from 'lodash/camelCase';
-import { getCliOptions } from './get-cli-options';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 
@@ -18,14 +17,8 @@ export function getHelpers(name: string) {
 
     return {
         getGlobalName,
-        getExternalGlobalName,
-        umdFilter
+        getExternalGlobalName
     };
-}
-
-export function umdFilter(config: ReturnType<typeof getCliOptions>, filename: string) {
-    const id = path.basename(filename, '.ts');
-    return config.umdInputs.includes(id);
 }
 
 export function toArray<T>(object: T | T[] | undefined) {
@@ -36,19 +29,6 @@ export function toArray<T>(object: T | T[] | undefined) {
         return [];
     }
     return [object];
-}
-
-export function isExternalInput(id: string, inputs: string | string[], currentInput: string, config: ReturnType<typeof getCliOptions>) {
-    let normalizedPath;
-    if (path.isAbsolute(id)) {
-        normalizedPath = './' + path.relative(process.cwd(), id);
-    } else {
-        normalizedPath = './' + path.join(config.sourceDir, id + '.ts');
-    }
-    if (path.isAbsolute(currentInput)) {
-        currentInput = './' + path.relative(process.cwd(), currentInput);
-    }
-    return normalizedPath !== currentInput && inputs.includes(normalizedPath);
 }
 
 export function formatInput(input: string[] | string): string {
