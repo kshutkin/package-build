@@ -3,7 +3,6 @@
 import path from 'path';
 import { getCliOptions } from './get-cli-options';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { umdFilter } from './helpers';
 import { Json } from './types';
 
 export function processPackage(pkg: Json, config: ReturnType<typeof getCliOptions>): string[] {
@@ -40,8 +39,8 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
     
     if (typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/index.umd.js`;
-        if (!config.umdTargets.includes('index')) {
-            config.umdTargets.push('index');
+        if (!config.umdInputs.includes('index')) {
+            config.umdInputs.push('index');
         }
     }
 
@@ -61,7 +60,7 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
         ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module;
     }
     
-    if (umdFilter(config, 'index')) {
+    if (config.umdInputs.includes('index')) {
         pkg.unpkg = `./${config.dir}/index.umd.js`;
     }
     
@@ -81,6 +80,10 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
         }
     
         input.push(`./${config.sourceDir}/${basename}.ts`);
+    }
+
+    if (config.umdInputs.length > 0 && !config.formats.includes('umd')) {
+        config.formats.push('umd');
     }
 
     return input;

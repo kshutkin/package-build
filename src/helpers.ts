@@ -1,6 +1,5 @@
 import path from 'path';
 import camelCase from 'lodash/camelCase';
-import { getCliOptions } from './get-cli-options';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 
@@ -18,14 +17,8 @@ export function getHelpers(name: string) {
 
     return {
         getGlobalName,
-        getExternalGlobalName,
-        umdFilter
+        getExternalGlobalName
     };
-}
-
-export function umdFilter(config: ReturnType<typeof getCliOptions>, filename: string) {
-    const id = path.basename(filename, '.ts');
-    return config.umdTargets.includes(id);
 }
 
 export function toArray<T>(object: T | T[] | undefined) {
@@ -38,22 +31,12 @@ export function toArray<T>(object: T | T[] | undefined) {
     return [object];
 }
 
-export function isExternalInput(id: string, inputs: string | string[], currentInput: string, config: ReturnType<typeof getCliOptions>) {
-    let normalizedPath;
-    if (path.isAbsolute(id)) {
-        normalizedPath = './' + path.relative(process.cwd(), id);
-    } else {
-        normalizedPath = './' + path.join(config.sourceDir, id + '.ts');
-    }
-    return normalizedPath !== currentInput && inputs.includes(normalizedPath);
-}
-
 export function formatInput(input: string[] | string): string {
     return (Array.isArray(input) ? input : [input ?? '']).map(item => kleur.magenta(path.basename(item, '.ts'))).join(', ');
 }
 
 export function formatOutput(output: OutputOptions | OutputOptions[] | undefined, field: 'dir' | 'format'): string {
-    // can we avoid it?
+    //? can we avoid it
     if (output == null) {
         return '';
     }
@@ -72,3 +55,5 @@ export function getDefaultExport<T extends { default?: unknown }>(importedModule
     const defaultImport = importedModule.default;
     return defaultImport ? defaultImport : importedModule;
 }
+
+export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;

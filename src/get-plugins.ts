@@ -1,50 +1,30 @@
-import typescript from 'rollup-plugin-typescript2';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import preprocess from 'rollup-plugin-preprocess';
-import terser from '@rollup/plugin-terser';
-import cleanFactory from '@rollup-extras/plugin-clean';
-import externals from '@rollup-extras/plugin-externals';
+import { Plugin, InternalModuleFormat } from 'rollup';
+import { Priotiry, Provider } from './types';
+import clean from './builtin-plugins/clean';
+import commonjs from './builtin-plugins/commonjs';
+import externals from './builtin-plugins/externals';
+import preprocess from './builtin-plugins/preprocess';
+import resolve from './builtin-plugins/resolve';
+import terser from './builtin-plugins/terser';
+import typescript from './builtin-plugins/typescript';
 
-import { InternalModuleFormat, Plugin } from 'rollup';
-import { getCliOptions } from './get-cli-options';
-import { isExternalInput } from './helpers';
+export const plugins = [
+    clean,
+    commonjs,
+    externals,
+    preprocess,
+    resolve,
+    terser,
+    typescript
+];
 
-const clean = cleanFactory();
-
-export function getBuildPlugins(format: InternalModuleFormat, config: ReturnType<typeof getCliOptions>, inputs?: string[], currentInput?: string): Plugin[] {
-    const result: Plugin[] = [
-        externals({
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            external: (id, external) => external || (format === 'umd' ? isExternalInput(id, inputs!, currentInput!, config) : false)
-        }),
-        resolve(),
-        commonjs(),
-        typescript()
-    ];
-
-    if (config.preprocess.length) {
-        const context = { [format]: true };
-
-        result.unshift(preprocess({ include: config.preprocess.map(name => `${config.sourceDir}/${name}.ts`), context }));
-    }
-
-    return result;
-}
-
-export function getOutputPlugins(format: InternalModuleFormat, config: ReturnType<typeof getCliOptions>): Plugin[] {
-    const result: Plugin[] = [
-        clean
-    ];
-    if (config.compressTargets.includes(format)) {
-        result.push(terser({
-            mangle: {
-                properties: {
-                    regex: /_$/
-                }
-            }
-        }));
-    }
-    
-    return result;
+export function createProvider(): [Provider, { plugin: () => Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[]] {
+    const plugins: { plugin: () => Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[] = [];
+    return [(plugin: () => Plugin, priority: Priotiry, options?: {
+        format?: InternalModuleFormat | InternalModuleFormat[],
+        inputs?: string[],
+        outputPlugin?: true
+    }) => {
+        plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
+    }, plugins];
 }

@@ -22,7 +22,7 @@ async function execute() {
         const options = getCliOptions();
         const inputs = processPackage(pkg, options);
         const helpers = getHelpers((pkg as { name: string }).name);
-        const rollupConfigs = getRollupConfigs(inputs, options, helpers);
+        const rollupConfigs = await getRollupConfigs(inputs, options, helpers);
 
         const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);
         mainLogger.start(updater());
