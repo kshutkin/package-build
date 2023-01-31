@@ -81,6 +81,14 @@ pkgbld --sourcedir=src
 
 Directory to search for input files.
 
+### bin
+
+```
+pkgbld --bin=./dist/index.cjs,./dist/index.mjs
+```
+
+File(s) to make executable. First entry will be added to package.json
+
 # License
 
 [MIT](./LICENSE)

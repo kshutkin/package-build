@@ -8,6 +8,9 @@ import { Json } from './types';
 export function processPackage(pkg: Json, config: ReturnType<typeof getCliOptions>): string[] {
     const input = [];
     const logger = createLogger();
+    const allowEsm = (config.formatsOverriden && config.formats.includes('es') || !config.formatsOverriden);
+    const allowCjs = (config.formatsOverriden && config.formats.includes('cjs') || !config.formatsOverriden);
+    const allowUmd = (config.formatsOverriden && config.formats.includes('umd') || !config.formatsOverriden || config.umdInputs);
 
     if (typeof pkg !== 'object' || Array.isArray(pkg)) {
         logger.finish('expecting object on top level of package.json', LogLevel.error);
@@ -37,30 +40,50 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
 
     (pkg.exports as Record<string, Json>)['./package.json'] = './package.json';
     
-    if (typeof pkg.umd === 'string') {
+    if (allowUmd && typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/index.umd.js`;
         if (!config.umdInputs.includes('index')) {
             config.umdInputs.push('index');
         }
     }
 
-    if (typeof pkg.main !== 'string') {
+    if (config.bin) {
+        if (config.bin.length > 0) {
+            if (config.bin[0] === '') {
+                delete pkg.bin;
+            } else {
+                pkg.bin = config.bin[0];
+            }
+            config.bin = config.bin.filter(Boolean);
+            if (config.bin.length === 0) {
+                delete config.bin;
+            }
+        }
+    } else {
+        if (typeof pkg.bin === 'string') {
+            config.bin = [pkg.bin];
+        } else {
+            delete pkg.bin;
+        }
+    }
+
+    if (allowCjs && typeof pkg.main !== 'string') {
         pkg.main = `./${config.dir}/index.cjs`;
     }
     
-    if (pkg.main !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require) {
+    if (allowCjs && pkg.main !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require) {
         ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require = pkg.main;
     }
     
-    if (typeof pkg.module !== 'string') {
+    if (allowEsm && typeof pkg.module !== 'string') {
         pkg.module = `./${config.dir}/index.mjs`;
     }
     
-    if (pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
+    if (allowEsm && pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
         ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module;
     }
     
-    if (config.umdInputs.includes('index')) {
+    if (allowUmd && config.umdInputs.includes('index')) {
         pkg.unpkg = `./${config.dir}/index.umd.js`;
     }
     
@@ -70,8 +93,12 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
         if (typeof (pkg.exports as Record<string, Json>)[id] !== 'object') {
             (pkg.exports as Record<string, Json>)[id] = {};
         }
-        ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).require = `./${config.dir}/${basename}.cjs`;
-        ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).default = `./${config.dir}/${basename}.mjs`;
+        if (allowCjs) {
+            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).require = `./${config.dir}/${basename}.cjs`;
+        }
+        if (allowEsm) {
+            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).default = `./${config.dir}/${basename}.mjs`;
+        }
     
         if (basename !== 'index') {
             if (!pkg.files.includes(basename)) {
@@ -82,7 +109,7 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
         input.push(`./${config.sourceDir}/${basename}.ts`);
     }
 
-    if (config.umdInputs.length > 0 && !config.formats.includes('umd')) {
+    if (allowUmd && config.umdInputs.length > 0 && !config.formats.includes('umd')) {
         config.formats.push('umd');
     }
 

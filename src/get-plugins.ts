@@ -7,6 +7,7 @@ import preprocess from './builtin-plugins/preprocess';
 import resolve from './builtin-plugins/resolve';
 import terser from './builtin-plugins/terser';
 import typescript from './builtin-plugins/typescript';
+import binify from './builtin-plugins/binify';
 
 export const plugins = [
     clean,
@@ -15,7 +16,8 @@ export const plugins = [
     preprocess,
     resolve,
     terser,
-    typescript
+    typescript,
+    binify
 ];
 
 export function createProvider(): [Provider, { plugin: () => Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[]] {

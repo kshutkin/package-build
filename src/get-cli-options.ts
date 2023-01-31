@@ -19,22 +19,27 @@ export function getCliOptions() {
     const preprocess = parsedArgs.preprocess?.split(',').map((arg: string) => arg.trim()) ?? defaults.preprocess;
     const dir = parsedArgs.dir ?? defaults.dir;
     const sourceDir = parsedArgs.sourceDir ?? defaults.sourceDir;
+    const bin = parsedArgs.bin?.split(',').map((arg: string) => arg.trim());
 
     return {
         umdInputs,
         compressFormats,
         sourcemapFormats,
         formats,
+        formatsOverriden: 'formats' in parsedArgs,
         preprocess,
         dir,
-        sourceDir
+        sourceDir,
+        bin
     } as {
         umdInputs: string[],
         compressFormats: string[],
         sourcemapFormats: string[],
         formats: string[],
+        formatsOverriden: boolean,
         preprocess: string[],
         dir: string,
-        sourceDir: string
+        sourceDir: string,
+        bin?: string[];
     };
 }
