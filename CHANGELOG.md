@@ -1,5 +1,12 @@
 Changelog
 
+# [1.13.0](https://github.com/kshutkin/package-build/compare/v1.12.0...v1.13.0) (2023-01-31)
+
+
+### Features
+
+* added bin field support ([65402c9](https://github.com/kshutkin/package-build/commit/65402c9d5805503a25f495640ee5eff7995babfb))
+
 # [1.12.0](https://github.com/kshutkin/package-build/compare/v1.11.2...v1.12.0) (2023-01-28)
 
 
