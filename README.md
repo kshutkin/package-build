@@ -15,6 +15,32 @@ Using npm:
 npm install --save-dev pkgbld
 ```
 
+### Getting started (minimalistic start from scratch)
+
+1. Start from creating pcakage.json using `npm init`
+2. Add pkgbld `npm install --save-dev pkgbld`
+3. Add `tsconfig.json` file into root project directory
+```json
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "strict": true,
+  }
+}
+
+```
+4. Create `src/index.ts`
+5. Add pkgbld in scripts field of your package.json like:
+```json
+  "scripts": {
+    "build": "pkgbld"
+  },
+```
+
+Run `npm run build`.
+
 ## package.json
 
 `pkgbld` expects name field to be filled in the package.json file. `exports` field defines what entries/outputs should be build for this package.
