@@ -6,7 +6,7 @@ It is simple building tool that supports building to different targets like: `es
 
 ## Why
 
-It is created to easily build libraries that contains mutliple subpackages (exports, entry points) because it is not that easy to do at the moment with `microbundle`, `tsdx` or `ng-packagr`.
+It is created to easily build libraries that contains mutliple subpath exports (entry points, subpackages) because it is not that easy to do at the moment with `microbundle`, `tsdx` or `ng-packagr` (if you are on Typescript).
 
 ## Installation
 
