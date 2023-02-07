@@ -23,8 +23,8 @@ npm install --save-dev pkgbld
 ```json
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "esnext",
+    "module": "esnext",
     "esModuleInterop": true,
     "strict": true,
   }
