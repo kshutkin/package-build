@@ -4,6 +4,10 @@ import path from 'path';
 import { Priotiry, Provider } from '../types';
 
 export default async function(provide: Provider, config: ReturnType<typeof getCliOptions>, inputs: string[]) {
+    if (config.includeExternals) {
+        return;
+    }
+    
     const { default: pluginExternals } = await import('@rollup-extras/plugin-externals');
 
     const allowGenericUmd = config.umdInputs.length === 1 && inputs.length === 1;

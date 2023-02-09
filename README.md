@@ -115,6 +115,14 @@ pkgbld --bin=./dist/index.cjs,./dist/index.mjs
 
 File(s) to make executable. First entry will be added to package.json
 
+### include-externals
+
+```
+pkgbld --include-externals
+```
+
+Bundles all externals into package.
+
 # License
 
 [MIT](./LICENSE)
