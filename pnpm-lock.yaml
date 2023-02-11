@@ -27,6 +27,7 @@ importers:
       git-user-name: 2.0.0
       minimist: 1.2.7
       parse-git-config: 3.0.0
+      pkgbld: workspace:*
       prompts: 2.4.2
     dependencies:
       degit: 2.8.4
@@ -40,6 +41,7 @@ importers:
       '@types/minimist': 1.2.2
       '@types/parse-git-config': 3.0.1
       '@types/prompts': 2.0.14
+      pkgbld: link:../pkgbld
 
   pkgbld:
     specifiers:
