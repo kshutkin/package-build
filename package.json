@@ -6,7 +6,8 @@
   },
   "scripts": {
     "build": "pnpm --aggregate-output --reporter=append-only --stream -r build",
-    "lint": "pnpm --aggregate-output --reporter=append-only --stream --parallel -r lint"
+    "lint": "pnpm --aggregate-output --reporter=append-only --stream --parallel -r lint",
+    "ci:release": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "2.26.0",

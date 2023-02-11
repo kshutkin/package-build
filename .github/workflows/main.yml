@@ -69,6 +69,7 @@ jobs:
         with:
           commit: "chore: update versions"
           title: "chore: release"
+          release: "pnpm run ci:release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
