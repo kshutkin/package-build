@@ -50,7 +50,7 @@
   "dependencies": {
     "degit": "2.8.4",
     "git-user-name": "2.0.0",
-    "minimist": "1.2.7",
+    "minimist": "1.2.8",
     "parse-git-config": "3.0.0",
     "prompts": "2.4.2"
   }
