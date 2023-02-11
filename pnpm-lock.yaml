@@ -25,14 +25,14 @@ importers:
       '@types/prompts': 2.4.2
       degit: 2.8.4
       git-user-name: 2.0.0
-      minimist: 1.2.7
+      minimist: 1.2.8
       parse-git-config: 3.0.0
       pkgbld: workspace:*
       prompts: 2.4.2
     dependencies:
       degit: 2.8.4
       git-user-name: 2.0.0
-      minimist: 1.2.7
+      minimist: 1.2.8
       parse-git-config: 3.0.0
       prompts: 2.4.2
     devDependencies:
@@ -58,7 +58,7 @@ importers:
       '@types/minimist': 1.2.2
       kleur: 4.1.5
       lodash: 4.17.21
-      minimist: 1.2.7
+      minimist: 1.2.8
       rollup: 3.12.0
       rollup-plugin-preprocess: 0.0.4
       rollup-plugin-typescript2: 0.34.1
@@ -75,7 +75,7 @@ importers:
       '@slimlib/refine-partition': 1.0.0
       kleur: 4.1.5
       lodash: 4.17.21
-      minimist: 1.2.7
+      minimist: 1.2.8
       rollup: 3.12.0
       rollup-plugin-preprocess: 0.0.4
       rollup-plugin-typescript2: 0.34.1_57vedagq2cmrfjmj2y3ihk5v4y
@@ -101,7 +101,7 @@ importers:
       is-builtin-module: 3.2.1
       kleur: 4.1.5
       lodash: 4.17.21
-      minimist: 1.2.7
+      minimist: 1.2.8
       pkg-dir: 5.0.0
       pkgbld: workspace:*
       rollup: 3.12.0
@@ -116,7 +116,7 @@ importers:
       is-builtin-module: 3.2.1
       kleur: 4.1.5
       lodash: 4.17.21
-      minimist: 1.2.7
+      minimist: 1.2.8
       pkg-dir: 5.0.0
       rollup: 3.12.0
       rollup-plugin-preprocess: 0.0.4
@@ -2164,8 +2164,8 @@ packages:
       kind-of: 6.0.3
     dev: true
 
-  /minimist/1.2.7:
-    resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
+  /minimist/1.2.8:
+    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
     dev: false
 
   /mixme/0.5.5:
