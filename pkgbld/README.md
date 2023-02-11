@@ -1,8 +1,12 @@
 # pkgbld
 
+*Build your libraries with ease*
+
 Rollup based build tool for building libraries based on package.json config and simple CLI options.
 
 It is simple building tool that supports building to different targets like: `es`, `cjs`, `umd` without additional trasformation other than minification using `terser` or preprocess using `rollup-plugin-preprocess`.
+
+[Changlelog](./CHANGELOG.md)
 
 ## Why
 
@@ -125,4 +129,4 @@ Bundles all externals into package.
 
 # License
 
-[MIT](./LICENSE)
+[MIT](https://github.com/kshutkin/package-build/blob/main/LICENSE)

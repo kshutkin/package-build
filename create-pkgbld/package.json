@@ -29,7 +29,7 @@
   "bugs": {
     "url": "https://github.com/kshutkin/package-build/issues"
   },
-  "homepage": "https://github.com/kshutkin/package-build/README.md",
+  "homepage": "https://github.com/kshutkin/package-build/blob/main/create-pkgbld/README.md",
   "keywords": [
     "pkgbld",
     "create",

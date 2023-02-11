@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/kshutkin/package-build/issues"
   },
-  "homepage": "https://github.com/kshutkin/package-build/README.md",
+  "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld-internal/README.md",
   "readme": "README.md",
   "description": "Special version of pkgbld to install it in MY workspace-enabled repositories to build in-house packages",
   "scripts": {
