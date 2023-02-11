@@ -1,0 +1,56 @@
+{
+  "version": "1.1.4",
+  "license": "MIT",
+  "name": "create-pkgbld",
+  "author": {
+    "name": "Konstantin Shutkin"
+  },
+  "funding": "https://www.donationalerts.com/r/excitingcode",
+  "bin": "./dist/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kshutkin/package-build.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kshutkin/package-build/issues"
+  },
+  "homepage": "https://github.com/kshutkin/package-build/README.md",
+  "keywords": [
+    "pkgbld",
+    "create",
+    "init"
+  ],
+  "scripts": {
+    "build": "node ../pkgbld/dist/index.js --formats=cjs,es",
+    "lint": "eslint ./src"
+  },
+  "devDependencies": {
+    "@types/degit": "2.8.3",
+    "@types/git-user-name": "2.0.1",
+    "@types/parse-git-config": "3.0.1",
+    "@types/prompts": "2.0.14",
+    "@types/minimist": "1.2.2"
+  },
+  "dependencies": {
+    "degit": "2.8.4",
+    "git-user-name": "2.0.0",
+    "minimist": "1.2.7",
+    "parse-git-config": "3.0.0",
+    "prompts": "2.4.2"
+  }
+}

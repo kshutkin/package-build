@@ -33,13 +33,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run build
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
+      - run: pnpm run lint
+      - run: pnpm run build
+      - run: pnpm test
 
   publish:
 
@@ -49,14 +54,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: npm run build
-      - run: npm run semantic-release
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
+      - run: pnpm run build
+      - name: create and publish versions
+        uses: changesets/action@v1
+        with:
+          commit: "chore: update versions"
+          title: "chore: update versions"
+          publish: pnpm ci:publish
         env:
-            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

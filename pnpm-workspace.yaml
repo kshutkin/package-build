@@ -1,0 +1,4 @@
+packages:
+  - "pkgbld"
+  - "create-pkgbld"
+  - "pkgbld-internal"
