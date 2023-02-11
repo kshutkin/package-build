@@ -2,4 +2,4 @@
 "pkgbld-internal": patch
 ---
 
-Fixed dependencies
+Updated to latest pkgbld, fixed dependencies
