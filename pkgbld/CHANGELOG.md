@@ -1,5 +1,12 @@
 Changelog
 
+# [1.14.0](https://github.com/kshutkin/package-build/compare/v1.13.0...v1.14.0) (2023-02-09)
+
+
+### Features
+
+* added include-externals option ([67faed2](https://github.com/kshutkin/package-build/commit/67faed26e99af9179f27b6317c54de8fd3bfd876))
+
 # [1.13.0](https://github.com/kshutkin/package-build/compare/v1.12.0...v1.13.0) (2023-01-31)
 
 
