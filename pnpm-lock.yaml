@@ -22,7 +22,7 @@ importers:
       '@types/git-user-name': 2.0.1
       '@types/minimist': 1.2.2
       '@types/parse-git-config': 3.0.1
-      '@types/prompts': 2.0.14
+      '@types/prompts': 2.4.2
       degit: 2.8.4
       git-user-name: 2.0.0
       minimist: 1.2.7
@@ -40,7 +40,7 @@ importers:
       '@types/git-user-name': 2.0.1
       '@types/minimist': 1.2.2
       '@types/parse-git-config': 3.0.1
-      '@types/prompts': 2.0.14
+      '@types/prompts': 2.4.2
       pkgbld: link:../pkgbld
 
   pkgbld:
@@ -656,10 +656,11 @@ packages:
     resolution: {integrity: sha512-cBVLXlpIpP23p+jQm8d2TrTfxyub3aiqfqgd0TWRnMqwCJMskYiveNJT11YwN+gbo3+0ZFFmtaepKzN7pxExlA==}
     dev: true
 
-  /@types/prompts/2.0.14:
-    resolution: {integrity: sha512-HZBd99fKxRWpYCErtm2/yxUZv6/PBI9J7N4TNFffl5JbrYMHBwF25DjQGTW3b3jmXq+9P6/8fCIb2ee57BFfYA==}
+  /@types/prompts/2.4.2:
+    resolution: {integrity: sha512-TwNx7qsjvRIUv/BCx583tqF5IINEVjCNqg9ofKHRlSoUHE62WBHrem4B1HGXcIrG511v29d1kJ9a/t2Esz7MIg==}
     dependencies:
       '@types/node': 18.13.0
+      kleur: 3.0.3
     dev: true
 
   /@types/resolve/1.20.2:
@@ -2018,7 +2019,6 @@ packages:
   /kleur/3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
-    dev: false
 
   /kleur/4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}

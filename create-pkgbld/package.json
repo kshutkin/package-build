@@ -43,7 +43,7 @@
     "@types/degit": "2.8.3",
     "@types/git-user-name": "2.0.1",
     "@types/parse-git-config": "3.0.1",
-    "@types/prompts": "2.0.14",
+    "@types/prompts": "2.4.2",
     "@types/minimist": "1.2.2",
     "pkgbld": "workspace:*"
   },
