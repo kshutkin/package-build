@@ -1,5 +1,11 @@
 Changelog
 
+## 1.0.11
+
+### Patch Changes
+
+- 03f2a71: Updated dependencies
+
 ## 1.0.10
 
 ### Patch Changes
