@@ -1,5 +1,11 @@
 Changelog
 
+## 1.1.7
+
+### Patch Changes
+
+- fc6c99a: Updated documentation and links
+
 ## 1.1.6
 
 ### Patch Changes
