@@ -1,5 +1,11 @@
 Changelog
 
+## 1.1.6
+
+### Patch Changes
+
+- 03f2a71: Updated dependencies
+
 ## 1.1.5
 
 ### Patch Changes
