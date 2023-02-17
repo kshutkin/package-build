@@ -1,5 +1,11 @@
 Changelog
 
+## 1.14.3
+
+### Patch Changes
+
+- fcdbeda: fix(deps): update dependency rollup to v3.16.0
+
 ## 1.14.2
 
 ### Patch Changes
