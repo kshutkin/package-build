@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.16
+
+### Patch Changes
+
+- 38c69b3: fix(deps): update dependency rollup to v3.17.2
+
 ## 1.0.15
 
 ### Patch Changes
