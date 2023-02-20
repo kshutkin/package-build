@@ -41,7 +41,7 @@
     "@niceties/logger": "1.1.10",
     "@niceties/draftlog-appender": "1.3.0",
     "lodash": "4.17.21",
-    "rollup": "3.17.1",
+    "rollup": "3.17.2",
     "rollup-plugin-typescript2": "0.34.1",
     "rollup-plugin-preprocess": "0.0.4",
     "@rollup/plugin-commonjs": "24.0.1",
