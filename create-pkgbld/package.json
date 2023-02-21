@@ -6,7 +6,7 @@
     "name": "Konstantin Shutkin"
   },
   "funding": "https://www.donationalerts.com/r/excitingcode",
-  "bin": "./dist/index.js",
+  "bin": "./dist/index.cjs",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
