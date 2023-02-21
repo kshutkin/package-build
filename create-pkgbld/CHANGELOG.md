@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.8
+
+### Patch Changes
+
+- 1e29b8e: Fixed path to executable file in package.json
+
 ## 1.1.7
 
 ### Patch Changes
