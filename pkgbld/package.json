@@ -52,6 +52,7 @@
     "@rollup-extras/plugin-externals": "1.1.8",
     "@slimlib/refine-partition": "1.0.0",
     "typescript": "4.9.5",
+    "terser": "5.16.5",
     "minimist": "1.2.8",
     "kleur": "4.1.5"
   }

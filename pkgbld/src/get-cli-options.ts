@@ -8,7 +8,8 @@ const defaults = {
     preprocess: [],
     dir: 'dist',
     sourceDir: 'src',
-    includeExternals: false
+    includeExternals: false,
+    eject: false
 };
 
 export function getCliOptions() {
@@ -22,6 +23,7 @@ export function getCliOptions() {
     const sourceDir = parsedArgs.sourceDir ?? defaults.sourceDir;
     const bin = parsedArgs.bin?.split(',').map((arg: string) => arg.trim());
     const includeExternals = parsedArgs['include-externals'] ?? defaults.includeExternals;
+    const eject = !!parsedArgs.eject ?? defaults.eject;
 
     return {
         umdInputs,
@@ -33,7 +35,8 @@ export function getCliOptions() {
         dir,
         sourceDir,
         bin,
-        includeExternals
+        includeExternals,
+        eject
     } as {
         umdInputs: string[],
         compressFormats: string[],
@@ -43,7 +46,8 @@ export function getCliOptions() {
         preprocess: string[],
         dir: string,
         sourceDir: string,
-        bin?: string[];
-        includeExternals: boolean;
+        bin?: string[],
+        includeExternals: boolean,
+        eject: boolean
     };
 }

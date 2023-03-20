@@ -1,7 +1,7 @@
 import { Priotiry, Provider } from '../types';
 
-export default async function(provide: Provider) {
-    const { default: pluginCommonjs } = await import('@rollup/plugin-commonjs');
+export default async function(provider: Provider) {
+    const pluginCommonjs = await provider.import('@rollup/plugin-commonjs');
 
-    provide(() => pluginCommonjs(), Priotiry.commonjs);
+    provider.provide(() => pluginCommonjs(), Priotiry.commonjs);
 }

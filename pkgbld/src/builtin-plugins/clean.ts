@@ -1,11 +1,11 @@
 import { Priotiry, Provider } from '../types';
 
-export default async function(provide: Provider) {
-    const { default: pluginClean } = await import('@rollup-extras/plugin-clean');
+export default async function(provider: Provider) {
+    const pluginClean = await provider.import('@rollup-extras/plugin-clean');
 
     const pluginInstance = pluginClean();
 
-    provide(pluginFactory, Priotiry.cleanup, { outputPlugin: true });
+    provider.provide(pluginFactory, Priotiry.cleanup, { outputPlugin: true });
 
     let firstPluginInstance = true;
 

@@ -1,7 +1,7 @@
 import { Priotiry, Provider } from '../types';
 
-export default async function(provide: Provider) {
-    const { default: pluginResolve } = await import('@rollup/plugin-node-resolve');
+export default async function(provider: Provider) {
+    const pluginResolve = await provider.import('@rollup/plugin-node-resolve');
 
-    provide(() => pluginResolve(), Priotiry.resolve);
+    provider.provide(() => pluginResolve(), Priotiry.resolve);
 }

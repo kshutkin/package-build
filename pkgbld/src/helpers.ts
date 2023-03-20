@@ -51,9 +51,4 @@ export function getTimeDiff(starting: number) {
     return `${now - starting}ms`;
 }
 
-export function getDefaultExport<T extends { default?: unknown }>(importedModule: T) {
-    const defaultImport = importedModule.default;
-    return defaultImport ? defaultImport : importedModule;
-}
-
 export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;

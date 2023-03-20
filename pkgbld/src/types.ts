@@ -1,4 +1,4 @@
-import { Plugin, InternalModuleFormat } from 'rollup';
+import type { Plugin, InternalModuleFormat } from 'rollup';
 
 /**
  * export interface Replacer {
@@ -19,8 +19,21 @@ export const enum Priotiry {
     finalize = 20000
 }
 
-export type Provider = (factory: () => Plugin, priority: Priotiry, options?: {
+export type ProvideFunction = (factory: () => Plugin, priority: Priotiry, options?: {
     format?: InternalModuleFormat | InternalModuleFormat[],
     inputs?: string[],
     outputPlugin?: true
-}) => void
+}) => void;
+
+export type Provider = {
+    provide: ProvideFunction;
+    import: (module: string, exportName?: string) => Promise<((...args: unknown[]) => Plugin)>;
+};
+
+export type PkgbldRollupPlugin = {
+    plugin: () => Plugin;
+    priority: Priotiry;
+    format?: InternalModuleFormat | InternalModuleFormat[];
+    inputs?: string[];
+    outputPlugin?: true;
+};
