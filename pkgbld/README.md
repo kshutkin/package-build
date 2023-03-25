@@ -127,6 +127,14 @@ pkgbld --include-externals
 
 Bundles all externals into package.
 
+### eject
+
+```
+pkgbld --eject
+```
+
+Ejects Rollup config.
+
 # License
 
 [MIT](https://github.com/kshutkin/package-build/blob/main/LICENSE)

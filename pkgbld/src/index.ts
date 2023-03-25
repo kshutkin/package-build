@@ -23,12 +23,13 @@ async function execute() {
         const [pkgPath, pkg] = await getPackage();
         const options = getCliOptions();
         const inputs = processPackage(pkg, options);
-        const helpers = getHelpers((pkg as { name: string }).name);
-        const provider = options.eject ? createEjectProvider() : createProvider();
+        const pkgName = (pkg as { name: string }).name;
+        const helpers = getHelpers(pkgName);
+        const provider = options.eject ? await createEjectProvider() : createProvider();
         const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers);
 
         if (options.eject) {
-            await ejectConfig(rollupConfigs, pkgPath);
+            await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkgName);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
         } else {
             const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);

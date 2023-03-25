@@ -23,6 +23,9 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
                 external: (id: string, external: boolean) => external || isExternalInput(currentInput, inputs, id, config)
             }), Priotiry.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
         }
+        // for eject config
+        provider.globalImport('path', 'path');
+        provider.globalSetupt(isExternalInput);
     }
 }
 

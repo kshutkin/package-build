@@ -28,6 +28,9 @@ export type ProvideFunction = (factory: () => Plugin, priority: Priotiry, option
 export type Provider = {
     provide: ProvideFunction;
     import: (module: string, exportName?: string) => Promise<((...args: unknown[]) => Plugin)>;
+    globalImport: (module: string, exportName?: string | string[]) => void;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    globalSetupt: (code: Function | string) => void;
 };
 
 export type PkgbldRollupPlugin = {

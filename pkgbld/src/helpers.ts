@@ -3,9 +3,9 @@ import camelCase from 'lodash/camelCase';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 
-export function getHelpers(name: string) {
+export function getHelpers(pkgName: string) {
     function getGlobalName(anInput: string) {
-        return camelCase(path.join(name, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
+        return camelCase(path.join(pkgName, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
     }
 
     function getExternalGlobalName(id: string) {

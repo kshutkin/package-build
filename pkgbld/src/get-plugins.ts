@@ -19,6 +19,8 @@ export const plugins = [
     binify
 ];
 
+const noop = () => undefined;
+
 export function createProvider() {
     const plugins: PkgbldRollupPlugin[] = [];
     return [{
@@ -28,6 +30,8 @@ export function createProvider() {
         import: async (name: string, exportName?: string) => {
             const result = await import(name);
             return result[exportName ?? 'default'];
-        }
+        },
+        globalImport: noop,
+        globalSetupt: noop
     }, plugins] as [Provider, PkgbldRollupPlugin[]];
 }
