@@ -23,7 +23,6 @@ export async function createEjectProvider() {
         provide: (plugin: PkgbldRollupPlugin['plugin'], priority: PkgbldRollupPlugin['priority'], options?: Omit<PkgbldRollupPlugin, 'plugin' | 'priority'>) => {
             plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         import: async (name: string, exportName?: string) => {
             const result = await import(name);
             const exports = result[exportName ?? 'default'];
@@ -34,7 +33,7 @@ export async function createEjectProvider() {
         globalImport: (module: string, exportName?: string | string[]) => {
             imports.set(module, exportName ?? 'default');
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/ban-types
+        // eslint-disable-next-line @typescript-eslint/ban-types
         globalSetupt: (code: Function | string) => {
             if (typeof code === 'function') {
                 setup.add(code.toString());
