@@ -32,13 +32,18 @@ async function execute() {
         if (options.eject) {
             await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkg as PackageJson);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
+            if (!options.noUpdatePackageJson) {
+                await writeJson(pkgPath, pkg);
+            }
         } else {
             const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);
             mainLogger.start(updater());
         
             await Promise.all(rollupConfigs.map(config => buildConfig(config, updater)));
 
-            await writeJson(pkgPath, pkg);
+            if (!options.noUpdatePackageJson) {
+                await writeJson(pkgPath, pkg);
+            }
             await createSubpackages(inputs, options);
 
             mainLogger.finish(updater(true));

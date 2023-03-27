@@ -132,6 +132,14 @@ pkgbld --no-ts-config
 
 Do not check / write tsconfig.json.
 
+### no-update-package-json
+
+```
+pkgbld --no-update-package-json
+```
+
+Do not write package.json.
+
 # License
 
 [MIT](https://github.com/kshutkin/package-build/blob/main/LICENSE)
