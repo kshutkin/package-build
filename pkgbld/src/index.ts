@@ -5,35 +5,46 @@ import { createSubpackages } from './create-subpackages';
 import { getCliOptions } from './get-cli-options';
 import { getPackage } from './get-pkg';
 import { getRollupConfigs } from './get-rollup-configs';
-import { formatInput, formatOutput, getHelpers, toArray } from './helpers';
+import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray } from './helpers';
 import { mainLoggerText } from './messages';
 import { processPackage } from './process-pkg';
-import { writePackage } from './write-pkg';
+import { writeJson } from './write-json';
 import kleur from 'kleur';
+import { createProvider } from './get-plugins';
+import { createEjectProvider, ejectConfig } from './eject';
+import { checkTsConfig } from './check-ts-config';
+import { PackageJson } from './types';
 
 async function execute() {
     const time = Date.now();
-    const blank = createLogger();
-    blank.update(' ');
+    createLogger().update(' '); // blank line
     const mainLogger = createLogger();
     mainLogger.update('preparing...');
     try {
         const [pkgPath, pkg] = await getPackage();
         const options = getCliOptions();
+        checkTsConfig(options, mainLogger);
         const inputs = processPackage(pkg, options);
         const helpers = getHelpers((pkg as { name: string }).name);
-        const rollupConfigs = await getRollupConfigs(inputs, options, helpers);
+        const provider = options.eject ? await createEjectProvider() : createProvider();
+        const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers);
 
-        const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);
-        mainLogger.start(updater());
-       
-        await Promise.all(rollupConfigs.map(config => buildConfig(config, updater)));
+        if (options.eject) {
+            await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkg as PackageJson);
+            mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
+        } else {
+            const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);
+            mainLogger.start(updater());
+        
+            await Promise.all(rollupConfigs.map(config => buildConfig(config, updater)));
 
-        await writePackage(pkgPath, pkg);
-        await createSubpackages(inputs, options);
+            await writeJson(pkgPath, pkg);
+            await createSubpackages(inputs, options);
 
-        mainLogger.finish(updater(true));
+            mainLogger.finish(updater(true));
+        }
     } catch(e) {
+        console.log(e);
         mainLogger.finish(`${e}}`, LogLevel.error);
         process.exit(-1);
     }

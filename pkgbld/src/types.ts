@@ -1,4 +1,4 @@
-import { Plugin, InternalModuleFormat } from 'rollup';
+import type { Plugin, InternalModuleFormat } from 'rollup';
 
 /**
  * export interface Replacer {
@@ -7,6 +7,13 @@ import { Plugin, InternalModuleFormat } from 'rollup';
 }*/
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
+
+export type PackageJson = {
+    name: string,
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+    peerDependencies: Record<string, string>;
+};
 
 export const enum Priotiry {
     preprocess = 1000,
@@ -19,8 +26,24 @@ export const enum Priotiry {
     finalize = 20000
 }
 
-export type Provider = (factory: () => Plugin, priority: Priotiry, options?: {
+export type ProvideFunction = (factory: () => Plugin, priority: Priotiry, options?: {
     format?: InternalModuleFormat | InternalModuleFormat[],
     inputs?: string[],
     outputPlugin?: true
-}) => void
+}) => void;
+
+export type Provider = {
+    provide: ProvideFunction;
+    import: (module: string, exportName?: string) => Promise<((...args: unknown[]) => Plugin)>;
+    globalImport: (module: string, exportName?: string | string[]) => void;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    globalSetupt: (code: Function | string) => void;
+};
+
+export type PkgbldRollupPlugin = {
+    plugin: () => Plugin;
+    priority: Priotiry;
+    format?: InternalModuleFormat | InternalModuleFormat[];
+    inputs?: string[];
+    outputPlugin?: true;
+};

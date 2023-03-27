@@ -3,9 +3,9 @@ import camelCase from 'lodash/camelCase';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 
-export function getHelpers(name: string) {
+export function getHelpers(pkgName: string) {
     function getGlobalName(anInput: string) {
-        return camelCase(path.join(name, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
+        return camelCase(path.join(pkgName, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
     }
 
     function getExternalGlobalName(id: string) {
@@ -49,11 +49,6 @@ export function getTimeDiff(starting: number) {
         return `${((now - starting) / 1000).toFixed(1)}s`;
     }
     return `${now - starting}ms`;
-}
-
-export function getDefaultExport<T extends { default?: unknown }>(importedModule: T) {
-    const defaultImport = importedModule.default;
-    return defaultImport ? defaultImport : importedModule;
 }
 
 export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;

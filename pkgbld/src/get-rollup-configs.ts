@@ -1,10 +1,10 @@
 import type { getCliOptions } from './get-cli-options';
-import { createProvider, plugins as pluginFactories } from './get-plugins';
+import { plugins as pluginFactories } from './get-plugins';
 import refiner from '@slimlib/refine-partition';
 import { areSetsEqual, toArray } from './helpers';
 import { InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getHelpers } from './helpers';
-
+import type { PkgbldRollupPlugin, Provider } from './types';
 
 const fileNamePatterns = {
     'es': '[name].mjs',
@@ -12,10 +12,9 @@ const fileNamePatterns = {
     'umd': '[name].umd.js',
 } as {[key in InternalModuleFormat]: string};
 
-export async function getRollupConfigs(inputs: string[], config: ReturnType<typeof getCliOptions>, helpers: ReturnType<typeof getHelpers>) {
-    const [provide, plugins] = createProvider();
+export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], config: ReturnType<typeof getCliOptions>, helpers: ReturnType<typeof getHelpers>) {
     for (const factory of pluginFactories) {
-        await factory(provide, config, inputs);
+        await factory(provider, config, inputs);
     }
 
     const expandInputs = new Set<string>;

@@ -1,5 +1,4 @@
-import { Plugin, InternalModuleFormat } from 'rollup';
-import { Priotiry, Provider } from './types';
+import type { PkgbldRollupPlugin, Provider } from './types';
 import clean from './builtin-plugins/clean';
 import commonjs from './builtin-plugins/commonjs';
 import externals from './builtin-plugins/externals';
@@ -20,13 +19,19 @@ export const plugins = [
     binify
 ];
 
-export function createProvider(): [Provider, { plugin: () => Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[]] {
-    const plugins: { plugin: () => Plugin, priority: Priotiry, format?: InternalModuleFormat | InternalModuleFormat[], inputs?: string[], outputPlugin?: true}[] = [];
-    return [(plugin: () => Plugin, priority: Priotiry, options?: {
-        format?: InternalModuleFormat | InternalModuleFormat[],
-        inputs?: string[],
-        outputPlugin?: true
-    }) => {
-        plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
-    }, plugins];
+const noop = () => undefined;
+
+export function createProvider() {
+    const plugins: PkgbldRollupPlugin[] = [];
+    return [{
+        provide: (plugin: PkgbldRollupPlugin['plugin'], priority: PkgbldRollupPlugin['priority'], options?: Omit<PkgbldRollupPlugin, 'plugin' | 'priority'>) => {
+            plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
+        },
+        import: async (name: string, exportName?: string) => {
+            const result = await import(name);
+            return result[exportName ?? 'default'];
+        },
+        globalImport: noop,
+        globalSetupt: noop
+    }, plugins] as [Provider, PkgbldRollupPlugin[]];
 }
