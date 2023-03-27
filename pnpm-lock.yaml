@@ -55,7 +55,7 @@ importers:
       '@rollup/plugin-terser': 0.4.0
       '@slimlib/refine-partition': 1.0.0
       '@slimlib/smart-mock': 0.1.2
-      '@types/lodash': 4.14.191
+      '@types/lodash': 4.14.192
       '@types/minimist': 1.2.2
       is-builtin-module: ^3.2.0
       kleur: 4.1.5
@@ -87,7 +87,7 @@ importers:
       terser: 5.16.5
       typescript: 4.9.5
     devDependencies:
-      '@types/lodash': 4.14.191
+      '@types/lodash': 4.14.192
       '@types/minimist': 1.2.2
 
   pkgbld-internal:
@@ -102,7 +102,7 @@ importers:
       '@rollup/plugin-replace': 5.0.2
       '@rollup/plugin-terser': 0.4.0
       '@slimlib/refine-partition': 1.0.0
-      '@types/lodash': 4.14.191
+      '@types/lodash': 4.14.192
       draftlog: 1.0.13
       is-builtin-module: 3.2.1
       kleur: 4.1.5
@@ -136,7 +136,7 @@ importers:
       '@rollup-extras/plugin-externals': 1.1.8_rollup@3.17.2
       '@rollup/plugin-replace': 5.0.2_rollup@3.17.2
       '@slimlib/refine-partition': 1.0.0
-      '@types/lodash': 4.14.191
+      '@types/lodash': 4.14.192
       pkgbld: link:../pkgbld
 
 packages:
@@ -644,8 +644,8 @@ packages:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
     dev: true
 
-  /@types/lodash/4.14.191:
-    resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
+  /@types/lodash/4.14.192:
+    resolution: {integrity: sha512-km+Vyn3BYm5ytMO13k9KTp27O75rbQ0NFw+U//g+PX7VZyjCioXaRFisqSIJRECljcTv73G3i6BpglNGHgUQ5A==}
     dev: true
 
   /@types/minimist/1.2.2:
