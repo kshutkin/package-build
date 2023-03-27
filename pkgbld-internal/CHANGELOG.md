@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.18
+
+### Patch Changes
+
+- 0794635: added missing dependency
+
 ## 1.0.17
 
 ### Patch Changes
