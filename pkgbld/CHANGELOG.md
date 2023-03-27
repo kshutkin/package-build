@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.15.0
+
+### Minor Changes
+
+- d306334: feat: disable package.json write
+- 6484d4b: feat: eject config
+
 ## 1.14.6
 
 ### Patch Changes
