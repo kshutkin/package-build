@@ -1,10 +1,12 @@
 {
+  "include": ["src", "types"],
   "compilerOptions": {
     "lib": ["esnext"],
     "target": "esnext",
     "module": "esnext",
     "esModuleInterop": true,
     "strict": true,
+    "declaration": true,
     "moduleResolution": "node"
   }
 }

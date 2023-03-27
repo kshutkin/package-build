@@ -8,28 +8,29 @@ import { getRollupConfigs } from './get-rollup-configs';
 import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray } from './helpers';
 import { mainLoggerText } from './messages';
 import { processPackage } from './process-pkg';
-import { writePackage } from './write-pkg';
+import { writeJson } from './write-json';
 import kleur from 'kleur';
 import { createProvider } from './get-plugins';
 import { createEjectProvider, ejectConfig } from './eject';
+import { checkTsConfig } from './check-ts-config';
+import { PackageJson } from './types';
 
 async function execute() {
     const time = Date.now();
-    const blank = createLogger();
-    blank.update(' ');
+    createLogger().update(' '); // blank line
     const mainLogger = createLogger();
     mainLogger.update('preparing...');
     try {
         const [pkgPath, pkg] = await getPackage();
         const options = getCliOptions();
+        checkTsConfig(options, mainLogger);
         const inputs = processPackage(pkg, options);
-        const pkgName = (pkg as { name: string }).name;
-        const helpers = getHelpers(pkgName);
+        const helpers = getHelpers((pkg as { name: string }).name);
         const provider = options.eject ? await createEjectProvider() : createProvider();
         const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers);
 
         if (options.eject) {
-            await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkgName);
+            await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkg as PackageJson);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
         } else {
             const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);
@@ -37,7 +38,7 @@ async function execute() {
         
             await Promise.all(rollupConfigs.map(config => buildConfig(config, updater)));
 
-            await writePackage(pkgPath, pkg);
+            await writeJson(pkgPath, pkg);
             await createSubpackages(inputs, options);
 
             mainLogger.finish(updater(true));

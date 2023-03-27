@@ -23,20 +23,9 @@ npm install --save-dev pkgbld
 
 1. Start from creating pcakage.json using `npm init`
 2. Add pkgbld `npm install --save-dev pkgbld`
-3. Add `tsconfig.json` file into root project directory
-```json
-{
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "esModuleInterop": true,
-    "strict": true,
-  }
-}
+3. Create `src/index.ts`
+4. Add pkgbld in scripts field of your package.json like:
 
-```
-4. Create `src/index.ts`
-5. Add pkgbld in scripts field of your package.json like:
 ```json
   "scripts": {
     "build": "pkgbld"
@@ -134,6 +123,14 @@ pkgbld --eject
 ```
 
 Ejects Rollup config.
+
+### no-ts-config
+
+```
+pkgbld --no-ts-config
+```
+
+Do not check / write tsconfig.json.
 
 # License
 

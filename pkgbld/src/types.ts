@@ -8,6 +8,13 @@ import type { Plugin, InternalModuleFormat } from 'rollup';
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
 
+export type PackageJson = {
+    name: string,
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+    peerDependencies: Record<string, string>;
+};
+
 export const enum Priotiry {
     preprocess = 1000,
     cleanup = 1000,

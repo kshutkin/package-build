@@ -9,7 +9,8 @@ const defaults = {
     dir: 'dist',
     sourceDir: 'src',
     includeExternals: false,
-    eject: false
+    eject: false,
+    noTsConfig: false
 };
 
 export function getCliOptions() {
@@ -24,6 +25,7 @@ export function getCliOptions() {
     const bin = parsedArgs.bin?.split(',').map((arg: string) => arg.trim());
     const includeExternals = parsedArgs['include-externals'] ?? defaults.includeExternals;
     const eject = !!parsedArgs.eject ?? defaults.eject;
+    const noTsConfig = !!parsedArgs.noTsConfig ?? defaults.noTsConfig;
 
     return {
         umdInputs,
@@ -36,7 +38,8 @@ export function getCliOptions() {
         sourceDir,
         bin,
         includeExternals,
-        eject
+        eject,
+        noTsConfig
     } as {
         umdInputs: string[],
         compressFormats: string[],
@@ -48,6 +51,7 @@ export function getCliOptions() {
         sourceDir: string,
         bin?: string[],
         includeExternals: boolean,
-        eject: boolean
+        eject: boolean,
+        noTsConfig: boolean
     };
 }

@@ -1,4 +1,4 @@
-import type { PkgbldRollupPlugin, Provider } from './types';
+import type { PackageJson, PkgbldRollupPlugin, Provider } from './types';
 import type { RollupOptions } from 'rollup';
 import fs from 'fs/promises';
 import path from 'path';
@@ -43,7 +43,10 @@ export async function createEjectProvider() {
     }, plugins] as [Provider, PkgbldRollupPlugin[]];
 }
 
-export async function ejectConfig(config: RollupOptions[], pkgPath: string, options: ReturnType<typeof getCliOptions>, inputs: string[], helpers: ReturnType<typeof getHelpers>, pkgName: string) {
+export async function ejectConfig(config: RollupOptions[], pkgPath: string, options: ReturnType<typeof getCliOptions>, inputs: string[], helpers: ReturnType<typeof getHelpers>, pkg: PackageJson) {
+
+    const pkgName = (pkg as { name: string }).name;
+
     // generate from config
     const text = generate(config);
     setup.add(generateGlobals());
@@ -86,7 +89,21 @@ export async function ejectConfig(config: RollupOptions[], pkgPath: string, opti
             quote_style: 1
         }
     });
-    await fs.writeFile(path.join(path.dirname(pkgPath), 'rollup.config.js'), result.code as string);
-    // add packages into package.json
-    // write tsconfig.json
+    await fs.writeFile(path.join(path.dirname(pkgPath), 'rollup.config.mjs'), result.code as string);
+
+    // this can be improved a lot
+    if (typeof pkg.devDependencies !== 'object') {
+        pkg.devDependencies  = {};
+    }
+    const devDependencies = pkg.devDependencies;
+    if ('pkgbld' in devDependencies) {
+        delete devDependencies.pkgbld;
+    }
+    devDependencies['rollup'] = '*';
+    const isBuiltin = (await import('is-builtin-module')).default;
+    for (const key of imports.keys()) {
+        if (!isBuiltin(key)) {
+            devDependencies[key] = '*';
+        }
+    }
 }

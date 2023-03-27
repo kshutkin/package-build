@@ -54,9 +54,10 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1
       '@rollup/plugin-terser': 0.4.0
       '@slimlib/refine-partition': 1.0.0
-      '@slimlib/smart-mock': 0.1.1
+      '@slimlib/smart-mock': 0.1.2
       '@types/lodash': 4.14.191
       '@types/minimist': 1.2.2
+      is-builtin-module: ^3.2.0
       kleur: 4.1.5
       lodash: 4.17.21
       minimist: 1.2.8
@@ -75,7 +76,8 @@ importers:
       '@rollup/plugin-node-resolve': 15.0.1_rollup@3.17.2
       '@rollup/plugin-terser': 0.4.0_rollup@3.17.2
       '@slimlib/refine-partition': 1.0.0
-      '@slimlib/smart-mock': 0.1.1
+      '@slimlib/smart-mock': 0.1.2
+      is-builtin-module: 3.2.1
       kleur: 4.1.5
       lodash: 4.17.21
       minimist: 1.2.8
@@ -616,8 +618,8 @@ packages:
     resolution: {integrity: sha512-dksP/w/8F5P1GkPQp2OwMWIQaRmejA8zqxvHXokrwiuuAV6I5VC/GpbnEsPh8QORzRW/qYw38LnGwmBtE39t7g==}
     engines: {node: '>=15'}
 
-  /@slimlib/smart-mock/0.1.1:
-    resolution: {integrity: sha512-W6jH4gnO7lc0BcI8fOc5CxkBaW0lfL4Lc722ic/Mm9gxDc9yGCUCYgNZg06pgs2wQF8CM4u6qrFcHxi3gJFZIA==}
+  /@slimlib/smart-mock/0.1.2:
+    resolution: {integrity: sha512-nKFvCefE7x+P/i8kfEqTQykmwIlpOKtdvuvKeFkEGqTjj34dkOy/NHVNEmOsJWvCE3drJmxmxsm2Fx16Guk/vQ==}
     engines: {node: '>=15'}
     dev: false
 
