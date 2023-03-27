@@ -59,7 +59,7 @@ export async function ejectConfig(config: RollupOptions[], pkgPath: string, opti
     if (options.formats.includes('umd')) {
         imports.set('path', 'path');
         imports.set('lodash/camelCase', 'camelCase');
-        setup.add(`const pkgName = ${generate(pkgName as any)}`);
+        setup.add(`const pkgName = ${generate(pkgName as never)}`);
         setup.add(helpers.getGlobalName.toString());
     }
 
