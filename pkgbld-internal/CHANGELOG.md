@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.19
+
+### Patch Changes
+
+- 44ed7e5: force update pkgbld-internal
+
 ## 1.0.18
 
 ### Patch Changes
