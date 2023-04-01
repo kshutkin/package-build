@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- ae01361: fix internal-pkgbld
+
+## 1.0.18
+
+### Patch Changes
+
 - 0794635: added missing dependency
 
 ## 1.0.17
