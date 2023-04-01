@@ -21,14 +21,14 @@ export const plugins = [
 
 const noop = () => undefined;
 
-export function createProvider(preimporMap: Map<string, Promise<never>>) {
+export function createProvider(preimportMap: Map<string, Promise<never>>) {
     const plugins: PkgbldRollupPlugin[] = [];
     return [{
         provide: (plugin: PkgbldRollupPlugin['plugin'], priority: PkgbldRollupPlugin['priority'], options?: Omit<PkgbldRollupPlugin, 'plugin' | 'priority'>) => {
             plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
         },
         import: async (name: string, exportName?: string) => {
-            const result = preimporMap.has(name) ? await preimporMap.get(name) : await import(name);
+            const result = preimportMap.has(name) ? await preimportMap.get(name) : await import(name);
             return result[exportName ?? 'default'];
         },
         globalImport: noop,

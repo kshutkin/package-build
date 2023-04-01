@@ -28,8 +28,8 @@ async function execute() {
         checkTsConfig(options, mainLogger);
         const inputs = processPackage(pkg, options);
         const helpers = getHelpers((pkg as { name: string }).name);
-        const preimporMap = preimport();
-        const provider = options.eject ? await createEjectProvider(preimporMap) : createProvider(preimporMap);
+        const preimportMap = preimport();
+        const provider = options.eject ? await createEjectProvider(preimportMap) : createProvider(preimportMap);
         const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers);
 
         if (options.eject) {

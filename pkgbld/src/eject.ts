@@ -12,7 +12,7 @@ const setup = new Set<string>;
 let generate: <T extends object>(object: T) => string | boolean | RegExp | null | undefined,
     generateGlobals: () => string;
 
-export async function createEjectProvider(preimporMap: Map<string, Promise<never>>) {
+export async function createEjectProvider(preimportMap: Map<string, Promise<never>>) {
     const createMockProvider = (await import('@slimlib/smart-mock')).default;
     const provider = createMockProvider();
     const createMock = provider.createMock;
@@ -24,7 +24,7 @@ export async function createEjectProvider(preimporMap: Map<string, Promise<never
             plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
         },
         import: async (name: string, exportName?: string) => {
-            const result = preimporMap.has(name) ? await preimporMap.get(name) : await import(name);
+            const result = preimportMap.has(name) ? await preimportMap.get(name) : await import(name);
             const exports = result[exportName ?? 'default'];
             const mangledName = camelCase(name);
             imports.set(name, mangledName);
