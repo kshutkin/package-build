@@ -15,6 +15,8 @@ import { createEjectProvider, ejectConfig } from './eject';
 import { checkTsConfig } from './check-ts-config';
 import { PackageJson } from './types';
 
+execute();
+
 async function execute() {
     const time = Date.now();
     createLogger().update(' '); // blank line
@@ -26,7 +28,8 @@ async function execute() {
         checkTsConfig(options, mainLogger);
         const inputs = processPackage(pkg, options);
         const helpers = getHelpers((pkg as { name: string }).name);
-        const provider = options.eject ? await createEjectProvider() : createProvider();
+        const preimporMap = preimport();
+        const provider = options.eject ? await createEjectProvider(preimporMap) : createProvider(preimporMap);
         const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers);
 
         if (options.eject) {
@@ -63,4 +66,10 @@ async function execute() {
     }
 }
 
-execute();
+function preimport() {
+    return (process.env.PKGBLD_INTERNAL ? new Map([
+        ['@rollup-extras/plugin-binify', import('@rollup-extras/plugin-binify')],
+        ['@rollup-extras/plugin-clean', import('@rollup-extras/plugin-clean')],
+        ['@rollup-extras/plugin-externals', import('@rollup-extras/plugin-externals')]
+    ]) : new Map) as Map<string, Promise<never>>;
+}

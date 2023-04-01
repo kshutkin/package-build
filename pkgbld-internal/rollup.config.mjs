@@ -19,7 +19,8 @@ const plugins = [
     clean(),
     replace({
         delimiters: ['', ''],
-        '#!/usr/bin/env node': ''
+        '#!/usr/bin/env node': '',
+        'process.env.PKGBLD_INTERNAL': 'true'
     }),
     externals({
         external: (id, external, importer) => {
