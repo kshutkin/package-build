@@ -25,7 +25,7 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
         }
         // for eject config
         provider.globalImport('path', 'path');
-        provider.globalSetupt(isExternalInput);
+        provider.globalSetup(isExternalInput);
     }
 }
 

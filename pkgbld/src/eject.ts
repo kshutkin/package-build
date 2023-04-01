@@ -34,7 +34,7 @@ export async function createEjectProvider(preimporMap: Map<string, Promise<never
             imports.set(module, exportName ?? 'default');
         },
         // eslint-disable-next-line @typescript-eslint/ban-types
-        globalSetupt: (code: Function | string) => {
+        globalSetup: (code: Function | string) => {
             if (typeof code === 'function') {
                 setup.add(code.toString());
             }

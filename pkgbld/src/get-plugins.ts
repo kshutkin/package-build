@@ -32,6 +32,6 @@ export function createProvider(preimporMap: Map<string, Promise<never>>) {
             return result[exportName ?? 'default'];
         },
         globalImport: noop,
-        globalSetupt: noop
+        globalSetup: noop
     }, plugins] as [Provider, PkgbldRollupPlugin[]];
 }

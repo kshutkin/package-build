@@ -37,7 +37,7 @@ export type Provider = {
     import: (module: string, exportName?: string) => Promise<((...args: unknown[]) => Plugin)>;
     globalImport: (module: string, exportName?: string | string[]) => void;
     // eslint-disable-next-line @typescript-eslint/ban-types
-    globalSetupt: (code: Function | string) => void;
+    globalSetup: (code: Function | string) => void;
 };
 
 export type PkgbldRollupPlugin = {
