@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.20
+
+### Patch Changes
+
+- f7ff147: provide current input using curry, fixes mutliple umd outputs eject config case
+
 ## 1.0.19
 
 ### Patch Changes
