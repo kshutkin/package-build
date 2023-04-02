@@ -71,6 +71,8 @@ export async function ejectConfig(config: RollupOptions[], pkgPath: string, opti
         Array.from(setup)
             .join('\n');
 
+    console.log(setupString);
+
     const { minify } = await import('terser');
 
     const result = await minify(`${importsString}\n${setupString}\nexport default ${text};`, {

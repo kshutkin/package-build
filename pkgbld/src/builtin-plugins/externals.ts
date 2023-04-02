@@ -18,9 +18,11 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
     }
 
     if (!allowGenericUmd && config.umdInputs.length > 0) {
+        const curry = (await provider.import('lodash/curry.js')) as typeof import('lodash/curry');
         for(const currentInput of config.umdInputs) {
+            const isExternal = curry((currentInput: string, id: string, external: boolean) => external || isExternalInput(currentInput, inputs, id, config))(currentInput);
             provider.provide(() => pluginExternals({
-                external: (id: string, external: boolean) => external || isExternalInput(currentInput, inputs, id, config)
+                external: isExternal
             }), Priotiry.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
         }
         // for eject config

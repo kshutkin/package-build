@@ -88,7 +88,7 @@ importers:
         version: 1.0.0
       '@slimlib/smart-mock':
         specifier: ^0.1.2
-        version: 0.1.2
+        version: 0.1.3
       is-builtin-module:
         specifier: ^3.2.1
         version: 3.2.1
@@ -693,8 +693,8 @@ packages:
     resolution: {integrity: sha512-dksP/w/8F5P1GkPQp2OwMWIQaRmejA8zqxvHXokrwiuuAV6I5VC/GpbnEsPh8QORzRW/qYw38LnGwmBtE39t7g==}
     engines: {node: '>=15'}
 
-  /@slimlib/smart-mock@0.1.2:
-    resolution: {integrity: sha512-nKFvCefE7x+P/i8kfEqTQykmwIlpOKtdvuvKeFkEGqTjj34dkOy/NHVNEmOsJWvCE3drJmxmxsm2Fx16Guk/vQ==}
+  /@slimlib/smart-mock@0.1.3:
+    resolution: {integrity: sha512-EgLuKQjhfmRBUfSCYpp3uOB1AbeJLTeQdFZrpRu+tSqVXnFP/CMSP47ivNBFO3xj0J+6H4jZ9PSLI5ebhX9j4w==}
     engines: {node: '>=15'}
     dev: false
 
