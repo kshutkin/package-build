@@ -5,6 +5,7 @@ import path from 'path';
 import { camelCase } from 'lodash';
 import { getCliOptions } from './get-cli-options';
 import { getHelpers } from './helpers';
+import pkgbldPkg from '../package.json';
 
 const imports = new Map<string, string | string[]>;
 const setup = new Set<string>;
@@ -99,11 +100,11 @@ export async function ejectConfig(config: RollupOptions[], pkgPath: string, opti
     if ('pkgbld' in devDependencies) {
         delete devDependencies.pkgbld;
     }
-    devDependencies['rollup'] = '*';
+    devDependencies['rollup'] = (pkgbldPkg.dependencies as Record<string, string>)['rollup'] ?? '*';
     const isBuiltin = (await import('is-builtin-module')).default;
     for (const key of imports.keys()) {
         if (!isBuiltin(key)) {
-            devDependencies[key] = '*';
+            devDependencies[key] = (pkgbldPkg.dependencies as Record<string, string>)[key] ?? '*';
         }
     }
 }

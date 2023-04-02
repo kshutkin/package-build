@@ -4,6 +4,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import clean from '@rollup-extras/plugin-clean';
 import binify from '@rollup-extras/plugin-binify';
 import externals from '@rollup-extras/plugin-externals';
+import json from '@rollup/plugin-json';
 
 const input = 'src/index.ts';
 
@@ -14,6 +15,7 @@ const plugins = [
     externals(),
     resolve(),
     commonjs(),
+    json(),
     typescript(),
     binify()
 ];
