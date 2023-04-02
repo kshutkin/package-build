@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.21
+
+### Patch Changes
+
+- 9674080: removed debug console.log
+
 ## 1.0.20
 
 ### Patch Changes
