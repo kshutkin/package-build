@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.5
+
+### Patch Changes
+
+- e752991: do not include subexports in package name
+
 ## 1.15.4
 
 ### Patch Changes
