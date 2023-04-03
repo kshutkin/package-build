@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.6
+
+### Patch Changes
+
+- 6b5a5ba: fixed ejecting lodash package dependency
+
 ## 1.15.5
 
 ### Patch Changes
