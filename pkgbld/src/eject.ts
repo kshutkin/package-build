@@ -114,5 +114,5 @@ async function updatePackageJson(pkg: PackageJson) {
 }
 
 function getPackageName(key: string) {
-    return key.split('/').slice(0, key.startsWith('@') ? 2 : 0).join('/');
+    return key.split('/').slice(0, key.startsWith('@') ? 2 : 1).join('/');
 }
