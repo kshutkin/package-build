@@ -92,9 +92,12 @@ export async function ejectConfig(config: RollupOptions[], pkgPath: string, opti
     });
     await fs.writeFile(path.join(path.dirname(pkgPath), 'rollup.config.mjs'), result.code as string);
 
-    // this can be improved a lot
+    await updatePackageJson(pkg);
+}
+
+async function updatePackageJson(pkg: PackageJson) {
     if (typeof pkg.devDependencies !== 'object') {
-        pkg.devDependencies  = {};
+        pkg.devDependencies = {};
     }
     const devDependencies = pkg.devDependencies;
     if ('pkgbld' in devDependencies) {
@@ -103,8 +106,13 @@ export async function ejectConfig(config: RollupOptions[], pkgPath: string, opti
     devDependencies['rollup'] = (pkgbldPkg.dependencies as Record<string, string>)['rollup'] ?? '*';
     const isBuiltin = (await import('is-builtin-module')).default;
     for (const key of imports.keys()) {
-        if (!isBuiltin(key)) {
-            devDependencies[key] = (pkgbldPkg.dependencies as Record<string, string>)[key] ?? '*';
+        const packageName = getPackageName(key);
+        if (!isBuiltin(packageName)) {
+            devDependencies[packageName] = (pkgbldPkg.dependencies as Record<string, string>)[packageName] ?? '*';
         }
     }
+}
+
+function getPackageName(key: string) {
+    return key.split('/').slice(0, key.startsWith('@') ? 2 : 0).join('/');
 }
