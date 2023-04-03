@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.4
+
+### Patch Changes
+
+- 844eb84: fixed version numbers in updated package.json
+
 ## 1.15.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.22
+
+### Patch Changes
+
+- 844eb84: fixed version numbers in updated package.json
+
 ## 1.0.21
 
 ### Patch Changes
