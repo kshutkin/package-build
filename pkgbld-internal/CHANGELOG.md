@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.25
+
+### Patch Changes
+
+- e4b5c38: added extension to lodash subpath import, fixes import in ejected rollap.config.mjs
+
 ## 1.0.24
 
 ### Patch Changes
