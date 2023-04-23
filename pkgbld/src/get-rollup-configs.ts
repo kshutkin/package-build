@@ -4,7 +4,7 @@ import refiner from '@slimlib/refine-partition';
 import { areSetsEqual, toArray } from './helpers';
 import { InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getHelpers } from './helpers';
-import type { PkgbldRollupPlugin, Provider } from './types';
+import type { PkgbldPlugin, PkgbldRollupPlugin, Provider } from './types';
 
 const fileNamePatterns = {
     'es': '[name].mjs',
@@ -12,10 +12,18 @@ const fileNamePatterns = {
     'umd': '[name].umd.js',
 } as {[key in InternalModuleFormat]: string};
 
-export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], config: ReturnType<typeof getCliOptions>, helpers: ReturnType<typeof getHelpers>) {
+export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], config: ReturnType<typeof getCliOptions>, helpers: ReturnType<typeof getHelpers>, externalPlugins: Partial<PkgbldPlugin>[]) {
+    const factoryInProgress = [];
+
     for (const factory of pluginFactories) {
-        await factory(provider, config, inputs);
+        factoryInProgress.push(factory(provider, config, inputs));
     }
+
+    for (const ePlugin of externalPlugins) {
+        ePlugin.providePlugins && factoryInProgress.push(ePlugin.providePlugins(provider, config, inputs));
+    }
+
+    await Promise.all(factoryInProgress);
 
     const expandInputs = new Set<string>;
 
@@ -115,10 +123,12 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
     });
 
     function getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions> {
+        let result = {};
         switch (format) {
         case 'cjs':
         case 'es':
-            return { chunkFileNames: fileNamePatterns[format] };
+            result = { chunkFileNames: fileNamePatterns[format] };
+            break;
         case 'umd':
             if (inputs.length <= 0) {
                 break;
@@ -126,12 +136,16 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
             if (inputs.length > 1) {
                 throw new Error(`Cannot produce global name for mutliple umd inputs in one output: ${inputs}`);
             }
-            return {
-                name: helpers.getGlobalName(inputs[0]),
+            result = {
+                name: helpers.getGlobalName(inputs.join('_')),
                 globals: helpers.getExternalGlobalName,
             };
+            break;
         }
-        return {};
+        for (const ePlugin of externalPlugins) {
+            ePlugin.getExtraOutputSettings && Object.assign(result, ePlugin.getExtraOutputSettings(format, inputs));
+        }
+        return result;
     }
 
     function getPlugins(formats: InternalModuleFormat[], inputs: string[], outputPlugin: boolean) {

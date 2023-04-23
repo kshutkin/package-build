@@ -54,9 +54,11 @@
     "@slimlib/refine-partition": "^1.0.0",
     "@slimlib/smart-mock": "^0.1.2",
     "is-builtin-module": "^3.2.1",
-    "typescript": "^5.0.2",
     "terser": "^5.16.8",
     "minimist": "^1.2.8",
     "kleur": "^4.1.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.2"
   }
 }

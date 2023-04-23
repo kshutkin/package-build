@@ -3,7 +3,7 @@ import { createLogger, LogLevel } from '@niceties/logger';
 import { rollup, RollupOptions } from 'rollup';
 import { createSubpackages } from './create-subpackages';
 import { getCliOptions } from './get-cli-options';
-import { getPackage } from './get-pkg';
+import { getJson } from './get-json';
 import { getRollupConfigs } from './get-rollup-configs';
 import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray } from './helpers';
 import { mainLoggerText } from './messages';
@@ -12,8 +12,9 @@ import { writeJson } from './write-json';
 import kleur from 'kleur';
 import { createProvider } from './get-plugins';
 import { createEjectProvider, ejectConfig } from './eject';
-import { checkTsConfig } from './check-ts-config';
-import { PackageJson } from './types';
+import { checkTsConfig } from './process-ts-config';
+import { PackageJson, PkgbldPlugin } from './types';
+import { loadPlugins } from './load-plugins';
 
 execute();
 
@@ -23,14 +24,15 @@ async function execute() {
     const mainLogger = createLogger();
     mainLogger.update('preparing...');
     try {
-        const [pkgPath, pkg] = await getPackage();
-        const options = getCliOptions();
-        checkTsConfig(options, mainLogger);
-        const inputs = processPackage(pkg, options);
+        const [pkgPath, pkg] = await getJson('package.json');
+        const plugins = await loadPlugins(pkg as PackageJson);
+        const options = getCliOptions(plugins);
+        checkTsConfig(options, mainLogger, plugins);
+        const inputs = processPackage(pkg, options, plugins);
         const helpers = getHelpers((pkg as { name: string }).name);
         const preimportMap = preimport();
         const provider = options.eject ? await createEjectProvider(preimportMap) : createProvider(preimportMap);
-        const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers);
+        const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers, plugins);
 
         if (options.eject) {
             await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkg as PackageJson);
@@ -48,6 +50,12 @@ async function execute() {
                 await writeJson(pkgPath, pkg);
             }
             await createSubpackages(inputs, options);
+
+            await Promise.all(
+                plugins
+                    .filter(plugin => plugin.buildEnd)
+                    .map(plugin => (plugin as Required<PkgbldPlugin>).buildEnd())
+            );
 
             mainLogger.finish(updater(true));
         }
