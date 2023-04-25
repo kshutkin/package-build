@@ -3,10 +3,10 @@
 import path from 'path';
 import { getCliOptions } from './get-cli-options';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { Json } from './types';
+import { Json, PackageJson, PkgbldPlugin } from './types';
 
-export function processPackage(pkg: Json, config: ReturnType<typeof getCliOptions>): string[] {
-    const input = [];
+export function processPackage(pkg: Json, config: ReturnType<typeof getCliOptions>, plugins: Partial<PkgbldPlugin>[]): string[] {
+    const inputs = [];
     const logger = createLogger();
     const allowEsm = (config.formatsOverriden && config.formats.includes('es') || !config.formatsOverriden);
     const allowCjs = (config.formatsOverriden && config.formats.includes('cjs') || !config.formatsOverriden);
@@ -52,7 +52,7 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
             if (config.bin[0] === '') {
                 delete pkg.bin;
             } else {
-                pkg.bin = config.bin[0];
+                pkg.bin = config.bin[0] as string;
             }
             config.bin = config.bin.filter(Boolean);
             if (config.bin.length === 0) {
@@ -72,7 +72,7 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
     }
     
     if (allowCjs && pkg.main !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require) {
-        ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require = pkg.main;
+        ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require = pkg.main as Json;
     }
     
     if (allowEsm && typeof pkg.module !== 'string') {
@@ -80,7 +80,7 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
     }
     
     if (allowEsm && pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
-        ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module;
+        ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module as Json;
     }
     
     if (allowUmd && config.umdInputs.includes('index')) {
@@ -106,12 +106,16 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
             }
         }
     
-        input.push(`./${config.sourceDir}/${basename}.ts`);
+        inputs.push(`./${config.sourceDir}/${basename}.ts`);
     }
 
     if (allowUmd && config.umdInputs.length > 0 && !config.formats.includes('umd')) {
         config.formats.push('umd');
     }
 
-    return input;
+    for (const plugin of plugins) {
+        plugin.processPackageJson && plugin.processPackageJson(pkg as PackageJson, inputs, logger);
+    }
+
+    return inputs;
 }

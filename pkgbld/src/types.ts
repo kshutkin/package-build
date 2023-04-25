@@ -1,10 +1,6 @@
-import type { Plugin, InternalModuleFormat } from 'rollup';
-
-/**
- * export interface Replacer {
-    name: string;
-    used: () => void;
-}*/
+import type { Plugin, InternalModuleFormat, OutputOptions } from 'rollup';
+import type { getCliOptions } from './get-cli-options';
+import { Logger } from '@niceties/logger';
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
 
@@ -47,3 +43,14 @@ export type PkgbldRollupPlugin = {
     inputs?: string[];
     outputPlugin?: true;
 };
+
+// plugins API
+
+export interface PkgbldPlugin {
+    options(parsedArgs: {[key: string]: string | number}, options: ReturnType<typeof getCliOptions>): void;
+    processPackageJson(packageJson: PackageJson, inputs: string[], logger: Logger): void;
+    processTsConfig(config: Json): void;
+    providePlugins(provider: Provider, config: Record<string, string | string[] | boolean>, inputs: string[]): Promise<void>;
+    getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions>;
+    buildEnd(): Promise<void>;
+}

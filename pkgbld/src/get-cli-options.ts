@@ -1,4 +1,5 @@
 import minimist from 'minimist';
+import { PkgbldPlugin } from './types';
 
 const defaults = {
     formats: ['es', 'cjs'],
@@ -14,7 +15,7 @@ const defaults = {
     noUpdatePackageJson: false
 };
 
-export function getCliOptions() {
+export function getCliOptions(plugins: Partial<PkgbldPlugin>[]) {
     const parsedArgs = minimist(process.argv.slice(2));
     const umdInputs = parsedArgs.umd?.split(',').map((arg: string) => arg.trim()) ?? defaults.umdInputs;
     const compressFormats = parsedArgs.compress?.split(',').map((arg: string) => arg.trim()) ?? defaults.compressFormats;
@@ -29,7 +30,7 @@ export function getCliOptions() {
     const noTsConfig = !!parsedArgs.noTsConfig ?? defaults.noTsConfig;
     const noUpdatePackageJson = !!parsedArgs.noUpdatePackageJson ?? defaults.noUpdatePackageJson;
 
-    return {
+    const options = {
         umdInputs,
         compressFormats,
         sourcemapFormats,
@@ -43,7 +44,13 @@ export function getCliOptions() {
         eject,
         noTsConfig,
         noUpdatePackageJson
-    } as {
+    };
+
+    for (const plugin of plugins) {
+        plugin.options && plugin.options(parsedArgs, options);
+    }
+
+    return options as {
         umdInputs: string[],
         compressFormats: string[],
         sourcemapFormats: string[],
