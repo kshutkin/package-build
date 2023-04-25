@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.0
+
+### Minor Changes
+
+- 7277073: Implement plugin API
+
 ## 1.15.7
 
 ### Patch Changes
