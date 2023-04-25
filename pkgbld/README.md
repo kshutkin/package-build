@@ -140,6 +140,23 @@ pkgbld --no-update-package-json
 
 Do not write package.json.
 
+## Plugin API
+
+`pkgbld` reads all installed packages named `pkgbld-plugin-*` and assumes they are plugins
+
+Plugins suppose to implement one or more of following interface methods as their package exports:
+
+```
+interface PkgbldPlugin {
+    options(parsedArgs: {[key: string]: string | number}, options: ReturnType<typeof getCliOptions>): void;
+    processPackageJson(packageJson: PackageJson, inputs: string[], logger: Logger): void;
+    processTsConfig(config: Json): void;
+    providePlugins(provider: Provider, config: Record<string, string | string[] | boolean>, inputs: string[]): Promise<void>;
+    getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions>;
+    buildEnd(): Promise<void>;
+}
+```
+
 # License
 
 [MIT](https://github.com/kshutkin/package-build/blob/main/LICENSE)
