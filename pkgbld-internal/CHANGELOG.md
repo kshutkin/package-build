@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.27
+
+### Patch Changes
+
+- 74a7f67: fix small mistakes in documentation
+
 ## 1.0.26
 
 ### Patch Changes

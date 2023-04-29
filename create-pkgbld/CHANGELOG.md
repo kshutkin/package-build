@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.9
+
+### Patch Changes
+
+- 74a7f67: fix small mistakes in documentation
+
 ## 1.1.8
 
 ### Patch Changes
