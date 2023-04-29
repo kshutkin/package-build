@@ -4,13 +4,13 @@
 
 Rollup based build tool for building libraries based on package.json config and simple CLI options.
 
-It is simple building tool that supports building to different targets like: `es`, `cjs`, `umd` without additional trasformation other than minification using `terser` or preprocess using `rollup-plugin-preprocess`.
+It is a simple building tool that supports building to different targets like: `es`, `cjs`, `umd` without additional transformation other than minification using `terser` or preprocess using `rollup-plugin-preprocess`.
 
 [Changlelog](./CHANGELOG.md)
 
 ## Why
 
-It is created to easily build libraries that contains mutliple subpath exports (entry points, subpackages) because it is not that easy to do at the moment with `microbundle`, `tsdx` or `ng-packagr` (if you are on Typescript).
+It is created to easily build libraries that contains multiple subpath exports (entry points, subpackages) because it is not that easy to do at the moment with `microbundle`, `tsdx` or `ng-packagr` (if you are on Typescript).
 
 ## Installation
 
@@ -36,7 +36,7 @@ Run `npm run build`.
 
 ## package.json
 
-`pkgbld` expects name field to be filled in the package.json file. `exports` field defines what entries/outputs should be build for this package.
+`pkgbld` expects the name field to be filled in the package.json file. `exports` field defines what entries/outputs should be built for this package.
 
 ## CLI options
 
@@ -82,7 +82,7 @@ Defines what formats to build, only supports `es` and `cjs` at the moment. Use `
 pkgbld --preprocess=index
 ```
 
-Defines what entry points/files should be preprocessed using `rollup-plugin-preprocess`. For the entry point will be defined variable es (for esm target), cjs (for commonjs) and umd (for umd) depending on the target type. Please request more variables / more granular logic if you want more.
+Defines what entry points/files should be preprocessed using `rollup-plugin-preprocess`. The entry point will be defined as variable es (for esm target), cjs (for commonjs) and umd (for umd) depending on the target type. Please request more variables / more granular logic if you want more.
 
 ### dir
 
@@ -114,7 +114,7 @@ File(s) to make executable. First entry will be added to package.json
 pkgbld --include-externals
 ```
 
-Bundles all externals into package.
+Bundles all externals into a package.
 
 ### eject
 
