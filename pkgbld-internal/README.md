@@ -6,7 +6,7 @@ Rollup based build tool for building libraries based on package.json config and 
 
 [##Up to date documentation](https://github.com/kshutkin/package-build/blob/main/pkgbld/README.md)
 
-[Changlelog](./CHANGELOG.md)
+[Changelog](./CHANGELOG.md)
 
 # License
 

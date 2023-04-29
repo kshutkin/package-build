@@ -2,9 +2,9 @@
 
 Minimalistic scaffolding utility for [pkgbld](https://github.com/kshutkin/package-build/tree/main/pkgbld).
 
-*Disclaimer:* despite version 1.0.0+ it is still very raw, use only if it fits your needs.
+*Disclaimer:* Despite the version being 1.0.0+ it is still very raw, use only if it fits your needs.
 
-[Changlelog](./CHANGELOG.md)
+[Changelog](./CHANGELOG.md)
 
 ## Usage
 

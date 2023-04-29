@@ -6,7 +6,7 @@ Rollup based build tool for building libraries based on package.json config and 
 
 It is a simple building tool that supports building to different targets like: `es`, `cjs`, `umd` without additional transformation other than minification using `terser` or preprocess using `rollup-plugin-preprocess`.
 
-[Changlelog](./CHANGELOG.md)
+[Changelog](./CHANGELOG.md)
 
 ## Why
 
