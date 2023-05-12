@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.28
+
+### Patch Changes
+
+- 643d964: fix(deps): update dependency @rollup/plugin-commonjs to v25
+
 ## 1.0.27
 
 ### Patch Changes
