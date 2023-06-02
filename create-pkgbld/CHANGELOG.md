@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.10
+
+### Patch Changes
+
+- 86c8d88: updated processing logic of default, module and types fields in package.json
+
 ## 1.1.9
 
 ### Patch Changes
