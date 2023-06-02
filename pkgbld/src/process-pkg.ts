@@ -39,6 +39,16 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
     }
 
     (pkg.exports as Record<string, Json>)['./package.json'] = './package.json';
+
+    if (allowEsm && !allowCjs && typeof pkg.type !== 'string') {
+        pkg.type = 'module';
+    }
+
+    if (typeof pkg.typings === 'string') {
+        delete pkg.typings;
+    }
+
+    pkg.types = `./${config.dir}/index.d.ts`; 
     
     if (allowUmd && typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/index.umd.js`;
@@ -70,16 +80,20 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
     if (allowCjs && typeof pkg.main !== 'string') {
         pkg.main = `./${config.dir}/index.cjs`;
     }
+
+    if (allowEsm && !allowCjs && typeof pkg.main !== 'string') {
+        pkg.main = `./${config.dir}/index.mjs`;
+    }
     
     if (allowCjs && pkg.main !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require) {
         ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require = pkg.main as Json;
     }
     
-    if (allowEsm && typeof pkg.module !== 'string') {
+    if (allowCjs && allowEsm && typeof pkg.module !== 'string') {
         pkg.module = `./${config.dir}/index.mjs`;
     }
     
-    if (allowEsm && pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
+    if (pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
         ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module as Json;
     }
     
@@ -114,7 +128,7 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
     }
 
     for (const plugin of plugins) {
-        plugin.processPackageJson && plugin.processPackageJson(pkg as PackageJson, inputs, logger);
+        plugin.processPackageJson?.(pkg as PackageJson, inputs, logger);
     }
 
     return inputs;
