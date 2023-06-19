@@ -7,3 +7,6 @@ Monorepo for pkgbld and its utilities
 - [pkgbld](./pkgbld/README.md) - Pkgbld - build your libraries with ease
 - [create-pkgbld](./create-pkgbld/README.md) - Scuffolding utility for pkgbld
 - [pkgbld-internal](./pkgbld-internal/README.md) - Version of pkgbld where a lot of libraries built into single file
+
+# License
+[MIT](./LICENSE)
