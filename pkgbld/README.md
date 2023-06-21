@@ -2,15 +2,15 @@
 
 *Build your libraries with ease*
 
-Rollup based build tool for building libraries based on package.json config and simple CLI options.
+Rollup-based build tool for building libraries based on package.json config and simple CLI options.
 
-It is a simple building tool that supports building to different targets like: `es`, `cjs`, `umd` without additional transformation other than minification using `terser` or preprocess using `rollup-plugin-preprocess`.
+It is a simple building tool that supports building to different targets like `es`, `cjs`, `umd` without additional transformation other than minification using `terser` or preprocess using `rollup-plugin-preprocess`.
 
 [Changelog](./CHANGELOG.md)
 
 ## Why
 
-It is created to easily build libraries that contains multiple subpath exports (entry points, subpackages) because it is not that easy to do at the moment with `microbundle`, `tsdx` or `ng-packagr` (if you are on Typescript).
+It is created to easily build libraries that contain multiple subpath exports (entry points, sub-packages) because it is not that easy to do at the moment with `microbundle`, `tsdx` or `ng-packagr` (if you are on Typescript).
 
 ## Installation
 
@@ -21,10 +21,10 @@ npm install --save-dev pkgbld
 
 ### Getting started (minimalistic start from scratch)
 
-1. Start from creating pcakage.json using `npm init`
+1. Start by creating package.json using `npm init`
 2. Add pkgbld `npm install --save-dev pkgbld`
 3. Create `src/index.ts`
-4. Add pkgbld in scripts field of your package.json like:
+4. Add pkgbld in the 'scripts' field of your package.json like:
 
 ```json
   "scripts": {
@@ -46,9 +46,9 @@ Run `npm run build`.
 pkgbld --umd=index,core
 ```
 
-Where `index,core` should be replaced by entry points that should be comiled in umd format, index is top level `'.'` entry point.
+Where `index,core` should be replaced by entry points that should be compiled in umd format, `index` is the top level `'.'` entry point.
 
-If `package.json` defined umd field option will be defaulted to `index`.
+If `package.json` defines the `umd` field option will default to `index``.
 
 ### compress
 
@@ -64,7 +64,7 @@ Where `es,umd` should be replaced by formats that should be compressed using ter
 pkgbld --sourcemaps=es,cjs
 ```
 
-Where `es,cjs` should be replaced by targets for which sourcemaps should be generated. Default `umd`.
+Where `es,cjs` should be replaced by targets for which source maps should be generated. Default `umd`.
 
 Supported targets for this option: `es`, `cjs` and `umd`.
 
@@ -106,7 +106,7 @@ Directory to search for input files.
 pkgbld --bin=./dist/index.cjs,./dist/index.mjs
 ```
 
-File(s) to make executable. First entry will be added to package.json
+File(s) to make executable. The first entry will be added to package.json
 
 ### include-externals
 
@@ -126,11 +126,7 @@ Ejects Rollup config.
 
 ### no-ts-config
 
-```
-pkgbld --no-ts-config
-```
-
-Do not check / write tsconfig.json.
+Do not check/write tsconfig.json.
 
 ### no-update-package-json
 
@@ -144,7 +140,7 @@ Do not write package.json.
 
 `pkgbld` reads all installed packages named `pkgbld-plugin-*` and assumes they are plugins
 
-Plugins suppose to implement one or more of following interface methods as their package exports:
+Plugins suppose to implement one or more of the following interface methods as their package exports:
 
 ```
 interface PkgbldPlugin {
