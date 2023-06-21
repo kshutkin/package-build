@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.30
+
+### Patch Changes
+
+- 279b10e: Minor README changes
+
 ## 1.0.29
 
 ### Patch Changes
