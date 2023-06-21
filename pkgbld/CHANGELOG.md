@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.4
+
+### Patch Changes
+
+- 279b10e: Minor README changes
+
 ## 1.16.3
 
 ### Patch Changes
