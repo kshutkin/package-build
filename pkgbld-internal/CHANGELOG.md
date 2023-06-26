@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.32
+
+### Patch Changes
+
+- 0804773: minor package changes: remove LICENSE from files, simplified author
+
 ## 1.0.31
 
 ### Patch Changes
