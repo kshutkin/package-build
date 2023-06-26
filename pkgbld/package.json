@@ -2,15 +2,12 @@
   "version": "1.16.4",
   "license": "MIT",
   "name": "pkgbld",
-  "author": {
-    "name": "Konstantin Shutkin"
-  },
+  "author": "Konstantin Shutkin",
   "bin": "./dist/index.js",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "files": [
-    "dist",
-    "LICENSE"
+    "dist"
   ],
   "engines": {
     "node": ">=16"
