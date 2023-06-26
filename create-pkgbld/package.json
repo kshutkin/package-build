@@ -2,10 +2,7 @@
   "version": "1.1.10",
   "license": "MIT",
   "name": "create-pkgbld",
-  "author": {
-    "name": "Konstantin Shutkin"
-  },
-  "funding": "https://www.donationalerts.com/r/excitingcode",
+  "author": "Konstantin Shutkin",
   "bin": "./dist/index.cjs",
   "exports": {
     ".": {
@@ -41,7 +38,6 @@
     "lint": "eslint ./src"
   },
   "devDependencies": {
-    "@types/degit": "2.8.3",
     "@types/git-user-name": "2.0.1",
     "@types/parse-git-config": "3.0.1",
     "@types/prompts": "2.4.4",
@@ -49,7 +45,6 @@
     "pkgbld": "workspace:*"
   },
   "dependencies": {
-    "degit": "2.8.4",
     "git-user-name": "2.0.0",
     "minimist": "1.2.8",
     "parse-git-config": "3.0.0",
