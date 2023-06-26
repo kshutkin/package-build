@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 importers:
 
   .:
@@ -111,8 +115,8 @@ importers:
         specifier: ^0.0.4
         version: 0.0.4
       rollup-plugin-typescript2:
-        specifier: ^0.34.1
-        version: 0.34.1(rollup@3.20.2)(typescript@5.0.2)
+        specifier: ^0.35.0
+        version: 0.35.0(rollup@3.20.2)(typescript@5.0.2)
       terser:
         specifier: ^5.16.8
         version: 5.16.8
@@ -163,8 +167,8 @@ importers:
         specifier: ^0.0.4
         version: 0.0.4
       rollup-plugin-typescript2:
-        specifier: ^0.34.1
-        version: 0.34.1(rollup@3.20.2)(typescript@5.0.2)
+        specifier: ^0.35.0
+        version: 0.35.0(rollup@3.20.2)(typescript@5.0.2)
       typescript:
         specifier: ^5.0.2
         version: 5.0.2
@@ -2607,8 +2611,8 @@ packages:
       rollup-pluginutils: 2.8.2
     dev: false
 
-  /rollup-plugin-typescript2@0.34.1(rollup@3.20.2)(typescript@5.0.2):
-    resolution: {integrity: sha512-P4cHLtGikESmqi1CA+tdMDUv8WbQV48mzPYt77TSTOPJpERyZ9TXdDgjSDix8Fkqce6soYz3+fa4lrC93IEkcw==}
+  /rollup-plugin-typescript2@0.35.0(rollup@3.20.2)(typescript@5.0.2):
+    resolution: {integrity: sha512-szcIO9hPUx3PhQl91u4pfNAH2EKbtrXaES+m163xQVE5O1CC0ea6YZV/5woiDDW3CR9jF2CszPrKN+AFiND0bg==}
     peerDependencies:
       rollup: '>=1.26.3'
       typescript: '>=2.4.0'

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.5
+
+### Patch Changes
+
+- 20a4505: fix(deps): update dependency rollup-plugin-typescript2 to ^0.35.0
+
 ## 1.16.4
 
 ### Patch Changes
