@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+### Minor Changes
+
+- b4556f5: simplified package so it provides bare minimum of functionality, fixed issue running in current / another directory, added automatic directory creation
+
 ## 1.1.10
 
 ### Patch Changes
