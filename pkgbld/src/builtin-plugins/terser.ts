@@ -1,6 +1,6 @@
 import { InternalModuleFormat } from 'rollup';
 import { getCliOptions } from '../get-cli-options';
-import { Priotiry, Provider } from '../types';
+import { Priority, Provider } from '../types';
 
 export default async function(provider: Provider, config: ReturnType<typeof getCliOptions>) {
     const filteredFormats = config.compressFormats.filter(format => config.formats.includes(format));
@@ -19,10 +19,10 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
         if (filteredFormats.length > 0) {
             for (const format of filteredFormats as InternalModuleFormat[]) {
                 if (format !== 'umd') {
-                    provider.provide(() => pluginTerser(options), Priotiry.compress, { format, outputPlugin: true });
+                    provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true });
                 } else {
                     for (const currentInput of config.umdInputs) {
-                        provider.provide(() => pluginTerser(options), Priotiry.compress, { format, outputPlugin: true, inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
+                        provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true, inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
                     }
                 }
             }

@@ -1,7 +1,7 @@
 import { InternalModuleFormat } from 'rollup';
 import { getCliOptions } from '../get-cli-options';
 import path from 'path';
-import { Priotiry, Provider } from '../types';
+import { Priority, Provider } from '../types';
 
 export default async function(provider: Provider, config: ReturnType<typeof getCliOptions>, inputs: string[]) {
     if (config.includeExternals) {
@@ -14,7 +14,7 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
 
     if (config.formats.length > 0) {
         const format = (allowGenericUmd ? undefined : config.formats.filter(format => format !== 'umd')) as InternalModuleFormat[];
-        provider.provide(() => pluginExternals(), Priotiry.externals, { format });
+        provider.provide(() => pluginExternals(), Priority.externals, { format });
     }
 
     if (!allowGenericUmd && config.umdInputs.length > 0) {
@@ -23,7 +23,7 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
             const isExternal = curry((currentInput: string, id: string, external: boolean) => external || isExternalInput(currentInput, inputs, id, config))(currentInput);
             provider.provide(() => pluginExternals({
                 external: isExternal
-            }), Priotiry.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
+            }), Priority.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
         }
         // for eject config
         provider.globalImport('path', 'path');

@@ -1,7 +1,7 @@
 import path from 'path';
 import { InternalModuleFormat, OutputChunk } from 'rollup';
 import { getCliOptions } from '../get-cli-options';
-import { Priotiry, Provider } from '../types';
+import { Priority, Provider } from '../types';
 
 export default async function(provider: Provider, config: ReturnType<typeof getCliOptions>) {
     if (config.bin != null && config.bin.length > 0) {
@@ -14,6 +14,6 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
 
         provider.provide(() => pluginBinify({
             filter: (item: OutputChunk) => item.type === 'chunk' && item.isEntry && (config.bin as string[]).some(input => input === `./${config.dir}/${item.fileName}`)
-        }), Priotiry.finalize, { outputPlugin: true, format });
+        }), Priority.finalize, { outputPlugin: true, format });
     }
 }

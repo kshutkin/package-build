@@ -11,7 +11,7 @@ export type PackageJson = {
     peerDependencies: Record<string, string>;
 };
 
-export const enum Priotiry {
+export const enum Priority {
     preprocess = 1000,
     cleanup = 1000,
     externals = 2000,
@@ -22,7 +22,7 @@ export const enum Priotiry {
     finalize = 20000
 }
 
-export type ProvideFunction = (factory: () => Plugin, priority: Priotiry, options?: {
+export type ProvideFunction = (factory: () => Plugin, priority: Priority, options?: {
     format?: InternalModuleFormat | InternalModuleFormat[],
     inputs?: string[],
     outputPlugin?: true
@@ -38,7 +38,7 @@ export type Provider = {
 
 export type PkgbldRollupPlugin = {
     plugin: () => Plugin;
-    priority: Priotiry;
+    priority: Priority;
     format?: InternalModuleFormat | InternalModuleFormat[];
     inputs?: string[];
     outputPlugin?: true;
