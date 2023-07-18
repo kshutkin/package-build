@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+
+### Minor Changes
+
+- 3daff62: Added a menu to quickly edit package
+
 ## 1.2.0
 
 ### Minor Changes
