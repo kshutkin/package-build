@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.16.7
+
+### Patch Changes
+
+- 4646ffa: Fixed typo
+
 ## 1.16.6
 
 ### Patch Changes
