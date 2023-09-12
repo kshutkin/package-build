@@ -6,6 +6,7 @@ export type Json = null | string | number | boolean | Json[] | { [name: string]:
 
 export type PackageJson = {
     name: string,
+    version: string,
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
     peerDependencies: Record<string, string>;
@@ -13,6 +14,7 @@ export type PackageJson = {
 
 export const enum Priority {
     preprocess = 1000,
+    // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
     cleanup = 1000,
     externals = 2000,
     resolve = 3000,
@@ -44,13 +46,16 @@ export type PkgbldRollupPlugin = {
     outputPlugin?: true;
 };
 
+export type CliOptions = NonNullable<ReturnType<typeof getCliOptions>>;
+export type ParsedOptions = Record<string, string | number | string[] | number[] | boolean | undefined>;
+
 // plugins API
 
 export interface PkgbldPlugin {
-    options(parsedArgs: {[key: string]: string | number}, options: ReturnType<typeof getCliOptions>): void;
+    options(parsedArgs: ParsedOptions, options: CliOptions): void;
     processPackageJson(packageJson: PackageJson, inputs: string[], logger: Logger): void;
     processTsConfig(config: Json): void;
-    providePlugins(provider: Provider, config: Record<string, string | string[] | boolean>, inputs: string[]): Promise<void>;
+    providePlugins(provider: Provider, config: ParsedOptions, inputs: string[]): Promise<void>;
     getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions>;
     buildEnd(): Promise<void>;
 }

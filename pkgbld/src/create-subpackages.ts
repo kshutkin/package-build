@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { getCliOptions } from './get-cli-options';
+import { CliOptions } from './types';
 
-export async function createSubpackages(inputs: string[], config: ReturnType<typeof getCliOptions>) {
+export async function createSubpackages(inputs: string[], config: CliOptions) {
     for (const input of inputs) {
         const basename = path.basename(input, '.ts');
         if (basename !== 'index') {

@@ -1,9 +1,8 @@
-import type { PackageJson, PkgbldRollupPlugin, Provider } from './types';
+import type { CliOptions, PackageJson, PkgbldRollupPlugin, Provider } from './types';
 import type { RollupOptions } from 'rollup';
 import fs from 'fs/promises';
 import path from 'path';
 import { camelCase } from 'lodash';
-import { getCliOptions } from './get-cli-options';
 import { getHelpers } from './helpers';
 import pkgbldPkg from '../package.json';
 
@@ -44,7 +43,7 @@ export async function createEjectProvider(preimportMap: Map<string, Promise<neve
     }, plugins] as [Provider, PkgbldRollupPlugin[]];
 }
 
-export async function ejectConfig(config: RollupOptions[], pkgPath: string, options: ReturnType<typeof getCliOptions>, inputs: string[], helpers: ReturnType<typeof getHelpers>, pkg: PackageJson) {
+export async function ejectConfig(config: RollupOptions[], pkgPath: string, options: CliOptions, inputs: string[], helpers: ReturnType<typeof getHelpers>, pkg: PackageJson) {
 
     const pkgName = (pkg as { name: string }).name;
 

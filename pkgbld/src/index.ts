@@ -20,13 +20,16 @@ execute();
 
 async function execute() {
     const time = Date.now();
-    createLogger().update(' '); // blank line
     const mainLogger = createLogger();
-    mainLogger.update('preparing...');
+    mainLogger.update('preparing..');
     try {
-        const [pkgPath, pkg] = await getJson('package.json');
-        const plugins = await loadPlugins(pkg as PackageJson);
-        const options = getCliOptions(plugins);
+        const [pkgPath, pkg] = await getJson('package.json') as [string, PackageJson];
+        const plugins = await loadPlugins(pkg);
+        mainLogger.update('');
+        process.stdout.moveCursor?.(0, -1);
+        const options = getCliOptions(plugins, pkg);
+        process.stdout.moveCursor?.(0, 1);
+        mainLogger.update('preparing...');
         checkTsConfig(options, mainLogger, plugins);
         const inputs = processPackage(pkg, options, plugins);
         const helpers = getHelpers((pkg as { name: string }).name);
@@ -35,7 +38,7 @@ async function execute() {
         const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers, plugins);
 
         if (options.eject) {
-            await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkg as PackageJson);
+            await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkg);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
             if (!options.noUpdatePackageJson) {
                 await writeJson(pkgPath, pkg);

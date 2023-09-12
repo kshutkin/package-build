@@ -1,9 +1,8 @@
 import path from 'path';
 import fsSync from 'fs';
 import { Logger } from '@niceties/logger';
-import { getCliOptions } from './get-cli-options';
 import { writeJson } from './write-json';
-import { Json, PkgbldPlugin } from './types';
+import { CliOptions, Json, PkgbldPlugin } from './types';
 import { getJson } from './get-json';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
@@ -22,7 +21,7 @@ const defaultTsConfig = {
     }
 };
 
-export async function checkTsConfig(options: ReturnType<typeof getCliOptions>, mainLogger: Logger, plugins: Partial<PkgbldPlugin>[]) {
+export async function checkTsConfig(options: CliOptions, mainLogger: Logger, plugins: Partial<PkgbldPlugin>[]) {
     if (options.noTsConfig) {
         return;
     }
@@ -36,7 +35,7 @@ export async function checkTsConfig(options: ReturnType<typeof getCliOptions>, m
     }
     const originalConfig = cloneDeep(config);
     for (const plugin of plugins) {
-        plugin.processTsConfig && plugin.processTsConfig(config);
+        plugin.processTsConfig?.(config);
     }
     if (!isEqual(originalConfig, config)) {
         needWrite = true;
