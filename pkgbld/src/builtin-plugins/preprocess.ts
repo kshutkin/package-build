@@ -1,8 +1,7 @@
 import { InternalModuleFormat } from 'rollup';
-import { getCliOptions } from '../get-cli-options';
-import { Priority, Provider } from '../types';
+import { CliOptions, Priority, Provider } from '../types';
 
-export default async function(provider: Provider, config: ReturnType<typeof getCliOptions>) {
+export default async function(provider: Provider, config: CliOptions) {
     if (config.preprocess.length > 0) {
         const pluginPreprocess = await provider.import('rollup-plugin-preprocess');
 

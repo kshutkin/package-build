@@ -1,9 +1,9 @@
-import minimist from 'minimist';
-import { PkgbldPlugin } from './types';
+import { cli } from 'cleye';
+import { PackageJson, PkgbldPlugin } from './types';
 
 const defaults = {
     formats: ['es', 'cjs'],
-    umdInputs: [],
+    umdInputs: [] as string[],
     compressFormats: ['umd'],
     sourcemapFormats: ['umd'],
     preprocess: [],
@@ -15,39 +15,97 @@ const defaults = {
     noUpdatePackageJson: false
 };
 
-export function getCliOptions(plugins: Partial<PkgbldPlugin>[]) {
-    const parsedArgs = minimist(process.argv.slice(2));
-    const umdInputs = parsedArgs.umd?.split(',').map((arg: string) => arg.trim()) ?? defaults.umdInputs;
-    const compressFormats = parsedArgs.compress?.split(',').map((arg: string) => arg.trim()) ?? defaults.compressFormats;
-    const sourcemapFormats = parsedArgs.sourcemaps?.split(',').map((arg: string) => arg.trim()) ?? defaults.sourcemapFormats;
-    const formats = parsedArgs.formats?.split(',').map((arg: string) => arg.trim()) ?? defaults.formats;
-    const preprocess = parsedArgs.preprocess?.split(',').map((arg: string) => arg.trim()) ?? defaults.preprocess;
-    const dir = parsedArgs.dir ?? defaults.dir;
-    const sourceDir = parsedArgs.sourceDir ?? defaults.sourceDir;
-    const bin = parsedArgs.bin?.split(',').map((arg: string) => arg.trim());
-    const includeExternals = parsedArgs['include-externals'] ?? defaults.includeExternals;
-    const eject = !!parsedArgs.eject ?? defaults.eject;
-    const noTsConfig = !!parsedArgs.noTsConfig ?? defaults.noTsConfig;
-    const noUpdatePackageJson = !!parsedArgs.noUpdatePackageJson ?? defaults.noUpdatePackageJson;
+function CommaSeparatedString(value: string) {
+    return value.split(',').map((arg: string) => arg.trim());
+}
+
+export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson) {
+    const cliOptions = cli({
+        name: 'pkgbld',
+        version: pkg.version ?? '<unknown>',
+        flags: {
+            umd: {
+                type: CommaSeparatedString,
+                description: 'Package subpath exports in UMD format',
+                default: defaults.umdInputs
+            },
+            compress: {
+                type: CommaSeparatedString,
+                description: 'Compress formats using terser',
+                default: defaults.compressFormats
+            },
+            sourcemaps: {
+                type: CommaSeparatedString,
+                description: 'Emit sourcemaps for the specified formats',
+                default: defaults.sourcemapFormats
+            },
+            formats: {
+                type: CommaSeparatedString,
+                description: 'Formats to emit',
+                default: defaults.formats
+            },
+            preprocess: {
+                type: CommaSeparatedString,
+                description: 'Preprocess entry points / subpath exports',
+                default: defaults.preprocess
+            },
+            dir: {
+                type: String,
+                description: 'Output directory',
+                default: defaults.dir
+            },
+            sourceDir: {
+                type: String,
+                description: 'Source directory',
+                default: defaults.sourceDir
+            },
+            bin: {
+                type: CommaSeparatedString,
+                description: 'Executable files'
+            },
+            includeExternals: {
+                type: Boolean,
+                description: 'Include all externals into result bundle(s)',
+                default: defaults.includeExternals
+            },
+            eject: {
+                type: Boolean,
+                description: 'Eject config',
+                default: defaults.includeExternals
+            },
+            noTsConfig: {
+                type: Boolean,
+                description: 'Do not create / update tsconfig.json',
+                default: defaults.noTsConfig
+            },
+            noUpdatePackageJson: {
+                type: Boolean,
+                description: 'Do not create / update package.json',
+                default: defaults.noUpdatePackageJson
+            }
+        }
+    });
+
+    const flags = cliOptions.flags;
 
     const options = {
-        umdInputs,
-        compressFormats,
-        sourcemapFormats,
-        formats,
-        formatsOverriden: 'formats' in parsedArgs,
-        preprocess,
-        dir,
-        sourceDir,
-        bin,
-        includeExternals,
-        eject,
-        noTsConfig,
-        noUpdatePackageJson
+        umdInputs: flags.umd,
+        compressFormats: flags.compress,
+        sourcemapFormats: flags.sourcemaps,
+        formats: flags.formats,
+        formatsOverridden: flags.formats !== defaults.formats,
+        preprocess: flags.preprocess,
+        dir: flags.dir,
+        sourceDir: flags.sourceDir,
+        bin: flags.bin,
+        includeExternals: flags.includeExternals,
+        eject: flags.eject,
+        noTsConfig: flags.noTsConfig,
+        noUpdatePackageJson: flags.noUpdatePackageJson
     };
 
     for (const plugin of plugins) {
-        plugin.options && plugin.options(parsedArgs, options);
+        plugin.options?.(flags, options);
     }
 
     return options as {
@@ -55,7 +113,7 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[]) {
         compressFormats: string[],
         sourcemapFormats: string[],
         formats: string[],
-        formatsOverriden: boolean,
+        formatsOverridden: boolean,
         preprocess: string[],
         dir: string,
         sourceDir: string,

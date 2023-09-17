@@ -1,9 +1,8 @@
 import path from 'path';
 import { InternalModuleFormat, OutputChunk } from 'rollup';
-import { getCliOptions } from '../get-cli-options';
-import { Priority, Provider } from '../types';
+import { CliOptions, Priority, Provider } from '../types';
 
-export default async function(provider: Provider, config: ReturnType<typeof getCliOptions>) {
+export default async function(provider: Provider, config: CliOptions) {
     if (config.bin != null && config.bin.length > 0) {
         const pluginBinify = await provider.import('@rollup-extras/plugin-binify');
 

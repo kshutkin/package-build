@@ -1,9 +1,8 @@
 import { InternalModuleFormat } from 'rollup';
-import { getCliOptions } from '../get-cli-options';
 import path from 'path';
-import { Priority, Provider } from '../types';
+import { CliOptions, Priority, Provider } from '../types';
 
-export default async function(provider: Provider, config: ReturnType<typeof getCliOptions>, inputs: string[]) {
+export default async function(provider: Provider, config: CliOptions, inputs: string[]) {
     if (config.includeExternals) {
         return;
     }
@@ -31,7 +30,7 @@ export default async function(provider: Provider, config: ReturnType<typeof getC
     }
 }
 
-function isExternalInput(currentInput: string, inputs: string | string[], id: string, config: ReturnType<typeof getCliOptions>) {
+function isExternalInput(currentInput: string, inputs: string | string[], id: string, config: CliOptions) {
     let normalizedPath;
     if (path.isAbsolute(currentInput)) {
         normalizedPath = './' + path.relative(process.cwd(), currentInput);

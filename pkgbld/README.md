@@ -42,6 +42,10 @@ Run `npm run build`.
 
 ### umd
 
+Defines what subpath exports (entry points) should be compiled as umd bundles.
+
+Example:
+
 ```
 pkgbld --umd=index,core
 ```

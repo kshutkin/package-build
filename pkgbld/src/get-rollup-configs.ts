@@ -1,10 +1,9 @@
-import type { getCliOptions } from './get-cli-options';
 import { plugins as pluginFactories } from './get-plugins';
 import refiner from '@slimlib/refine-partition';
 import { areSetsEqual, toArray } from './helpers';
 import { InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getHelpers } from './helpers';
-import type { PkgbldPlugin, PkgbldRollupPlugin, Provider } from './types';
+import type { CliOptions, PkgbldPlugin, PkgbldRollupPlugin, Provider } from './types';
 
 const fileNamePatterns = {
     'es': '[name].mjs',
@@ -12,7 +11,7 @@ const fileNamePatterns = {
     'umd': '[name].umd.js',
 } as {[key in InternalModuleFormat]: string};
 
-export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], config: ReturnType<typeof getCliOptions>, helpers: ReturnType<typeof getHelpers>, externalPlugins: Partial<PkgbldPlugin>[]) {
+export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], config: CliOptions, helpers: ReturnType<typeof getHelpers>, externalPlugins: Partial<PkgbldPlugin>[]) {
     const factoryInProgress = [];
 
     for (const factory of pluginFactories) {
@@ -44,18 +43,16 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
             const formats = toArray(plugin.format);
             if (!plugin.inputs || plugin.inputs.length === 0) {
                 refineNext(doExpandInputs(formats));
+            } else if (inputs.length === 1) {
+                refineNext(formats);
             } else {
-                if (inputs.length === 1) {
-                    refineNext(formats);
-                } else {
-                    const expanded = [];
-                    for (const format of formats) {
-                        for (const input of plugin.inputs) {
-                            expanded.push(`${format}.${input}`);
-                        }
+                const expanded = [];
+                for (const format of formats) {
+                    for (const input of plugin.inputs) {
+                        expanded.push(`${format}.${input}`);
                     }
-                    refineNext(expanded);
                 }
+                refineNext(expanded);
             }
         }
     }

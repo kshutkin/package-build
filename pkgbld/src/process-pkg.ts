@@ -1,16 +1,15 @@
 
 
 import path from 'path';
-import { getCliOptions } from './get-cli-options';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { Json, PackageJson, PkgbldPlugin } from './types';
+import { CliOptions, Json, PackageJson, PkgbldPlugin } from './types';
 
-export function processPackage(pkg: Json, config: ReturnType<typeof getCliOptions>, plugins: Partial<PkgbldPlugin>[]): string[] {
+export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<PkgbldPlugin>[]): string[] {
     const inputs = [];
     const logger = createLogger();
-    const allowEsm = (config.formatsOverriden && config.formats.includes('es') || !config.formatsOverriden);
-    const allowCjs = (config.formatsOverriden && config.formats.includes('cjs') || !config.formatsOverriden);
-    const allowUmd = (config.formatsOverriden && config.formats.includes('umd') || !config.formatsOverriden || config.umdInputs);
+    const allowEsm = (config.formatsOverridden && config.formats.includes('es') || !config.formatsOverridden);
+    const allowCjs = (config.formatsOverridden && config.formats.includes('cjs') || !config.formatsOverridden);
+    const allowUmd = (config.formatsOverridden && config.formats.includes('umd') || !config.formatsOverridden || config.umdInputs);
 
     if (typeof pkg !== 'object' || Array.isArray(pkg)) {
         logger.finish('expecting object on top level of package.json', LogLevel.error);
@@ -69,12 +68,10 @@ export function processPackage(pkg: Json, config: ReturnType<typeof getCliOption
                 delete config.bin;
             }
         }
+    } else if (typeof pkg.bin === 'string') {
+        config.bin = [pkg.bin];
     } else {
-        if (typeof pkg.bin === 'string') {
-            config.bin = [pkg.bin];
-        } else {
-            delete pkg.bin;
-        }
+        delete pkg.bin;
     }
 
     if (allowCjs && typeof pkg.main !== 'string') {
