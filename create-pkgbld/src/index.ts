@@ -145,6 +145,7 @@ function updatePackage(pkg: PkgInfo, options: OptionsValue) {
         'repository',
         'bugs',
         'homepage',
+        'readme',
         'keywords',
         'scripts',
         'dependencies',
@@ -518,6 +519,10 @@ function getBasicOptions(packageName: string, pkg: PkgInfo) {
             title: 'Author',
             field: 'author',
             initialValue: chooseValue(pkg.pkg.author, userName() ?? '')
+        }, {
+            title: 'Readme',
+            field: 'readme',
+            initialValue: chooseValue(pkg.pkg.readme, 'README.md')
         }],
         mutateInnerObject: false
     }] as Option[];
