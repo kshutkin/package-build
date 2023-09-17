@@ -1,9 +1,11 @@
 {
   "version": "1.4.0",
-  "license": "MIT",
   "name": "create-pkgbld",
+  "license": "MIT",
   "author": "Konstantin Shutkin",
   "bin": "./dist/index.cjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
@@ -12,8 +14,6 @@
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
   "files": [
     "dist"
   ],
@@ -22,12 +22,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kshutkin/package-build.git"
+    "url": "git+https://github.com/kshutkin/package-build.git",
+    "directory": "create-pkgbld"
   },
-  "bugs": {
-    "url": "https://github.com/kshutkin/package-build/issues"
-  },
+  "bugs": "https://github.com/kshutkin/package-build/issues",
   "homepage": "https://github.com/kshutkin/package-build/blob/main/create-pkgbld/README.md",
+  "readme": "README.md",
   "keywords": [
     "pkgbld",
     "create",
@@ -37,13 +37,6 @@
     "build": "node ../pkgbld/dist/index.js",
     "lint": "eslint ./src"
   },
-  "devDependencies": {
-    "@types/git-user-name": "2.0.1",
-    "@types/parse-git-config": "3.0.1",
-    "@types/prompts": "2.4.4",
-    "@total-typescript/ts-reset": "^0.5.1",
-    "pkgbld": "workspace:*"
-  },
   "dependencies": {
     "typia": "^5.0.1",
     "string-argv": "^0.3.2",
@@ -52,5 +45,12 @@
     "parse-git-config": "3.0.0",
     "prompts": "2.4.2",
     "kleur": "4.1.5"
+  },
+  "devDependencies": {
+    "@types/git-user-name": "2.0.1",
+    "@types/parse-git-config": "3.0.1",
+    "@types/prompts": "2.4.4",
+    "@total-typescript/ts-reset": "^0.5.1",
+    "pkgbld": "workspace:*"
   }
 }
