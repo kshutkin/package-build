@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.17.1
+
+### Patch Changes
+
+- 1e0d5a4: update packages to match new structure
+
 ## 1.17.0
 
 ### Minor Changes
