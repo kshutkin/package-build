@@ -518,7 +518,7 @@ function getBasicOptions(packageName: string, pkg: PkgInfo) {
         }, {
             title: 'Author',
             field: 'author',
-            initialValue: chooseValue(pkg.pkg.author, userName() ?? '')
+            initialValue: chooseValue(toAuthorString(pkg.pkg.author), userName() ?? '')
         }, {
             title: 'Readme',
             field: 'readme',
@@ -529,6 +529,16 @@ function getBasicOptions(packageName: string, pkg: PkgInfo) {
 
     function chooseValue(pkgValue: string | undefined, defaultValue: string) {
         return pkg.mode === 'update' ? pkgValue : defaultValue;
+    }
+
+    function toAuthorString(author: undefined | string | { name?: string, email?: string, url?: string }) {
+        if (typeof author === 'string' || !author) {
+            return author;
+        }
+        const name = author.name ?? '';
+        const email = author.email ?? '';
+        const url = author.url ?? '';
+        return `${name}${email ? ` <${email}>` : ''}${url ? ` (${url})` : ''}`;
     }
 }
 
@@ -547,9 +557,10 @@ async function readPackage(dir: string) {
         const isValidPackageJson = typia.is<PackageJson>(pkg);
         if (!isValidPackageJson) {
             console.error('Invalid package.json');
+            throw new Error('Invalid package.json');
         }
         return {
-            pkg: isValidPackageJson ? pkg : defaultPkg,
+            pkg,
             readme: readmeFile.toString(),
             mode: 'update' as const
         };

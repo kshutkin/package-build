@@ -24,7 +24,11 @@ export type PackageJson = {
     version?: string,
     name?: string,
     license?: string,
-    author?: string,
+    author?: string | {
+        name?: string,
+        email?: string,
+        url?: string
+    },
     description?: string,
     scripts?: {
         build?: string,
