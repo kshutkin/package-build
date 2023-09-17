@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.1
+
+### Patch Changes
+
+- ea0a7cb: remove redundunt debug console.log()
+- 1e0d5a4: update packages to match new structure
+- fd406cc: added missing `readme` field
+
 ## 1.4.0
 
 ### Minor Changes
