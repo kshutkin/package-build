@@ -9,7 +9,6 @@ import { Option, PkgInfo, OptionsValue, PackageJson } from './types';
 import typia from 'typia';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
 import getGitRoot from './get-git-root';
-import { get } from 'http';
 
 const done = Symbol('done');
 
@@ -327,7 +326,7 @@ function getPkgbldOptions(pkg: PackageJson) {
         return value.split(',').map((arg: string) => arg.trim());
     }
 
-    let cmd = pkg.scripts?.build ?? '';
+    const cmd = pkg.scripts?.build ?? '';
     let binary = 'pkgbld';
 
     if (cmd) {
@@ -341,7 +340,7 @@ function getPkgbldOptions(pkg: PackageJson) {
             if (naiveArgs.length > 1 && naiveArgs[0] === 'node') {
                 binary = naiveArgs[0] + ' ' + naiveArgs[1];
             } else if (naiveArgs.length > 0) {
-                binary = naiveArgs[0] as string // ?????;
+                binary = naiveArgs[0] as string; // ?????
             }
         }
 
@@ -487,8 +486,9 @@ function getPkgbldOptions(pkg: PackageJson) {
 function asCommandLineArgs(parsedArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]>)  {
     return Object.entries(parsedArgs)
         .flatMap(([key, value]) => asArray(value)
-        .filter(Boolean)
-        .map(value => `--${key}${typeof value === 'string' ? `=${value}` : ''}`)).join(' ');
+            .filter(Boolean)
+            .map(value => `--${key}${typeof value === 'string' ? `=${value}` : ''}`)
+        ).join(' ');
 }
 
 function asArray<T>(value: T | T[]) {
