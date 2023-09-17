@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- 1cf3eb4: use cleye to parse command line arguments and show help
+
 ## 1.0.32
 
 ### Patch Changes
