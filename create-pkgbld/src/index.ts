@@ -33,15 +33,15 @@ async function execute() {
         }
     });
 
-    args.showVersion();
+    !args.flags.quiet && args.showVersion();
 
     const targetDir = path.join(process.cwd(), args._.packageName ?? '.');
 
-    console.log(kleur.grey(pad16plus('Target Directory', 0)) + kleur.white(targetDir));
+    !args.flags.quiet && console.log(kleur.grey(pad16plus('Target Directory', 0)) + kleur.white(targetDir));
 
     const pkg = await readPackage(targetDir);
 
-    console.log(kleur.grey(pad16plus('Mode', 0)) + kleur.white(pkg.mode));
+    !args.flags.quiet && console.log(kleur.grey(pad16plus('Mode', 0)) + kleur.white(pkg.mode));
     
     const packageName = path.basename(targetDir);
 
