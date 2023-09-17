@@ -173,7 +173,6 @@ function updatePackage(pkg: PkgInfo, options: OptionsValue) {
     function treatKey(key: string) {
         if (key === 'scripts') {
             const scriptsCopy = { ...pkg.pkg.scripts };
-            console.log(options);
             scriptsCopy.build = getScriptValue(options.pkgbld as OptionsValue);
         }
         return options[key] ?? (pkg.pkg as OptionsValue)[key];
