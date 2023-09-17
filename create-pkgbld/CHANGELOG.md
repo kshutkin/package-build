@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.4
+
+### Patch Changes
+
+- 5950c96: added more fields for ordering
+
 ## 1.4.3
 
 ### Patch Changes
