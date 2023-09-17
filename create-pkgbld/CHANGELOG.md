@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.2
+
+### Patch Changes
+
+- 54ce107: fix typo
+
 ## 1.4.1
 
 ### Patch Changes
