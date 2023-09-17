@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0
+
+### Minor Changes
+
+- 1cf3eb4: more advanced implementation to allow create / update more complex packages (still some features missing)
+
 ## 1.3.0
 
 ### Minor Changes
