@@ -25,9 +25,9 @@ async function execute() {
             '[package name]'
         ],
         flags: {
-            quite: {
+            quiet: {
                 type: Boolean,
-                description: 'Quite mode',
+                description: 'Quiet mode',
                 default: false
             }
         }
@@ -55,7 +55,7 @@ async function execute() {
 
     const state = getOptionsValue(options);
 
-    if (!args.flags.quite) {
+    if (!args.flags.quiet) {
         for (;;) {
             const topLevelAction = await prompts({
                 type: 'select',
