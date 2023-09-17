@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.3
+
+### Patch Changes
+
+- 5fac6a1: fix: handle author object
+
 ## 1.4.2
 
 ### Patch Changes
