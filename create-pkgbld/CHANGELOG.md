@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.5
+
+### Patch Changes
+
+- cc06bb8: make quiet really quiet
+- 5f6883e: add newline to package.json same way as pkgbld does
+- b203bae: stricter package.json parsing
+
 ## 1.4.4
 
 ### Patch Changes
