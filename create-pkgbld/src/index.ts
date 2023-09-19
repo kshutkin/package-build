@@ -139,6 +139,7 @@ function updatePackage(pkg: PkgInfo, options: OptionsValue) {
         'bin',
         'main',
         'browser',
+        'unpkg',
         'module',
         'exports',
         'imports',
