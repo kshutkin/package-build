@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.6
+
+### Patch Changes
+
+- 9ce9955: added non-standart unpkg to package fields list
+
 ## 1.4.5
 
 ### Patch Changes
