@@ -24,6 +24,7 @@ export type PackageJson = {
     version?: string,
     name?: string,
     license?: string,
+    readme?: string,
     author?: string | {
         name?: string,
         email?: string,
@@ -31,13 +32,11 @@ export type PackageJson = {
     },
     description?: string,
     scripts?: {
-        build?: string,
-        lint?: string
+        [key: string]: string
     },
     dependencies?: Record<string, string>,
     devDependencies?: Record<string, string>,
-    peerDependencies?: Record<string, string>,
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any
+    peerDependencies?: Record<string, string>
 }
 
 export type PkgInfo = {
