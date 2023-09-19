@@ -594,7 +594,7 @@ async function writePackage(dir: string, pkg: PkgInfo) {
     const readmeFileName = path.resolve(dir, 'README.md');
     try {
         await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(packageFileName, JSON.stringify(pkg.pkg, null, 2), { });
+        await fs.writeFile(packageFileName, JSON.stringify(pkg.pkg, null, 2) + '\n', { });
         await fs.writeFile(readmeFileName, pkg.readme);
     } catch (e) {
         console.error(e);
