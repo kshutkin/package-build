@@ -50,7 +50,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
     pkg.types = `./${config.dir}/index.d.ts`; 
     
     if (allowUmd && typeof pkg.umd === 'string') {
-        pkg.umd = `./${config.dir}/index.umd.js`;
+        pkg.umd = `./${config.dir}/${patternToName(config.umdPattern, 'index')}`;
         if (!config.umdInputs.includes('index')) {
             config.umdInputs.push('index');
         }
@@ -74,12 +74,12 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
         delete pkg.bin;
     }
 
-    if (allowCjs && typeof pkg.main !== 'string') {
-        pkg.main = `./${config.dir}/index.cjs`;
+    if (allowCjs) {
+        pkg.main = `./${config.dir}/${patternToName(config.commonjsPattern, 'index')}`;
     }
 
-    if (allowEsm && !allowCjs && typeof pkg.main !== 'string') {
-        pkg.main = `./${config.dir}/index.mjs`;
+    if (allowEsm && !allowCjs) {
+        pkg.main = `./${config.dir}/${patternToName(config.esPattern, 'index')}`;
     }
     
     if (allowCjs && pkg.main !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require) {
@@ -87,7 +87,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
     }
     
     if (allowCjs && allowEsm && typeof pkg.module !== 'string') {
-        pkg.module = `./${config.dir}/index.mjs`;
+        pkg.module = `./${config.dir}/${patternToName(config.esPattern, 'index')}`;
     }
     
     if (pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
@@ -95,7 +95,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
     }
     
     if (allowUmd && config.umdInputs.includes('index')) {
-        pkg.unpkg = `./${config.dir}/index.umd.js`;
+        pkg.unpkg = `./${config.dir}/${patternToName(config.umdPattern, 'index')}`;
     }
     
     for (const id in pkg.exports) {
@@ -105,10 +105,10 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
             (pkg.exports as Record<string, Json>)[id] = {};
         }
         if (allowCjs) {
-            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).require = `./${config.dir}/${basename}.cjs`;
+            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).require = `./${config.dir}/${patternToName(config.commonjsPattern, basename)}`;
         }
         if (allowEsm) {
-            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).default = `./${config.dir}/${basename}.mjs`;
+            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).default = `./${config.dir}/${patternToName(config.esPattern, basename)}`;
         }
     
         if (basename !== 'index') {
@@ -118,7 +118,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
         }
     
         inputs.push(`./${config.sourceDir}/${basename}.ts`);
-    }
+    }    
 
     if (allowUmd && config.umdInputs.length > 0 && !config.formats.includes('umd')) {
         config.formats.push('umd');
@@ -129,4 +129,8 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
     }
 
     return inputs;
+}
+
+function patternToName(pattern: string, input: string) {
+    return pattern.replace('[name]', input);
 }

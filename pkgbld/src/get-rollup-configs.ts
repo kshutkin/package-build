@@ -5,14 +5,14 @@ import { InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getHelpers } from './helpers';
 import type { CliOptions, PkgbldPlugin, PkgbldRollupPlugin, Provider } from './types';
 
-const fileNamePatterns = {
-    'es': '[name].mjs',
-    'cjs': '[name].cjs',
-    'umd': '[name].umd.js',
-} as {[key in InternalModuleFormat]: string};
-
 export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], config: CliOptions, helpers: ReturnType<typeof getHelpers>, externalPlugins: Partial<PkgbldPlugin>[]) {
     const factoryInProgress = [];
+    
+    const fileNamePatterns = {
+        'es': config.esPattern,
+        'cjs': config.commonjsPattern,
+        'umd': config.umdPattern
+    } as {[key in InternalModuleFormat]: string};
 
     for (const factory of pluginFactories) {
         factoryInProgress.push(factory(provider, config, inputs));

@@ -140,6 +140,30 @@ pkgbld --no-update-package-json
 
 Do not write package.json.
 
+### commonjs-pattern
+
+```
+pkgbld --commonjs-pattern=[name].js
+```
+
+Defines the pattern for commonjs output files. Default is `[name].cjs`.
+
+### esm-pattern
+
+```
+pkgbld --esm-pattern=[name].js
+```
+
+Defines the pattern for esm output files. Default is `[name].mjs`.
+
+### umd-pattern
+
+```
+pkgbld --umd-pattern=[name].js
+```
+
+Defines the pattern for umd output files. Default is `[name].umd.js`.
+
 ## Plugin API
 
 `pkgbld` reads all installed packages named `pkgbld-plugin-*` and assumes they are plugins

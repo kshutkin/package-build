@@ -12,7 +12,10 @@ const defaults = {
     includeExternals: false,
     eject: false,
     noTsConfig: false,
-    noUpdatePackageJson: false
+    noUpdatePackageJson: false,
+    commonjsPattern: '[name].cjs',
+    esPattern: '[name].mjs',
+    umdPattern: '[name].umd.js'
 };
 
 function CommaSeparatedString(value: string) {
@@ -82,6 +85,21 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
                 type: Boolean,
                 description: 'Do not create / update package.json',
                 default: defaults.noUpdatePackageJson
+            },
+            commonjsPattern: {
+                type: String,
+                description: 'CommonJS output file name pattern',
+                default: defaults.commonjsPattern
+            },
+            esmPattern: {
+                type: String,
+                description: 'ES output file name pattern',
+                default: defaults.esPattern
+            },
+            umdPattern: {
+                type: String,
+                description: 'UMD output file name pattern',
+                default: defaults.umdPattern
             }
         }
     });
@@ -101,7 +119,10 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         includeExternals: flags.includeExternals,
         eject: flags.eject,
         noTsConfig: flags.noTsConfig,
-        noUpdatePackageJson: flags.noUpdatePackageJson
+        noUpdatePackageJson: flags.noUpdatePackageJson,
+        commonjsPattern: flags.commonjsPattern,
+        esPattern: flags.esmPattern,
+        umdPattern: flags.umdPattern
     };
 
     for (const plugin of plugins) {
@@ -121,6 +142,9 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         includeExternals: boolean,
         eject: boolean,
         noTsConfig: boolean,
-        noUpdatePackageJson: boolean
+        noUpdatePackageJson: boolean,
+        commonjsPattern: string,
+        esPattern: string,
+        umdPattern: string
     };
 }
