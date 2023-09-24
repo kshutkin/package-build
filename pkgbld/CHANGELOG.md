@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.19.0
+
+### Minor Changes
+
+- e24ae43: extend include-externals
+
 ## 1.18.0
 
 ### Minor Changes
