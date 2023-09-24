@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+
+### Minor Changes
+
+- fdcf99f: extended include-externals to specify individual externals
+
 ## 1.4.6
 
 ### Patch Changes
