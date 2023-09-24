@@ -49,7 +49,7 @@
   "devDependencies": {
     "@types/git-user-name": "2.0.1",
     "@types/parse-git-config": "3.0.1",
-    "@types/prompts": "2.4.4",
+    "@types/prompts": "2.4.5",
     "@total-typescript/ts-reset": "^0.5.1",
     "pkgbld": "workspace:*"
   }
