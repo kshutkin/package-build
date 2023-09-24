@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.18.0
+
+### Minor Changes
+
+- cab3ad7: allow defining filename patterns
+
 ## 1.17.1
 
 ### Patch Changes
