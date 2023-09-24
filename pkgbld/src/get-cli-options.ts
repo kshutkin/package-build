@@ -9,7 +9,7 @@ const defaults = {
     preprocess: [],
     dir: 'dist',
     sourceDir: 'src',
-    includeExternals: false,
+    includeExternals: false as boolean | string[],
     eject: false,
     noTsConfig: false,
     noUpdatePackageJson: false,
@@ -20,6 +20,16 @@ const defaults = {
 
 function CommaSeparatedString(value: string) {
     return value.split(',').map((arg: string) => arg.trim());
+}
+
+function CommaSeparatedStringOrBoolean(value: string | boolean) {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    if (Array.isArray(value) && value.length === 0) {
+        return true;
+    }
+    return CommaSeparatedString(value);
 }
 
 export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson) {
@@ -67,14 +77,14 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
                 description: 'Executable files'
             },
             includeExternals: {
-                type: Boolean,
-                description: 'Include all externals into result bundle(s)',
+                type: CommaSeparatedStringOrBoolean,
+                description: 'Include all/specified externals into result bundle(s)',
                 default: defaults.includeExternals
             },
             eject: {
                 type: Boolean,
                 description: 'Eject config',
-                default: defaults.includeExternals
+                default: defaults.eject
             },
             noTsConfig: {
                 type: Boolean,
@@ -139,7 +149,7 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         dir: string,
         sourceDir: string,
         bin?: string[],
-        includeExternals: boolean,
+        includeExternals: boolean | string[],
         eject: boolean,
         noTsConfig: boolean,
         noUpdatePackageJson: boolean,

@@ -3,7 +3,7 @@ import path from 'path';
 import { CliOptions, Priority, Provider } from '../types';
 
 export default async function(provider: Provider, config: CliOptions, inputs: string[]) {
-    if (config.includeExternals) {
+    if (config.includeExternals === true) {
         return;
     }
     
@@ -13,21 +13,46 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
 
     if (config.formats.length > 0) {
         const format = (allowGenericUmd ? undefined : config.formats.filter(format => format !== 'umd')) as InternalModuleFormat[];
-        provider.provide(() => pluginExternals(), Priority.externals, { format });
+        provider.provide(() => pluginExternals({
+            external: (id: string, external: boolean, importer: string) => includeExternals(importer, external, id, config)
+        }), Priority.externals, { format });
+        // for eject config
+        provider.globalImport('path', 'path');
+        provider.globalSetup(includeExternals);
     }
 
     if (!allowGenericUmd && config.umdInputs.length > 0) {
         const curry = (await provider.import('lodash/curry.js')) as typeof import('lodash/curry');
         for(const currentInput of config.umdInputs) {
-            const isExternal = curry((currentInput: string, id: string, external: boolean) => external || isExternalInput(currentInput, inputs, id, config))(currentInput);
+            const isExternal = curry((currentInput: string, id: string, external: boolean, importer: string) => includeExternals(importer, external, id, config) || isExternalInput(currentInput, inputs, id, config))(currentInput);
             provider.provide(() => pluginExternals({
                 external: isExternal
             }), Priority.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
         }
         // for eject config
-        provider.globalImport('path', 'path');
+        if (config.formats.length === 0) {
+            provider.globalImport('path', 'path');
+            provider.globalSetup(includeExternals);
+        }
         provider.globalSetup(isExternalInput);
     }
+}
+
+function includeExternals(importer: string, external: boolean, id: string, config: CliOptions) {
+    if (config.includeExternals === false) return external;
+    if (!external) return false;    
+    if (path.isAbsolute(id)) {
+        id = './' + path.relative(process.cwd(), id);
+    }
+    const internals = config.includeExternals as string[];
+    if (internals.includes(id) || internals.some(internal => id.startsWith(internal))) {
+        return false;
+    }
+    const relative = path.relative('.', path.resolve(importer ?? '.', id));
+    if (internals.some(internal => relative.includes(`node_modules/${internal}/`))) {
+        return false;
+    }
+    return true;
 }
 
 function isExternalInput(currentInput: string, inputs: string | string[], id: string, config: CliOptions) {

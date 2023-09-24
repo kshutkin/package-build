@@ -118,7 +118,13 @@ File(s) to make executable. The first entry will be added to package.json
 pkgbld --include-externals
 ```
 
-Bundles all externals into a package.
+or
+
+```
+pkgbld --include-externals=lodash
+```
+
+Bundles all or specified externals into a package.
 
 ### eject
 

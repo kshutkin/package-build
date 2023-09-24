@@ -13,7 +13,7 @@ const input = 'src/index.ts';
 
 const dest = 'dist';
 
-const reported = new Set();
+const reported = new Set;
 
 const plugins = [
     clean(),
