@@ -6,9 +6,9 @@ import gitConfig from 'parse-git-config';
 import { cli } from 'cleye';
 import kleur from 'kleur';
 import { Option, PkgInfo, OptionsValue, PackageJson } from './types';
-import typia from 'typia';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
 import getGitRoot from './get-git-root';
+import { cliFlags, processPackageJson, isPackageJson, toFormattedJson } from 'options';
 
 const done = Symbol('done');
 
@@ -126,67 +126,7 @@ async function execute() {
 execute();
 
 function updatePackage(pkg: PkgInfo, options: OptionsValue) {
-    const order = new Set([
-        'private',
-        'type',
-        'version',
-        'name',
-        'description',
-        'license',
-        'author',
-        'contributors',
-        'funding',
-        'bin',
-        'main',
-        'browser',
-        'unpkg',
-        'module',
-        'exports',
-        'imports',
-        'types',
-        'typings',
-        'files',
-        'packageManager',
-        'sideEffects',
-        'engines',
-        'os',
-        'cpu',
-        'man',
-        'directories',
-        'repository',
-        'bugs',
-        'homepage',
-        'readme',
-        'keywords',
-        'scripts',
-        'config',
-        'dependencies',
-        'devDependencies',
-        'peerDependencies',
-        'peerDependenciesMeta',
-        'bundleDependencies',
-        'bundledDependencies',
-        'optionalDependencies',
-        'overrides',
-        'publishConfig',
-        'workspaces'
-    ]);
-
-    const newPkg: OptionsValue = {};
-
-    for (const key of order) {
-        if (key in options || key in pkg.pkg) {
-            newPkg[key] = treatKey(key);
-        }
-    }
-
-    for (const key in pkg.pkg) {
-        if (!order.has(key)) {
-            newPkg[key] = (pkg.pkg as OptionsValue)[key];
-        }
-    }
-
-    pkg.pkg = newPkg;
+    pkg.pkg = processPackageJson(pkg.pkg, (key: string) => (key in options || key in pkg.pkg), treatKey);
 
     function treatKey(key: string) {
         if (key === 'scripts') {
@@ -339,10 +279,6 @@ function getPkgbldOptions(pkg: PackageJson) {
         noUpdatePackageJson: false
     };
 
-    function CommaSeparatedString(value: string) {
-        return value.split(',').map((arg: string) => arg.trim());
-    }
-
     const cmd = pkg.scripts?.build ?? '';
     let binary = 'pkgbld';
 
@@ -363,56 +299,7 @@ function getPkgbldOptions(pkg: PackageJson) {
 
         const parsedArgs = cli({
             help: false,
-            flags: {
-                umd: {
-                    type: CommaSeparatedString,
-                    default: args.umd
-                },
-                compress: {
-                    type: CommaSeparatedString,
-                    default: args.compress
-                },
-                sourcemaps: {
-                    type: CommaSeparatedString,
-                    default: args.sourcemaps
-                },
-                formats: {
-                    type: CommaSeparatedString,
-                    default: args.formats
-                },
-                preprocess: {
-                    type: CommaSeparatedString,
-                    default: args.preprocess
-                },
-                dir: {
-                    type: String,
-                    default: args.dir
-                },
-                sourceDir: {
-                    type: String,
-                    default: args.sourceDir
-                },
-                bin: {
-                    type: CommaSeparatedString,
-                    default: args.bin
-                },
-                includeExternals: {
-                    type: Boolean,
-                    default: args.includeExternals
-                },
-                eject: {
-                    type: Boolean,
-                    default: args.eject
-                },
-                noTsConfig: {
-                    type: Boolean,
-                    default: args.noTsConfig
-                },
-                noUpdatePackageJson: {
-                    type: Boolean,
-                    default: args.noUpdatePackageJson
-                }
-            }
+            flags: cliFlags
         }, undefined, toArgv(cmd));
 
         args = parsedArgs.flags;
@@ -571,7 +458,7 @@ async function readPackage(dir: string) {
         const pkgFile = await fs.readFile(packageFileName);
         const readmeFile = await fs.readFile(readmeFileName);
         const pkg = JSON.parse(pkgFile.toString());
-        const isValidPackageJson = typia.is<PackageJson>(pkg);
+        const isValidPackageJson = isPackageJson(pkg);
         if (!isValidPackageJson) {
             console.error('Invalid package.json');
             throw new Error('Invalid package.json');
@@ -595,7 +482,7 @@ async function writePackage(dir: string, pkg: PkgInfo) {
     const readmeFileName = path.resolve(dir, 'README.md');
     try {
         await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(packageFileName, JSON.stringify(pkg.pkg, null, 2) + '\n', { });
+        await fs.writeFile(packageFileName, toFormattedJson(pkg.pkg));
         await fs.writeFile(readmeFileName, pkg.readme);
     } catch (e) {
         console.error(e);

@@ -5,6 +5,7 @@ import clean from '@rollup-extras/plugin-clean';
 import binify from '@rollup-extras/plugin-binify';
 import externals from '@rollup-extras/plugin-externals';
 import json from '@rollup/plugin-json';
+import path from 'path';
 
 const input = 'src/index.ts';
 
@@ -12,7 +13,24 @@ const dest = 'dist';
 
 const plugins = [
     clean(),
-    externals(),
+    externals({
+        // from our externals plugin
+        external: (id, external, importer) => {
+            const internals = ['options'];
+            if (!external) return false;
+            if (path.isAbsolute(id)) {
+                id = path.relative(path.join(process.cwd(), '..'), id);
+            }
+            if (internals.includes(id) || internals.some(internal => id.startsWith(internal))) {
+                return false;
+            }
+            const relative = path.relative('.', path.resolve(importer ?? '.', id));
+            if (internals.some(internal => relative.includes(`node_modules/${internal}/`))) {
+                return false;
+            }
+            return true;
+        }
+    }),
     resolve(),
     commonjs(),
     json(),

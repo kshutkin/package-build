@@ -8,9 +8,6 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "declaration": true,
-    "moduleResolution": "node",
-    "plugins": [{ 
-      "transform": "typia/lib/transform"
-    }]
+    "moduleResolution": "node"
   }
 }
