@@ -1,5 +1,5 @@
-import typia from "typia";
-import { PackageJson } from "./types";
+import typia from 'typia';
+import { PackageJson } from './types';
 
 export function isPackageJson(value: unknown) : value is PackageJson {
     return typia.is<PackageJson>(value);
