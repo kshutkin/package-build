@@ -127,8 +127,8 @@ importers:
         specifier: ^0.0.4
         version: 0.0.4
       rollup-plugin-typescript2:
-        specifier: ^0.35.0
-        version: 0.35.0(rollup@3.20.2)(typescript@5.2.2)
+        specifier: ^0.36.0
+        version: 0.36.0(rollup@3.20.2)(typescript@5.2.2)
       terser:
         specifier: ^5.16.8
         version: 5.16.8
@@ -182,8 +182,8 @@ importers:
         specifier: ^0.0.4
         version: 0.0.4
       rollup-plugin-typescript2:
-        specifier: ^0.35.0
-        version: 0.35.0(rollup@3.20.2)(typescript@5.0.2)
+        specifier: ^0.36.0
+        version: 0.36.0(rollup@3.20.2)(typescript@5.0.2)
       typescript:
         specifier: ^5.0.2
         version: 5.0.2
@@ -2877,8 +2877,8 @@ packages:
       rollup-pluginutils: 2.8.2
     dev: false
 
-  /rollup-plugin-typescript2@0.35.0(rollup@3.20.2)(typescript@5.0.2):
-    resolution: {integrity: sha512-szcIO9hPUx3PhQl91u4pfNAH2EKbtrXaES+m163xQVE5O1CC0ea6YZV/5woiDDW3CR9jF2CszPrKN+AFiND0bg==}
+  /rollup-plugin-typescript2@0.36.0(rollup@3.20.2)(typescript@5.0.2):
+    resolution: {integrity: sha512-NB2CSQDxSe9+Oe2ahZbf+B4bh7pHwjV5L+RSYpCu7Q5ROuN94F9b6ioWwKfz3ueL3KTtmX4o2MUH2cgHDIEUsw==}
     peerDependencies:
       rollup: '>=1.26.3'
       typescript: '>=2.4.0'
@@ -2888,12 +2888,12 @@ packages:
       fs-extra: 10.1.0
       rollup: 3.20.2
       semver: 7.5.4
-      tslib: 2.5.0
+      tslib: 2.6.2
       typescript: 5.0.2
     dev: false
 
-  /rollup-plugin-typescript2@0.35.0(rollup@3.20.2)(typescript@5.2.2):
-    resolution: {integrity: sha512-szcIO9hPUx3PhQl91u4pfNAH2EKbtrXaES+m163xQVE5O1CC0ea6YZV/5woiDDW3CR9jF2CszPrKN+AFiND0bg==}
+  /rollup-plugin-typescript2@0.36.0(rollup@3.20.2)(typescript@5.2.2):
+    resolution: {integrity: sha512-NB2CSQDxSe9+Oe2ahZbf+B4bh7pHwjV5L+RSYpCu7Q5ROuN94F9b6ioWwKfz3ueL3KTtmX4o2MUH2cgHDIEUsw==}
     peerDependencies:
       rollup: '>=1.26.3'
       typescript: '>=2.4.0'
@@ -2903,7 +2903,7 @@ packages:
       fs-extra: 10.1.0
       rollup: 3.20.2
       semver: 7.5.4
-      tslib: 2.5.0
+      tslib: 2.6.2
       typescript: 5.2.2
     dev: false
 
@@ -3266,6 +3266,10 @@ packages:
 
   /tslib@2.5.0:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
+    dev: false
+
+  /tslib@2.6.2:
+    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
     dev: false
 
   /tty-table@4.1.6:
