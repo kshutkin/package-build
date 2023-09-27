@@ -94,8 +94,8 @@ importers:
         specifier: ^3.20.2
         version: 3.20.2
       rollup-plugin-typescript2:
-        specifier: ^0.35.0
-        version: 0.35.0(rollup@3.20.2)(typescript@5.2.2)
+        specifier: ^0.36.0
+        version: 0.36.0(rollup@3.20.2)(typescript@5.2.2)
       typia:
         specifier: ^5.0.1
         version: 5.0.1(typescript@5.2.2)
@@ -2946,7 +2946,7 @@ packages:
   /rxjs@7.8.1:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /safe-buffer@5.2.1:
@@ -3280,12 +3280,8 @@ packages:
       strip-ansi: 6.0.1
     dev: true
 
-  /tslib@2.5.0:
-    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
-
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-    dev: false
 
   /tty-table@4.1.6:
     resolution: {integrity: sha512-kRj5CBzOrakV4VRRY5kUWbNYvo/FpOsz65DzI5op9P+cHov3+IqPbo1JE1ZnQGkHdZgNFDsrEjrfqqy/Ply9fw==}
