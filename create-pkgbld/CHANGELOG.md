@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.0
+
+### Minor Changes
+
+- 0438287: use shared internal library to parse options / package.json
+
 ## 1.5.0
 
 ### Minor Changes

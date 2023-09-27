@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.20.0
+
+### Minor Changes
+
+- 0438287: use shared internal library to parse options / package.json
+
+### Patch Changes
+
+- 639f507: fixed bug in pkgbld --include-externals: it was not working with pnpm workspaces
+- d107e06: updated rollup-plugin-typescript2
+
 ## 1.19.0
 
 ### Minor Changes
