@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.3
+
+### Patch Changes
+
+- 2f58b8c: publish updates from pkgbld
+
 ## 1.1.2
 
 ### Patch Changes
