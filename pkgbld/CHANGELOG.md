@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.21.0
+
+### Minor Changes
+
+- 3aa08a2: added format-package-json option
+
 ## 1.20.0
 
 ### Minor Changes
