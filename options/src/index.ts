@@ -33,7 +33,8 @@ export const cliFlagsDefaults = {
     noUpdatePackageJson: false,
     commonjsPattern: '[name].cjs',
     esPattern: '[name].mjs',
-    umdPattern: '[name].umd.js'
+    umdPattern: '[name].umd.js',
+    formatPackageJson: false
 };
 
 export const cliFlags = {
@@ -110,6 +111,11 @@ export const cliFlags = {
         type: String,
         description: 'UMD output file name pattern',
         default: cliFlagsDefaults.umdPattern
+    },
+    formatPackageJson: {
+        type: Boolean,
+        description: 'Format package.json',
+        default: cliFlagsDefaults.formatPackageJson
     }
 };
 

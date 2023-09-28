@@ -2,6 +2,8 @@ import path from 'path';
 import camelCase from 'lodash/camelCase';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
+import { processPackageJson } from 'options';
+import { PackageJson } from './types';
 
 export function getHelpers(pkgName: string) {
     function getGlobalName(anInput: string) {
@@ -52,3 +54,7 @@ export function getTimeDiff(starting: number) {
 }
 
 export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;
+
+export function formatPackageJson(pkg: PackageJson) {
+    return processPackageJson(pkg, key => key in pkg, key => (pkg as Record<string, unknown>)[key]) as PackageJson;
+}

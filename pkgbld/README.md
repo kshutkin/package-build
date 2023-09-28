@@ -170,6 +170,14 @@ pkgbld --umd-pattern=[name].js
 
 Defines the pattern for umd output files. Default is `[name].umd.js`.
 
+### format-package-json
+
+```
+pkgbld --format-package-json
+```
+
+Formats package.json file.
+
 ## Plugin API
 
 `pkgbld` reads all installed packages named `pkgbld-plugin-*` and assumes they are plugins

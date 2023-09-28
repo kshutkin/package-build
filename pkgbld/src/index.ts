@@ -5,7 +5,7 @@ import { createSubpackages } from './create-subpackages';
 import { getCliOptions } from './get-cli-options';
 import { getJson } from './get-json';
 import { getRollupConfigs } from './get-rollup-configs';
-import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray } from './helpers';
+import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray, formatPackageJson } from './helpers';
 import { mainLoggerText } from './messages';
 import { processPackage } from './process-pkg';
 import { writeJson } from './write-json';
@@ -23,7 +23,10 @@ async function execute() {
     const mainLogger = createLogger();
     mainLogger.update('preparing..');
     try {
-        const [pkgPath, pkg] = await getJson('package.json') as [string, PackageJson];
+        let pkg: PackageJson;
+        let pkgPath: string;
+        // eslint-disable-next-line prefer-const
+        [pkgPath, pkg] = await getJson('package.json') as [string, PackageJson];
         const plugins = await loadPlugins(pkg);
         mainLogger.update('');
         process.stdout.moveCursor?.(0, -1);
@@ -32,6 +35,9 @@ async function execute() {
         mainLogger.update('preparing...');
         checkTsConfig(options, mainLogger, plugins);
         const inputs = processPackage(pkg, options, plugins);
+        if (options.formatPackageJson) {
+            pkg = formatPackageJson(pkg);
+        }
         const helpers = getHelpers((pkg as { name: string }).name);
         const preimportMap = preimport();
         const provider = options.eject ? await createEjectProvider(preimportMap) : createProvider(preimportMap);
