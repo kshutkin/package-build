@@ -5,10 +5,11 @@ import userName from 'git-user-name';
 import gitConfig from 'parse-git-config';
 import { cli } from 'cleye';
 import kleur from 'kleur';
-import { Option, PkgInfo, OptionsValue, PackageJson } from './types';
+import { Option, PkgInfo, OptionsValue } from './types';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
 import getGitRoot from './get-git-root';
-import { cliFlags, processPackageJson, isPackageJson, toFormattedJson } from 'options';
+import { cliFlags, processPackageJson, isPackageJson, toFormattedJson, PackageJson, cliFlagsDefaults } from 'options';
+import { isEqual } from 'lodash';
 
 const done = Symbol('done');
 
@@ -49,7 +50,7 @@ async function execute() {
 
     const options = getBasicOptions(packageName, pkg);
 
-    options.push(...await getGitOptions(targetDir));
+    options.push(...await getGitOptions(targetDir, pkg.pkg));
 
     options.push(...getPkgbldOptions(pkg.pkg));
 
@@ -143,7 +144,7 @@ function getScriptValue(pkgbld: OptionsValue) {
     const pkgBldCopy = { ...pkgbld };
     delete pkgBldCopy['pkgbldBinary'];
     delete pkgBldCopy['extraParameters'];
-    return `${binary} ${asCommandLineArgs(pkgBldCopy as Record<string, undefined | null | string | number | boolean>)} ${extraArgs}`;
+    return `${binary} ${asCommandLineArgs(pkgBldCopy as Record<string, undefined | null | string | number | boolean>, cliFlagsDefaults)} ${extraArgs}`.trimEnd();
 }
 
 function getPromptOption(option: Option, mutateObject: OptionsValue) {
@@ -176,18 +177,25 @@ function mapOption(state: OptionsValue) {
     return (option: Option) => {
         const fieldValue = state[option.field]!;
         return {
-            title: pad16plus(option.title) + kleur.grey('items' in option ? getPrintString(option.items, (option.mutateInnerObject ? fieldValue as Record<string, string> : state as Record<string, string>)) : fieldValue as string ?? ''),
+            title: pad16plus(option.title) + kleur.grey('items' in option ? getPrintString(option, (option.mutateInnerObject ? fieldValue as Record<string, string> : state as Record<string, string>)) : fieldValue as string ?? ''),
             value: option.field
         };
     };
 }
 
-function getPrintString(items: Option[], json: OptionsValue): string /* ??? */ {
-    return items
+function getPrintString(option: {
+    items: Option[];
+    mutateInnerObject: boolean;
+    render?: (option: Option, value: OptionsValue) => string;
+}, json: OptionsValue): string /* ??? */ {
+    if (option.render) {
+        return option.render(option as Option, json);
+    }
+    return option.items
         .filter(item => item.field in json && json[item.field] && (Array.isArray(json[item.field]) ? (json[item.field] as unknown as unknown[]).length > 0 : true))
         .map(item => kleur.grey(item.title) + ' ' + (kleur.white(
             'items' in item ?
-                `[${getPrintString(item.items, (item.mutateInnerObject ? json[item.field] as OptionsValue :
+                `[${getPrintString(item, (item.mutateInnerObject ? json[item.field] as OptionsValue :
                     json))}]` : json[item.field] as string))
         )
         .join(', ');
@@ -218,7 +226,7 @@ async function reportVersion() {
     return version;
 }
 
-async function getGitOptions(targetDir: string) {
+async function getGitOptions(targetDir: string, packageJson: PackageJson) {
     try {
         const gitCfg = await gitConfig();
         if (gitCfg) {
@@ -229,6 +237,15 @@ async function getGitOptions(targetDir: string) {
                 title: 'Git',
                 field: 'git',
                 mutateInnerObject: false,
+                render: (_option: Option, value: OptionsValue) => isEqual(removeEmpty({
+                    repository: value.repository,
+                    bugs: value.bugs,
+                    homepage: value.homepage
+                }), removeEmpty({
+                    repository: packageJson.repository,
+                    bugs: packageJson.bugs,
+                    homepage: packageJson.homepage
+                })) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
                 items: [{
                     title: 'Homepage',
                     field: 'homepage',
@@ -264,20 +281,7 @@ async function getGitOptions(targetDir: string) {
 }
 
 function getPkgbldOptions(pkg: PackageJson) {
-    let args: Record<string, string | boolean | string[] | undefined> = {
-        formats: ['es', 'cjs'],
-        umd: [] as string[],
-        compress: ['umd'],
-        sourcemaps: ['umd'],
-        preprocess: [] as string[],
-        dir: 'dist',
-        sourceDir: 'src',
-        bin: undefined as string[] | undefined,
-        includeExternals: false,
-        eject: false,
-        noTsConfig: false,
-        noUpdatePackageJson: false
-    };
+    let args: typeof cliFlagsDefaults & { extraParameters?: string } = cliFlagsDefaults;
 
     const cmd = pkg.scripts?.build ?? '';
     let binary = 'pkgbld';
@@ -310,14 +314,15 @@ function getPkgbldOptions(pkg: PackageJson) {
         title: 'pkgbld',
         field: 'pkgbld',
         mutateInnerObject: true,
+        render: (_option: Option, value: OptionsValue) => cmd === getScriptValue(value) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
         items: [{
             title: 'Destination folder',
             field: 'dest',
-            initialValue: args.dir
+            initialValue: args.dest
         }, {
             title: 'Source folder',
             field: 'src',
-            initialValue: args.sourceDir
+            initialValue: args.src
         }, {
             title: 'UMD exports',
             field: 'umd',
@@ -363,15 +368,15 @@ function getPkgbldOptions(pkg: PackageJson) {
             type: 'toggle',
             initialValue: args.eject
         }, {
-            title: 'Create tsconfig',
-            field: 'tsConfig',
+            title: 'Do not create tsconfig',
+            field: 'noTsConfig',
             type: 'toggle',
-            initialValue: !args.noTsConfig
+            initialValue: args.noTsConfig
         }, {
-            title: 'Update package.json',
-            field: 'updatePackageJson',
+            title: 'Do not update package.json',
+            field: 'noUpdatePackageJson',
             type: 'toggle',
-            initialValue: !args.noUpdatePackageJson
+            initialValue: args.noUpdatePackageJson
         }, {
             title: 'Extra parameters',
             field: 'extraParameters',
@@ -387,12 +392,12 @@ function getPkgbldOptions(pkg: PackageJson) {
     }];
 }
 
-function asCommandLineArgs(parsedArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]>)  {
+function asCommandLineArgs(parsedArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]>, defaultArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]> = {}) {
     return Object.entries(parsedArgs)
-        .flatMap(([key, value]) => asArray(value)
-            .filter(Boolean)
-            .map(value => `--${key}${typeof value === 'string' ? `=${value}` : ''}`)
-        ).join(' ');
+        .filter(([key, value]) => !isEqual(value, defaultArgs[key]))
+        .map(([key, value]) => `--${kebabize(key)}${typeof value === 'string' || Array.isArray(value) ? `=${asArray(value).join(',')}` : ''}`)
+        .filter(Boolean)
+        .join(' ');
 }
 
 function asArray<T>(value: T | T[]) {
@@ -403,6 +408,21 @@ function getBasicOptions(packageName: string, pkg: PkgInfo) {
     return [{
         title: 'General',
         field: 'general',
+        render: (_option: Option, value: OptionsValue) => isEqual(removeEmpty({
+            name: value.name,
+            version: value.version,
+            description: value.description,
+            license: value.license,
+            author: value.author,
+            readme: value.readme
+        }), removeEmpty({
+            name: pkg.pkg.name,
+            version: pkg.pkg.version,
+            description: pkg.pkg.description,
+            license: pkg.pkg.license,
+            author: pkg.pkg.author,
+            readme: pkg.pkg.readme
+        })) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
         items: [{
             title: 'Package Name',
             field: 'name',
@@ -488,4 +508,12 @@ async function writePackage(dir: string, pkg: PkgInfo) {
         console.error(e);
         process.exit(-1);
     }
+}
+
+function removeEmpty<T extends object>(data: T) {
+    return JSON.parse(JSON.stringify(data)) as Partial<T>;
+}
+
+function kebabize(value: string) {
+    return value.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? '-' : '') + $.toLowerCase());
 }
