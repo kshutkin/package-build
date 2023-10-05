@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.5
+
+### Patch Changes
+
+- 933f38a: update to latest pkgbld
+
 ## 1.1.4
 
 ### Patch Changes
