@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.21.1
+
+### Patch Changes
+
+- a5fceab: fix(deps): update dependency rollup to v4
+
 ## 1.21.0
 
 ### Minor Changes
