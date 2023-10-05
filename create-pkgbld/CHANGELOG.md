@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.0
+
+### Minor Changes
+
+- 633fa9f: fixed command line parameters update
+  added simplified status per option in main menu
+
 ## 1.6.0
 
 ### Minor Changes

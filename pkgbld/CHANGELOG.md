@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.22.0
+
+### Minor Changes
+
+- 270b7ad: changed `dir` to `dest` and `srcDir` to `src`
+
 ## 1.21.1
 
 ### Patch Changes
