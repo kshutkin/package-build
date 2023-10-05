@@ -36,7 +36,7 @@ importers:
   create-pkgbld:
     dependencies:
       cleye:
-        specifier: ^1.3.2
+        specifier: 1.3.2
         version: 1.3.2
       git-user-name:
         specifier: 2.0.0
@@ -44,6 +44,9 @@ importers:
       kleur:
         specifier: 4.1.5
         version: 4.1.5
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
       parse-git-config:
         specifier: 3.0.0
         version: 3.0.0
@@ -51,15 +54,18 @@ importers:
         specifier: 2.4.2
         version: 2.4.2
       string-argv:
-        specifier: ^0.3.2
+        specifier: 0.3.2
         version: 0.3.2
     devDependencies:
       '@total-typescript/ts-reset':
-        specifier: ^0.5.1
+        specifier: 0.5.1
         version: 0.5.1
       '@types/git-user-name':
         specifier: 2.0.1
         version: 2.0.1
+      '@types/lodash':
+        specifier: 4.14.199
+        version: 4.14.199
       '@types/parse-git-config':
         specifier: 3.0.2
         version: 3.0.2
@@ -76,17 +82,17 @@ importers:
   options:
     devDependencies:
       '@rollup-extras/plugin-clean':
-        specifier: ^1.3.4
-        version: 1.3.4(rollup@4.0.0)
+        specifier: ^1.3.8
+        version: 1.3.8(rollup@4.0.0)
       '@rollup-extras/plugin-externals':
-        specifier: ^1.1.8
-        version: 1.1.8(rollup@4.0.0)
+        specifier: ^1.1.11
+        version: 1.1.11(rollup@4.0.0)
       '@rollup/plugin-commonjs':
-        specifier: ^25.0.0
-        version: 25.0.0(rollup@4.0.0)
+        specifier: ^25.0.5
+        version: 25.0.5(rollup@4.0.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@4.0.0)
+        specifier: ^15.2.2
+        version: 15.2.2(rollup@4.0.0)
       '@total-typescript/ts-reset':
         specifier: ^0.5.1
         version: 0.5.1
@@ -97,44 +103,44 @@ importers:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.0.0)(typescript@5.2.2)
       typia:
-        specifier: ^5.0.1
-        version: 5.0.1(typescript@5.2.2)
+        specifier: ^5.1.6
+        version: 5.1.6(typescript@5.2.2)
 
   pkgbld:
     dependencies:
       '@niceties/draftlog-appender':
-        specifier: ^1.3.0
-        version: 1.3.0(@niceties/logger@1.1.10)
+        specifier: ^1.3.2
+        version: 1.3.2(@niceties/logger@1.1.12)
       '@niceties/logger':
-        specifier: ^1.1.10
-        version: 1.1.10
+        specifier: ^1.1.12
+        version: 1.1.12
       '@rollup-extras/plugin-binify':
-        specifier: ^1.1.5
-        version: 1.1.5(rollup@4.0.0)
+        specifier: ^1.1.9
+        version: 1.1.9(rollup@4.0.0)
       '@rollup-extras/plugin-clean':
-        specifier: ^1.3.4
-        version: 1.3.4(rollup@4.0.0)
+        specifier: ^1.3.8
+        version: 1.3.8(rollup@4.0.0)
       '@rollup-extras/plugin-externals':
-        specifier: ^1.1.8
-        version: 1.1.8(rollup@4.0.0)
+        specifier: ^1.1.11
+        version: 1.1.11(rollup@4.0.0)
       '@rollup/plugin-commonjs':
-        specifier: ^25.0.0
-        version: 25.0.0(rollup@4.0.0)
+        specifier: ^25.0.5
+        version: 25.0.5(rollup@4.0.0)
       '@rollup/plugin-json':
-        specifier: ^6.0.0
-        version: 6.0.0(rollup@4.0.0)
+        specifier: ^6.0.1
+        version: 6.0.1(rollup@4.0.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@4.0.0)
+        specifier: ^15.2.2
+        version: 15.2.2(rollup@4.0.0)
       '@rollup/plugin-terser':
-        specifier: ^0.4.0
-        version: 0.4.0(rollup@4.0.0)
+        specifier: ^0.4.4
+        version: 0.4.4(rollup@4.0.0)
       '@slimlib/refine-partition':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.2
+        version: 1.0.2
       '@slimlib/smart-mock':
-        specifier: ^0.1.2
-        version: 0.1.3
+        specifier: ^0.1.5
+        version: 0.1.5
       cleye:
         specifier: ^1.3.2
         version: 1.3.2
@@ -157,8 +163,8 @@ importers:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.0.0)(typescript@5.2.2)
       terser:
-        specifier: ^5.16.8
-        version: 5.16.8
+        specifier: ^5.21.0
+        version: 5.21.0
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -167,8 +173,8 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1
       '@types/lodash':
-        specifier: ^4.14.192
-        version: 4.14.192
+        specifier: ^4.14.199
+        version: 4.14.199
       options:
         specifier: workspace:*
         version: link:../options
@@ -176,14 +182,14 @@ importers:
   pkgbld-internal:
     dependencies:
       '@rollup/plugin-commonjs':
-        specifier: ^25.0.0
-        version: 25.0.0(rollup@4.0.0)
+        specifier: ^25.0.5
+        version: 25.0.5(rollup@4.0.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.0.1
-        version: 15.0.1(rollup@4.0.0)
+        specifier: ^15.2.2
+        version: 15.2.2(rollup@4.0.0)
       '@rollup/plugin-terser':
-        specifier: ^0.4.0
-        version: 0.4.0(rollup@4.0.0)
+        specifier: ^0.4.4
+        version: 0.4.4(rollup@4.0.0)
       cleye:
         specifier: ^1.3.2
         version: 1.3.2
@@ -199,9 +205,6 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
-      minimist:
-        specifier: ^1.2.8
-        version: 1.2.8
       pkg-dir:
         specifier: ^5.0.0
         version: 5.0.0
@@ -213,35 +216,35 @@ importers:
         version: 0.0.4
       rollup-plugin-typescript2:
         specifier: ^0.36.0
-        version: 0.36.0(rollup@4.0.0)(typescript@5.0.2)
+        version: 0.36.0(rollup@4.0.0)(typescript@5.2.2)
       typescript:
-        specifier: ^5.0.2
-        version: 5.0.2
+        specifier: ^5.2.2
+        version: 5.2.2
     devDependencies:
       '@niceties/draftlog-appender':
-        specifier: ^1.3.0
-        version: 1.3.0(@niceties/logger@1.1.10)
+        specifier: ^1.3.2
+        version: 1.3.2(@niceties/logger@1.1.12)
       '@niceties/logger':
-        specifier: ^1.1.10
-        version: 1.1.10
+        specifier: ^1.1.12
+        version: 1.1.12
       '@rollup-extras/plugin-binify':
-        specifier: ^1.1.5
-        version: 1.1.5(rollup@4.0.0)
+        specifier: ^1.1.9
+        version: 1.1.9(rollup@4.0.0)
       '@rollup-extras/plugin-clean':
-        specifier: ^1.3.4
-        version: 1.3.4(rollup@4.0.0)
+        specifier: ^1.3.8
+        version: 1.3.8(rollup@4.0.0)
       '@rollup-extras/plugin-externals':
-        specifier: ^1.1.8
-        version: 1.1.8(rollup@4.0.0)
+        specifier: ^1.1.11
+        version: 1.1.11(rollup@4.0.0)
       '@rollup/plugin-replace':
-        specifier: ^5.0.2
-        version: 5.0.2(rollup@4.0.0)
+        specifier: ^5.0.3
+        version: 5.0.3(rollup@4.0.0)
       '@slimlib/refine-partition':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.2
+        version: 1.0.2
       '@types/lodash':
-        specifier: ^4.14.192
-        version: 4.14.192
+        specifier: ^4.14.199
+        version: 4.14.199
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
@@ -547,8 +550,8 @@ packages:
     engines: {node: '>=6.0.0'}
     dev: false
 
-  /@jridgewell/source-map@0.3.2:
-    resolution: {integrity: sha512-m7O9o2uR8k2ObDysZYzdfhb08VuEml5oWGiosa1VdaPZ/A6QyPkAJuwN0Q1lhULOf6B7MtQmHENS743hWtCrgw==}
+  /@jridgewell/source-map@0.3.5:
+    resolution: {integrity: sha512-UTYAUj/wviwdsMfzoSJspJxbkH5o1snzwX0//0ENX1u/55kkZZkcTZP6u9bwKGkv+dkk9at4m1Cpt0uY80kcpQ==}
     dependencies:
       '@jridgewell/gen-mapping': 0.3.2
       '@jridgewell/trace-mapping': 0.3.17
@@ -591,18 +594,18 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
-  /@niceties/draftlog-appender@1.3.0(@niceties/logger@1.1.10):
-    resolution: {integrity: sha512-rxJXW3CoXELQGhXveGfUwvTcm6wjnSysOfnBbwdl43Sjic5SfIHdDOVsgtL7G1TrU2rHenmT4OzJAED5itIqKA==}
+  /@niceties/draftlog-appender@1.3.2(@niceties/logger@1.1.12):
+    resolution: {integrity: sha512-aYAuZw178J59MBK/OyiCGq9Ec9U5g8hRIxPBe3CEZukkftRVVUL0nAsn8yompyEx3FDFR1lCNZr3zyI5VZ4nTw==}
     engines: {node: '>=15'}
     peerDependencies:
-      '@niceties/logger': ^1.1.10
+      '@niceties/logger': ^1.1.12
     dependencies:
-      '@niceties/logger': 1.1.10
+      '@niceties/logger': 1.1.12
       '@slimlib/list': 1.0.7
       draftlog: 1.0.13
 
-  /@niceties/logger@1.1.10:
-    resolution: {integrity: sha512-lrKS/tdvlnUf04PJqMDXaLpkxNt2j5Mfr3gM9aGqKBlKYESldF8vmK3dfn1KqmdwXekQJTuBEWejKl4zUrCVzw==}
+  /@niceties/logger@1.1.12:
+    resolution: {integrity: sha512-9QPBtNDuYx4r1F+KwdgOKGaUTdOao7sVOQEq5qCQ90PINBZheWF1GFaVRwIZBlflAG4zqumLr5wsN3wCb/SlxA==}
     engines: {node: '>=15'}
     dependencies:
       kleur: 4.1.5
@@ -628,52 +631,64 @@ packages:
       fastq: 1.15.0
     dev: true
 
-  /@rollup-extras/plugin-binify@1.1.5(rollup@4.0.0):
-    resolution: {integrity: sha512-mEklfLn243TteP5NUEhkY6Hu1DdmNICsIkTWCXJe1IbUUyZ8A+WrHY2dGL+hzBnFwUy69QjwqOu4rCcnu1FJZQ==}
+  /@rollup-extras/plugin-binify@1.1.9(rollup@4.0.0):
+    resolution: {integrity: sha512-uWO3kq9V0oJwRnkZky1TXpNAJQMc50qgi6igpcHwuOjpr0XTijeAYIUlJkbiAiSZxblyEBFGhjWTF7E6/ILWcA==}
     engines: {node: '>=15'}
     peerDependencies:
-      rollup: ^2.60.1 || ^3.0.0
+      rollup: ^2.60.1 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
-      '@niceties/logger': 1.1.10
-      '@rollup-extras/utils': 1.3.5(rollup@4.0.0)
+      '@niceties/logger': 1.1.12
+      '@rollup-extras/utils': 1.4.4(rollup@4.0.0)
       rollup: 4.0.0
 
-  /@rollup-extras/plugin-clean@1.3.4(rollup@4.0.0):
-    resolution: {integrity: sha512-YVw0kABUX2YaLrISpxrRH1L6jGX6G/MaFApUHD3lZOzwKUhWb9sYHa/D4mNeozSLiJkaLhvmtM8TrJ4X1s6P2A==}
+  /@rollup-extras/plugin-clean@1.3.8(rollup@4.0.0):
+    resolution: {integrity: sha512-yLWVPrevbIWKmqxfpUoMUOvsKoUtIEkESVWODVAQA2T6S0t0rcnnXw5haRmW/jVMTs5zkcYe/XxNwaT3bnbFnA==}
     engines: {node: '>=15'}
     peerDependencies:
-      rollup: ^2.60.1 || ^3.0.0
+      rollup: ^2.60.1 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
-      '@niceties/logger': 1.1.10
-      '@rollup-extras/utils': 1.3.5(rollup@4.0.0)
+      '@niceties/logger': 1.1.12
+      '@rollup-extras/utils': 1.4.4(rollup@4.0.0)
       rollup: 4.0.0
 
-  /@rollup-extras/plugin-externals@1.1.8(rollup@4.0.0):
-    resolution: {integrity: sha512-7rmVBWWG/ztGMLV34C3GFH895lgrqsuUfid3ahjjEuP+R2lXsPFg9wwlT3e8DBatyjdU3CH8is0d+1MvM+C9RQ==}
+  /@rollup-extras/plugin-externals@1.1.11(rollup@4.0.0):
+    resolution: {integrity: sha512-O244a/01XMMDiKNw96BetlIxBKUciqYHf6RZFrmRofROwssJkFtdG3dFLmfga6FZgovZaQfnihu/Xqq2+6fl0w==}
     engines: {node: '>=15'}
     peerDependencies:
-      rollup: ^2.60.1 || ^3.0.0
+      rollup: ^2.60.1 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
-      '@niceties/logger': 1.1.10
-      '@rollup-extras/utils': 1.3.5(rollup@4.0.0)
+      '@niceties/logger': 1.1.12
+      '@rollup-extras/utils': 1.4.4(rollup@4.0.0)
       is-builtin-module: 3.2.1
       pkg-dir: 5.0.0
       rollup: 4.0.0
 
-  /@rollup-extras/utils@1.3.5(rollup@4.0.0):
-    resolution: {integrity: sha512-e4Yyi2CvCUkdn1Pg5xutPJuYUdL1JuK3HGgwQ2e5hxDzwhJpc4O63psNy53vssnFCbfzW+O8QFFv1WcT98VRKg==}
+  /@rollup-extras/utils@1.4.4(rollup@4.0.0):
+    resolution: {integrity: sha512-disjmNVN0WJzebtgR7ZME99bsJWtY95N5sq/M+XZVLLPjSnbq2St87HDR0YgbaKmQ188XCroFgN2KXnbTssoDA==}
     engines: {node: '>=15'}
     peerDependencies:
-      rollup: ^2.60.1 || ^3.0.0
+      rollup: ^2.60.1 || ^3.0.0 || ^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
-      '@niceties/logger': 1.1.10
+      '@niceties/logger': 1.1.12
       rollup: 4.0.0
 
-  /@rollup/plugin-commonjs@25.0.0(rollup@4.0.0):
-    resolution: {integrity: sha512-hoho2Kay9TZrLu0bnDsTTCaj4Npa+THk9snajP/XDNb9a9mmjTjh52EQM9sKl3HD1LsnihX7js+eA2sd2uKAhw==}
+  /@rollup/plugin-commonjs@25.0.5(rollup@4.0.0):
+    resolution: {integrity: sha512-xY8r/A9oisSeSuLCTfhssyDjo9Vp/eDiRLXkg1MXCcEEgEjPmLU+ZyDB20OOD0NlyDa/8SGbK5uIggF5XTx77w==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^2.68.0||^3.0.0
+      rollup: ^2.68.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -686,11 +701,11 @@ packages:
       magic-string: 0.27.0
       rollup: 4.0.0
 
-  /@rollup/plugin-json@6.0.0(rollup@4.0.0):
-    resolution: {integrity: sha512-i/4C5Jrdr1XUarRhVu27EEwjt4GObltD7c+MkCIpO2QIbojw8MUs+CCTqOphQi3Qtg1FLmYt+l+6YeoIf51J7w==}
+  /@rollup/plugin-json@6.0.1(rollup@4.0.0):
+    resolution: {integrity: sha512-RgVfl5hWMkxN1h/uZj8FVESvPuBJ/uf6ly6GTj0GONnkfoBN5KC0MSz+PN2OLDgYXMhtG0mWpTrkiOjoxAIevw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -699,11 +714,11 @@ packages:
       rollup: 4.0.0
     dev: false
 
-  /@rollup/plugin-node-resolve@15.0.1(rollup@4.0.0):
-    resolution: {integrity: sha512-ReY88T7JhJjeRVbfCyNj+NXAG3IIsVMsX9b5/9jC98dRP8/yxlZdz7mHZbHk5zHr24wZZICS5AcXsFZAXYUQEg==}
+  /@rollup/plugin-node-resolve@15.2.2(rollup@4.0.0):
+    resolution: {integrity: sha512-f64bU4OKqV0yihtxFemmuf0oj37pToCFMISCA+sJbbIAl5wcpbRO9XgWNWb1tDiWQJUcPxo6V0l59hcuZOQ3kw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^2.78.0||^3.0.0
+      rollup: ^2.78.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -716,11 +731,11 @@ packages:
       resolve: 1.22.4
       rollup: 4.0.0
 
-  /@rollup/plugin-replace@5.0.2(rollup@4.0.0):
-    resolution: {integrity: sha512-M9YXNekv/C/iHHK+cvORzfRYfPbq0RDD8r0G+bMiTXjNGKulPnCT9O3Ss46WfhI6ZOCgApOP7xAdmCQJ+U2LAA==}
+  /@rollup/plugin-replace@5.0.3(rollup@4.0.0):
+    resolution: {integrity: sha512-je7fu05B800IrMlWjb2wzJcdXzHYW46iTipfChnBDbIbDXhASZs27W1B58T2Yf45jZtJUONegpbce+9Ut2Ti/Q==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
+      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -730,19 +745,19 @@ packages:
       rollup: 4.0.0
     dev: true
 
-  /@rollup/plugin-terser@0.4.0(rollup@4.0.0):
-    resolution: {integrity: sha512-Ipcf3LPNerey1q9ZMjiaWHlNPEHNU/B5/uh9zXLltfEQ1lVSLLeZSgAtTPWGyw8Ip1guOeq+mDtdOlEj/wNxQw==}
+  /@rollup/plugin-terser@0.4.4(rollup@4.0.0):
+    resolution: {integrity: sha512-XHeJC5Bgvs8LfukDwWZp7yeqin6ns8RTl2B9avbejt6tZqsqvVoWI7ZTQrcNsfKEDWBTnTxM8nMDkO2IFFbd0A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^2.x || ^3.x
+      rollup: ^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
     dependencies:
       rollup: 4.0.0
       serialize-javascript: 6.0.1
-      smob: 0.0.6
-      terser: 5.16.8
+      smob: 1.4.1
+      terser: 5.21.0
     dev: false
 
   /@rollup/pluginutils@4.2.1:
@@ -846,12 +861,12 @@ packages:
   /@slimlib/list@1.0.7:
     resolution: {integrity: sha512-gBv6FU1TZCSZGDkD6oX7aZE5DknzwQK8AaNQkS1I2fWNwZHTjeZDFt5jhaFbLnkusF675THjQ5LQm+UvYeFhGQ==}
 
-  /@slimlib/refine-partition@1.0.0:
-    resolution: {integrity: sha512-dksP/w/8F5P1GkPQp2OwMWIQaRmejA8zqxvHXokrwiuuAV6I5VC/GpbnEsPh8QORzRW/qYw38LnGwmBtE39t7g==}
+  /@slimlib/refine-partition@1.0.2:
+    resolution: {integrity: sha512-VqJGuRAFQhBSTTB9upOqpxayVb7yWE6afshpCRwyT3ccWaGs8mvtPsWNHlQFc3blktxBjkG2MZ0WM8qtDwHRiA==}
     engines: {node: '>=15'}
 
-  /@slimlib/smart-mock@0.1.3:
-    resolution: {integrity: sha512-EgLuKQjhfmRBUfSCYpp3uOB1AbeJLTeQdFZrpRu+tSqVXnFP/CMSP47ivNBFO3xj0J+6H4jZ9PSLI5ebhX9j4w==}
+  /@slimlib/smart-mock@0.1.5:
+    resolution: {integrity: sha512-k2qgi0ZQRVJoq5oro6sfK+T12bV2zAWyC+Ks2knTDyShfi9os9JGJUL9tTTbfFL0DPsNO2DelVgrdQT7OsjZQQ==}
     engines: {node: '>=15'}
     dev: false
 
@@ -892,8 +907,8 @@ packages:
     resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}
     dev: true
 
-  /@types/lodash@4.14.192:
-    resolution: {integrity: sha512-km+Vyn3BYm5ytMO13k9KTp27O75rbQ0NFw+U//g+PX7VZyjCioXaRFisqSIJRECljcTv73G3i6BpglNGHgUQ5A==}
+  /@types/lodash@4.14.199:
+    resolution: {integrity: sha512-Vrjz5N5Ia4SEzWWgIVwnHNEnb1UE1XMkvY5DGXrAeOGE9imk0hgTHh5GyDjLDJi9OTCn9oo9dXH1uToK1VRfrg==}
     dev: true
 
   /@types/minimist@1.2.2:
@@ -2558,6 +2573,7 @@ packages:
 
   /minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
+    dev: true
 
   /mixme@0.5.5:
     resolution: {integrity: sha512-/6IupbRx32s7jjEwHcycXikJwFD5UujbVNuJFkeKLYje+92OvtuPniF6JhnFm5JCTDUhS+kYK3W/4BWYQYXz7w==}
@@ -2967,21 +2983,6 @@ packages:
       rollup-pluginutils: 2.8.2
     dev: false
 
-  /rollup-plugin-typescript2@0.36.0(rollup@4.0.0)(typescript@5.0.2):
-    resolution: {integrity: sha512-NB2CSQDxSe9+Oe2ahZbf+B4bh7pHwjV5L+RSYpCu7Q5ROuN94F9b6ioWwKfz3ueL3KTtmX4o2MUH2cgHDIEUsw==}
-    peerDependencies:
-      rollup: '>=1.26.3'
-      typescript: '>=2.4.0'
-    dependencies:
-      '@rollup/pluginutils': 4.2.1
-      find-cache-dir: 3.3.2
-      fs-extra: 10.1.0
-      rollup: 4.0.0
-      semver: 7.5.4
-      tslib: 2.6.2
-      typescript: 5.0.2
-    dev: false
-
   /rollup-plugin-typescript2@0.36.0(rollup@4.0.0)(typescript@5.2.2):
     resolution: {integrity: sha512-NB2CSQDxSe9+Oe2ahZbf+B4bh7pHwjV5L+RSYpCu7Q5ROuN94F9b6ioWwKfz3ueL3KTtmX4o2MUH2cgHDIEUsw==}
     peerDependencies:
@@ -3034,7 +3035,7 @@ packages:
   /rxjs@7.8.1:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.6.2
     dev: true
 
   /safe-buffer@5.2.1:
@@ -3136,8 +3137,8 @@ packages:
       yargs: 15.4.1
     dev: true
 
-  /smob@0.0.6:
-    resolution: {integrity: sha512-V21+XeNni+tTyiST1MHsa84AQhT1aFZipzPpOFAVB8DkHzwJyjjAmt9bgwnuZiZWnIbMo2duE29wybxv/7HWUw==}
+  /smob@1.4.1:
+    resolution: {integrity: sha512-9LK+E7Hv5R9u4g4C3p+jjLstaLe11MDsL21UpYaCNmapvMkYhqCV4A/f/3gyH8QjMyh6l68q9xC85vihY9ahMQ==}
     dev: false
 
   /source-map-support@0.5.21:
@@ -3278,12 +3279,12 @@ packages:
     resolution: {integrity: sha512-IKVL/itiMy947XWVv4IHV7a0KQXvKjj4ptbi7Ew9MPMcOLzkiQeyx3Gyvh62hKrfJ0RZc4M1nbhzjNM39Kyujw==}
     dev: false
 
-  /terser@5.16.8:
-    resolution: {integrity: sha512-QI5g1E/ef7d+PsDifb+a6nnVgC4F22Bg6T0xrBrz6iloVB4PUkkunp6V8nzoOOZJIzjWVdAGqCdlKlhLq/TbIA==}
+  /terser@5.21.0:
+    resolution: {integrity: sha512-WtnFKrxu9kaoXuiZFSGrcAvvBqAdmKx0SFNmVNYdJamMu9yyN3I/QF0FbH4QcqJQ+y1CJnzxGIKH0cSj+FGYRw==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      '@jridgewell/source-map': 0.3.2
+      '@jridgewell/source-map': 0.3.5
       acorn: 8.8.2
       commander: 2.20.3
       source-map-support: 0.5.21
@@ -3368,10 +3369,6 @@ packages:
       strip-ansi: 6.0.1
     dev: true
 
-  /tslib@2.5.0:
-    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
-    dev: true
-
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
@@ -3433,22 +3430,16 @@ packages:
       is-typed-array: 1.1.10
     dev: true
 
-  /typescript@5.0.2:
-    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
-    engines: {node: '>=12.20'}
-    hasBin: true
-    dev: false
-
   /typescript@5.2.2:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
     hasBin: true
 
-  /typia@5.0.1(typescript@5.2.2):
-    resolution: {integrity: sha512-Rh98i9HW5rtXu8s6xo0RHq2TvXj6Hj8R3Dpght5QIFTbqbF+d4PUU4O8ZqbMBJ2i7nZd1XDsMh/h1swvjQndZw==}
+  /typia@5.1.6(typescript@5.2.2):
+    resolution: {integrity: sha512-in/m6hhsoS4jDfztT/hMlWVS670+0BcQNR0AX/sVctqrY/VnVs8cNdJiFn8iZdQ/QvLqWaT/FW1WUuibn8prMw==}
     hasBin: true
     peerDependencies:
-      typescript: '>= 4.7.4'
+      typescript: '>= 4.8.0'
     dependencies:
       commander: 10.0.1
       comment-json: 4.2.3
