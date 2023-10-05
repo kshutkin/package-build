@@ -13,6 +13,12 @@ export type PackageJson = {
     scripts?: {
         [key: string]: string
     },
+    repository?: {
+        type?: string,
+        url?: string
+    },
+    bugs?: string,
+    homepage?: string,
     dependencies?: Record<string, string>,
     devDependencies?: Record<string, string>,
     peerDependencies?: Record<string, string>

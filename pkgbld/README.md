@@ -60,7 +60,7 @@ If `package.json` defines the `umd` field option will default to `index``.
 pkgbld --compress=es,umd
 ```
 
-Where `es,umd` should be replaced by formats that should be compressed using terser.
+Where `es,umd` should be replaced by formats that should be compressed using terser. Default `umd`.
 
 ### sourcemaps
 
@@ -88,18 +88,18 @@ pkgbld --preprocess=index
 
 Defines what entry points/files should be preprocessed using `rollup-plugin-preprocess`. The entry point will be defined as variable es (for esm target), cjs (for commonjs) and umd (for umd) depending on the target type. Please request more variables / more granular logic if you want more.
 
-### dir
+### dest
 
 ```
-pkgbld --dir=dist
+pkgbld --dest=dist
 ```
 
 Directory to put output files.
 
-### sourcedir
+### src
 
 ```
-pkgbld --sourcedir=src
+pkgbld --src=src
 ```
 
 Directory to search for input files.

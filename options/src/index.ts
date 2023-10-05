@@ -1,6 +1,8 @@
 import typia from 'typia';
 import { PackageJson } from './types';
 
+export { PackageJson };
+
 export function isPackageJson(value: unknown) : value is PackageJson {
     return typia.is<PackageJson>(value);
 }
@@ -21,18 +23,19 @@ function CommaSeparatedStringOrBoolean(value: string | boolean) {
 
 export const cliFlagsDefaults = {
     formats: ['es', 'cjs'],
-    umdInputs: [] as string[],
-    compressFormats: ['umd'],
-    sourcemapFormats: ['umd'],
-    preprocess: [],
-    dir: 'dist',
-    sourceDir: 'src',
+    umd: [] as string[],
+    compress: ['umd'],
+    sourcemaps: ['umd'],
+    preprocess: [] as string[],
+    dest: 'dist',
+    src: 'src',
+    bin: undefined as string[] | undefined,
     includeExternals: false as boolean | string[],
     eject: false,
     noTsConfig: false,
     noUpdatePackageJson: false,
     commonjsPattern: '[name].cjs',
-    esPattern: '[name].mjs',
+    esmPattern: '[name].mjs',
     umdPattern: '[name].umd.js',
     formatPackageJson: false
 };
@@ -41,17 +44,17 @@ export const cliFlags = {
     umd: {
         type: CommaSeparatedString,
         description: 'Package subpath exports in UMD format',
-        default: cliFlagsDefaults.umdInputs
+        default: cliFlagsDefaults.umd
     },
     compress: {
         type: CommaSeparatedString,
         description: 'Compress formats using terser',
-        default: cliFlagsDefaults.compressFormats
+        default: cliFlagsDefaults.compress
     },
     sourcemaps: {
         type: CommaSeparatedString,
         description: 'Emit sourcemaps for the specified formats',
-        default: cliFlagsDefaults.sourcemapFormats
+        default: cliFlagsDefaults.sourcemaps
     },
     formats: {
         type: CommaSeparatedString,
@@ -63,19 +66,20 @@ export const cliFlags = {
         description: 'Preprocess entry points / subpath exports',
         default: cliFlagsDefaults.preprocess
     },
-    dir: {
+    dest: {
         type: String,
         description: 'Output directory',
-        default: cliFlagsDefaults.dir
+        default: cliFlagsDefaults.dest
     },
-    sourceDir: {
+    src: {
         type: String,
         description: 'Source directory',
-        default: cliFlagsDefaults.sourceDir
+        default: cliFlagsDefaults.src
     },
     bin: {
         type: CommaSeparatedString,
-        description: 'Executable files'
+        description: 'Executable files',
+        default: cliFlagsDefaults.bin
     },
     includeExternals: {
         type: CommaSeparatedStringOrBoolean,
@@ -105,7 +109,7 @@ export const cliFlags = {
     esmPattern: {
         type: String,
         description: 'ES output file name pattern',
-        default: cliFlagsDefaults.esPattern
+        default: cliFlagsDefaults.esmPattern
     },
     umdPattern: {
         type: String,
@@ -124,6 +128,7 @@ export const packageJsonFieldsOrder = new Set([
     'type',
     'version',
     'name',
+    'scope', // custom
     'description',
     'license',
     'author',
