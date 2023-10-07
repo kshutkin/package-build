@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.6
+
+### Patch Changes
+
+- 30e3875: added \_\_dirname polyfill, do not eject helper in case of includeExternals === false
+
 ## 1.1.5
 
 ### Patch Changes
