@@ -15,6 +15,7 @@ function CommaSeparatedStringOrBoolean(value: string | boolean) {
     if (typeof value === 'boolean') {
         return value;
     }
+    // TODO check how we get array here
     if (Array.isArray(value) && value.length === 0) {
         return true;
     }

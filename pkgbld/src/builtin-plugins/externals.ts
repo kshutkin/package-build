@@ -13,7 +13,7 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
 
     if (config.formats.length > 0) {
         const format = (allowGenericUmd ? undefined : config.formats.filter(format => format !== 'umd')) as InternalModuleFormat[];
-        provider.provide(() => pluginExternals({
+        provider.provide(() => pluginExternals(config.includeExternals === false ? {} : {
             external: (id: string, external: boolean, importer: string) => includeExternals(importer, external, id, config)
         }), Priority.externals, { format });
         // for eject config
