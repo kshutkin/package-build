@@ -144,6 +144,7 @@ export const packageJsonFieldsOrder = new Set([
     'imports',
     'types',
     'typings',
+    'typesVersions',
     'files',
     'packageManager',
     'sideEffects',
