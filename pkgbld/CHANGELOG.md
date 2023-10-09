@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.23.0
+
+### Minor Changes
+
+- 657659c: add types property to subpath exports
+
 ## 1.22.1
 
 ### Patch Changes
