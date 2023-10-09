@@ -104,12 +104,13 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
         if (typeof (pkg.exports as Record<string, Json>)[id] !== 'object') {
             (pkg.exports as Record<string, Json>)[id] = {};
         }
+        ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).types = `./${config.dir}/${patternToName('[name].d.ts', basename)}`;
+        if (allowEsm) {
+            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).import = `./${config.dir}/${patternToName(config.esPattern, basename)}`;
+        }
         if (allowCjs) {
             ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).require = `./${config.dir}/${patternToName(config.commonjsPattern, basename)}`;
-        }
-        if (allowEsm) {
-            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).default = `./${config.dir}/${patternToName(config.esPattern, basename)}`;
-        }
+        }        
     
         if (basename !== 'index') {
             if (!pkg.files.includes(basename)) {
