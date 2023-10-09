@@ -140,6 +140,7 @@ export const packageJsonFieldsOrder = new Set([
     'browser',
     'unpkg',
     'module',
+    'svelte',
     'exports',
     'imports',
     'types',
