@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.23.1
+
+### Patch Changes
+
+- 9503fcb: fixed subpath exports ordering
+
 ## 1.23.0
 
 ### Minor Changes
