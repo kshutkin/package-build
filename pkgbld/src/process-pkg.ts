@@ -110,7 +110,9 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
         }
         if (allowCjs) {
             ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).require = `./${config.dir}/${patternToName(config.commonjsPattern, basename)}`;
-        }        
+        }
+
+        ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>) = orderFields(((pkg.exports as Record<string, Json>)[id] as Record<string, Json>));
     
         if (basename !== 'index') {
             if (!pkg.files.includes(basename)) {
@@ -134,4 +136,28 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
 
 function patternToName(pattern: string, input: string) {
     return pattern.replace('[name]', input);
+}
+
+const fieldsOrder = new Set([
+    'types',
+    'import',
+    'require',
+    'svelte',
+    'default'
+]);
+
+function orderFields<T extends object>(exports: T) {
+    const ordered: T = {} as T;
+    for (const key of fieldsOrder) {
+        if (key as keyof T in exports) {
+            (ordered as Record<string, unknown>)[key] = (exports as Record<string, unknown>)[key];
+        }
+    }
+
+    for (const key in exports) {
+        if (!fieldsOrder.has(key)) {
+            (ordered as Record<string, unknown>)[key] = (exports as Record<string, unknown>)[key];
+        }
+    }
+    return ordered;
 }
