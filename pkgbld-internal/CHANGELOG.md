@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.7
+
+### Patch Changes
+
+- 65df407: update pkgbld-internal
+
 ## 1.1.6
 
 ### Patch Changes
