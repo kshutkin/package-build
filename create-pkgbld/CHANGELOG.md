@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.1
+
+### Patch Changes
+
+- added prepack to self
+
 ## 1.7.0
 
 ### Minor Changes
