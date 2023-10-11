@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.9
+
+### Patch Changes
+
+- ba9f8ec: update with new functionality from pkgbld
+
 ## 1.1.8
 
 ### Patch Changes
