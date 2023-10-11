@@ -23,7 +23,8 @@
   "readme": "README.md",
   "scripts": {
     "build": "rollup -c",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src",
+    "prepack": "node ./dist/index.js prepack"
   },
   "dependencies": {
     "lodash": "^4.17.21",
