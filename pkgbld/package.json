@@ -29,7 +29,7 @@
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint ./src",
-    "prepack": "node ./dist/index.js prepack"
+    "prepack": "node ./dist/index.js prune"
   },
   "dependencies": {
     "@niceties/logger": "^1.1.12",

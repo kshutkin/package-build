@@ -38,7 +38,7 @@
   "scripts": {
     "build": "node ../pkgbld/dist/index.js --include-externals=options",
     "lint": "eslint ./src",
-    "prepack": "node ../pkgbld/dist/index.js prepack"
+    "prepack": "node ../pkgbld/dist/index.js prune"
   },
   "dependencies": {
     "string-argv": "0.3.2",
