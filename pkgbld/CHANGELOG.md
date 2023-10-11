@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.24.0
+
+### Minor Changes
+
+- ba9f8ec: added prune command
+
 ## 1.23.1
 
 ### Patch Changes
