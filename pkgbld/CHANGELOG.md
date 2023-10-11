@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.24.1
+
+### Patch Changes
+
+- d942874: use prune
+
 ## 1.24.0
 
 ### Minor Changes

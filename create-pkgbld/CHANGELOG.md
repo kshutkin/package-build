@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.2
+
+### Patch Changes
+
+- d942874: use prune
+
 ## 1.7.1
 
 ### Patch Changes
