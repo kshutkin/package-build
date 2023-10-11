@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.11
+
+### Patch Changes
+
+- bb5743f: use pkgbld-internal if we have internal version
+
 ## 1.1.10
 
 ### Patch Changes
