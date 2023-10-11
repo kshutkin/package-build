@@ -178,6 +178,14 @@ pkgbld --format-package-json
 
 Formats package.json file.
 
+### prune (command)
+
+```
+pkgbld prune
+```
+
+prune devDependencies and redundunt scripts from package.json
+
 ## Plugin API
 
 `pkgbld` reads all installed packages named `pkgbld-plugin-*` and assumes they are plugins

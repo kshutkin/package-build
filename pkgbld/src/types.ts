@@ -10,6 +10,7 @@ export type PackageJson = {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
     peerDependencies: Record<string, string>;
+    scripts?: Record<string, string>;
 };
 
 export const enum Priority {
@@ -46,7 +47,7 @@ export type PkgbldRollupPlugin = {
     outputPlugin?: true;
 };
 
-export type CliOptions = NonNullable<ReturnType<typeof getCliOptions>>;
+export type CliOptions = NonNullable<Extract<ReturnType<typeof getCliOptions>, { kind: 'build' }>>;
 export type ParsedOptions = Record<string, string | number | string[] | number[] | boolean | undefined>;
 
 // plugins API

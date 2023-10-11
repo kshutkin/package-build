@@ -15,6 +15,7 @@ import { createEjectProvider, ejectConfig } from './eject';
 import { checkTsConfig } from './process-ts-config';
 import { PackageJson, PkgbldPlugin } from './types';
 import { loadPlugins } from './load-plugins';
+import { prunePkg } from './prune';
 
 execute();
 
@@ -31,6 +32,11 @@ async function execute() {
         mainLogger.update('');
         process.stdout.moveCursor?.(0, -1);
         const options = getCliOptions(plugins, pkg);
+        if (options.kind === 'prune') {
+            prunePkg(pkg, options);
+            await writeJson(pkgPath, pkg);
+            process.exit(0);
+        }
         process.stdout.moveCursor?.(0, 1);
         mainLogger.update('preparing...');
         checkTsConfig(options, mainLogger, plugins);

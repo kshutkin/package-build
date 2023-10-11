@@ -1,5 +1,3 @@
-
-
 import path from 'path';
 import { createLogger, LogLevel } from '@niceties/logger';
 import { CliOptions, Json, PackageJson, PkgbldPlugin } from './types';
@@ -31,6 +29,14 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
     
     if (typeof pkg.exports !== 'object' && pkg.exports !== null) {
         pkg.exports = {};
+    }
+
+    if (typeof pkg.scripts !== 'object' && pkg.scripts !== null) {
+        pkg.scripts = {};
+    }
+
+    if (!('prepack' in (pkg.scripts as Record<string, Json>))) {
+        (pkg.scripts as Record<string, Json>).prepack = 'pkgbld prune';
     }
 
     if ((pkg.exports as Record<string, Json>)['.'] == null) {
