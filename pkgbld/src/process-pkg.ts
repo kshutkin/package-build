@@ -36,7 +36,8 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
     }
 
     if (!('prepack' in (pkg.scripts as Record<string, Json>))) {
-        (pkg.scripts as Record<string, Json>).prepack = 'pkgbld prune';
+        const binary = typeof (pkg.scripts as Record<string, string>).build === 'string' && (pkg.scripts as Record<string, string>).build?.startsWith('pkgbld-internal')  ? 'pkgbld-internal' : 'pkgbld';
+        (pkg.scripts as Record<string, Json>).prepack = `${binary} prune`;
     }
 
     if ((pkg.exports as Record<string, Json>)['.'] == null) {
