@@ -13,9 +13,9 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
 
     if (config.formats.length > 0) {
         const format = (allowGenericUmd ? undefined : config.formats.filter(format => format !== 'umd')) as InternalModuleFormat[];
-        provider.provide(() => pluginExternals(config.includeExternals === false ? {} : {
-            external: (id: string, external: boolean, importer: string) => includeExternals(importer, external, id, config)
-        }), Priority.externals, { format });
+        provider.provide(() => pluginExternals(config.includeExternals === false
+            ? {}
+            : (id: string, external: boolean, importer: string) => includeExternals(importer, external, id, config)), Priority.externals, { format });
         // for eject config
         provider.globalImport('path', 'path');
         provider.globalSetup(includeExternals);
@@ -25,9 +25,7 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
         const curry = (await provider.import('lodash/curry.js')) as typeof import('lodash/curry');
         for(const currentInput of config.umdInputs) {
             const isExternal = curry((currentInput: string, id: string, external: boolean, importer: string) => includeExternals(importer, external, id, config) || isExternalInput(currentInput, inputs, id, config))(currentInput);
-            provider.provide(() => pluginExternals({
-                external: isExternal
-            }), Priority.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
+            provider.provide(() => pluginExternals(isExternal), Priority.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.ts`] });
         }
         // for eject config
         if (config.formats.length === 0) {
