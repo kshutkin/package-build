@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.25.0
+
+### Minor Changes
+
+- 3d2d70a: update @rollup-extras/plugin-externals
+
 ## 1.24.2
 
 ### Patch Changes
