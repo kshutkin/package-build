@@ -50,7 +50,7 @@
     "lodash": "4.17.21"
   },
   "devDependencies": {
-    "@types/git-user-name": "2.0.1",
+    "@types/git-user-name": "2.0.2",
     "@types/parse-git-config": "3.0.2",
     "@types/prompts": "2.4.6",
     "@types/lodash": "4.14.199",
