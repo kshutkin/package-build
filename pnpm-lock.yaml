@@ -67,8 +67,8 @@ importers:
         specifier: 4.14.200
         version: 4.14.200
       '@types/parse-git-config':
-        specifier: 3.0.2
-        version: 3.0.2
+        specifier: 3.0.3
+        version: 3.0.3
       '@types/prompts':
         specifier: 2.4.7
         version: 2.4.7
@@ -959,8 +959,8 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
 
-  /@types/parse-git-config@3.0.2:
-    resolution: {integrity: sha512-ACdd6Pu94ngAUEZSxd5Hf4uk8QxZRTe7dYX3n+PK2lQ+yAatf2z63SDdpIeqKWFyQY+hpPFncT+IueqIJpWQwg==}
+  /@types/parse-git-config@3.0.3:
+    resolution: {integrity: sha512-AwGl2WDbJcu4HspygfagSDu3n3mQ++brDDusLLnescC9F88W75x50DV+XnVw9BPRrLVCAcVksr/cLhM8KdFS1g==}
     dev: true
 
   /@types/prompts@2.4.7:
