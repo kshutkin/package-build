@@ -1,5 +1,11 @@
 # options
 
+## 0.2.1
+
+### Patch Changes
+
+- 0091f32: added support for typesVersions
+
 ## 0.2.0
 
 ### Minor Changes

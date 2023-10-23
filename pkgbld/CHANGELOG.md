@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.26.0
+
+### Minor Changes
+
+- 0091f32: added support for typesVersions
+
 ## 1.25.0
 
 ### Minor Changes

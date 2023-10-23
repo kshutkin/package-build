@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.13
+
+### Patch Changes
+
+- 0091f32: added support for typesVersions
+
 ## 1.1.12
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.3
+
+### Patch Changes
+
+- 0091f32: added support for typesVersions
+
 ## 1.7.2
 
 ### Patch Changes
