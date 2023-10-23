@@ -16,6 +16,17 @@
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "dist/index.d.ts"
+      ],
+      "*": [
+        "dist/index.d.ts",
+        "dist/*"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],

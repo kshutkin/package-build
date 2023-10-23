@@ -145,7 +145,7 @@ export const packageJsonFieldsOrder = new Set([
     'imports',
     'types',
     'typings',
-    'typesVersions',
+    'typesVersions', // non standard but required for typescript with resolution other than nodenext
     'files',
     'packageManager',
     'sideEffects',
