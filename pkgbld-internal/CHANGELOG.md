@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.15
+
+### Patch Changes
+
+- 17d8400: remove folders with seemingly redundant package.json
+
 ## 1.1.14
 
 ### Patch Changes
