@@ -1,5 +1,11 @@
 # options
 
+## 0.2.2
+
+### Patch Changes
+
+- 37dac35: added flatten option to prune command, added no-pack option
+
 ## 0.2.1
 
 ### Patch Changes

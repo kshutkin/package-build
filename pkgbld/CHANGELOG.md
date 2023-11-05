@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.27.0
+
+### Minor Changes
+
+- 37dac35: added flatten option to prune command, added no-pack option
+
 ## 1.26.0
 
 ### Minor Changes
