@@ -17,6 +17,7 @@ export type PackageJson = {
         type?: string,
         url?: string
     },
+    files?: string[],
     bugs?: string,
     homepage?: string,
     dependencies?: Record<string, string>,

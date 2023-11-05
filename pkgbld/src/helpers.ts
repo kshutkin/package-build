@@ -2,8 +2,7 @@ import path from 'path';
 import camelCase from 'lodash/camelCase';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
-import { processPackageJson } from 'options';
-import { PackageJson } from './types';
+import { PackageJson, processPackageJson } from 'options';
 
 export function getHelpers(pkgName: string) {
     function getGlobalName(anInput: string) {

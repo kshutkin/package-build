@@ -13,9 +13,10 @@ import kleur from 'kleur';
 import { createProvider } from './get-plugins';
 import { createEjectProvider, ejectConfig } from './eject';
 import { checkTsConfig } from './process-ts-config';
-import { PackageJson, PkgbldPlugin } from './types';
+import { PkgbldPlugin } from './types';
 import { loadPlugins } from './load-plugins';
 import { prunePkg } from './prune';
+import { PackageJson } from 'options';
 
 execute();
 
@@ -33,7 +34,7 @@ async function execute() {
         process.stdout.moveCursor?.(0, -1);
         const options = getCliOptions(plugins, pkg);
         if (options.kind === 'prune') {
-            prunePkg(pkg, options);
+            await prunePkg(pkg, options, mainLogger);
             await writeJson(pkgPath, pkg);
             process.exit(0);
         }

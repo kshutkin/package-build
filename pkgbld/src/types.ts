@@ -1,17 +1,9 @@
 import type { Plugin, InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getCliOptions } from './get-cli-options';
 import { Logger } from '@niceties/logger';
+import { PackageJson } from 'options';
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
-
-export type PackageJson = {
-    name: string,
-    version: string,
-    dependencies?: Record<string, string>;
-    devDependencies?: Record<string, string>;
-    peerDependencies: Record<string, string>;
-    scripts?: Record<string, string>;
-};
 
 export const enum Priority {
     preprocess = 1000,

@@ -124,14 +124,14 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(rollup@4.0.0)
       '@rollup/plugin-commonjs':
-        specifier: ^25.0.5
-        version: 25.0.5(rollup@4.0.0)
+        specifier: ^25.0.7
+        version: 25.0.7(rollup@4.0.0)
       '@rollup/plugin-json':
         specifier: ^6.0.1
         version: 6.0.1(rollup@4.0.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
-        version: 15.2.2(rollup@4.0.0)
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.0.0)
       '@rollup/plugin-terser':
         specifier: ^0.4.4
         version: 0.4.4(rollup@4.0.0)
@@ -147,6 +147,9 @@ importers:
       is-builtin-module:
         specifier: ^3.2.1
         version: 3.2.1
+      jsonata:
+        specifier: ^2.0.3
+        version: 2.0.3
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -182,11 +185,11 @@ importers:
   pkgbld-internal:
     dependencies:
       '@rollup/plugin-commonjs':
-        specifier: ^25.0.5
-        version: 25.0.5(rollup@4.0.0)
+        specifier: ^25.0.7
+        version: 25.0.7(rollup@4.0.0)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.2
-        version: 15.2.2(rollup@4.0.0)
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.0.0)
       '@rollup/plugin-terser':
         specifier: ^0.4.4
         version: 0.4.4(rollup@4.0.0)
@@ -237,8 +240,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(rollup@4.0.0)
       '@rollup/plugin-replace':
-        specifier: ^5.0.3
-        version: 5.0.3(rollup@4.0.0)
+        specifier: ^5.0.5
+        version: 5.0.5(rollup@4.0.0)
       '@slimlib/refine-partition':
         specifier: ^1.0.2
         version: 1.0.2
@@ -560,6 +563,9 @@ packages:
   /@jridgewell/sourcemap-codec@1.4.14:
     resolution: {integrity: sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==}
 
+  /@jridgewell/sourcemap-codec@1.4.15:
+    resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
+
   /@jridgewell/trace-mapping@0.3.17:
     resolution: {integrity: sha512-MCNzAp77qzKca9+W/+I0+sEpaUnZoeasnghNeVc41VZCEKaCH73Vq3BZZ/SzWIgrqE4H4ceI+p+b6C0mHf9T4g==}
     dependencies:
@@ -728,6 +734,25 @@ packages:
       is-reference: 1.2.1
       magic-string: 0.27.0
       rollup: 4.0.0
+    dev: true
+
+  /@rollup/plugin-commonjs@25.0.7(rollup@4.0.0):
+    resolution: {integrity: sha512-nEvcR+LRjEjsaSsc4x3XZfCCvZIaSMenZu/OiwOKGN2UhQpAYI7ru7czFvyWbErlpoGjnSX3D5Ch5FcMA3kRWQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.68.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2(rollup@4.0.0)
+      commondir: 1.0.1
+      estree-walker: 2.0.2
+      glob: 8.1.0
+      is-reference: 1.2.1
+      magic-string: 0.30.5
+      rollup: 4.0.0
+    dev: false
 
   /@rollup/plugin-json@6.0.1(rollup@4.0.0):
     resolution: {integrity: sha512-RgVfl5hWMkxN1h/uZj8FVESvPuBJ/uf6ly6GTj0GONnkfoBN5KC0MSz+PN2OLDgYXMhtG0mWpTrkiOjoxAIevw==}
@@ -758,9 +783,28 @@ packages:
       is-module: 1.0.0
       resolve: 1.22.4
       rollup: 4.0.0
+    dev: true
 
-  /@rollup/plugin-replace@5.0.3(rollup@4.0.0):
-    resolution: {integrity: sha512-je7fu05B800IrMlWjb2wzJcdXzHYW46iTipfChnBDbIbDXhASZs27W1B58T2Yf45jZtJUONegpbce+9Ut2Ti/Q==}
+  /@rollup/plugin-node-resolve@15.2.3(rollup@4.0.0):
+    resolution: {integrity: sha512-j/lym8nf5E21LwBT4Df1VD6hRO2L2iwUeUmP7litikRsVp1H6NWx20NEp0Y7su+7XGc476GnXXc4kFeZNGmaSQ==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.78.0||^3.0.0||^4.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2(rollup@4.0.0)
+      '@types/resolve': 1.20.2
+      deepmerge: 4.3.0
+      is-builtin-module: 3.2.1
+      is-module: 1.0.0
+      resolve: 1.22.4
+      rollup: 4.0.0
+    dev: false
+
+  /@rollup/plugin-replace@5.0.5(rollup@4.0.0):
+    resolution: {integrity: sha512-rYO4fOi8lMaTg/z5Jb+hKnrHHVn8j2lwkqwyS4kTRhKyWOLf2wST2sWXr4WzWiTcoHTp2sTjqUbqIj2E39slKQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
@@ -769,7 +813,7 @@ packages:
         optional: true
     dependencies:
       '@rollup/pluginutils': 5.0.2(rollup@4.0.0)
-      magic-string: 0.27.0
+      magic-string: 0.30.5
       rollup: 4.0.0
     dev: true
 
@@ -2424,6 +2468,11 @@ packages:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
     dev: true
 
+  /jsonata@2.0.3:
+    resolution: {integrity: sha512-Up2H81MUtjqI/dWwWX7p4+bUMfMrQJVMN/jW6clFMTiYP528fBOBNtRu944QhKTs3+IsVWbgMeUTny5fw2VMUA==}
+    engines: {node: '>= 8'}
+    dev: false
+
   /jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
     optionalDependencies:
@@ -2521,6 +2570,13 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.14
+    dev: true
+
+  /magic-string@0.30.5:
+    resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.4.15
 
   /make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}

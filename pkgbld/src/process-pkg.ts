@@ -1,6 +1,7 @@
 import path from 'path';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { CliOptions, Json, PackageJson, PkgbldPlugin } from './types';
+import { CliOptions, Json, PkgbldPlugin } from './types';
+import { PackageJson } from 'options';
 
 const emptySet = new Set as Set<string>;
 
@@ -51,7 +52,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
         pkg.scripts = {};
     }
 
-    if (!('prepack' in (pkg.scripts as Record<string, Json>))) {
+    if (!config.noPack && !('prepack' in (pkg.scripts as Record<string, Json>))) {
         const binary = typeof (pkg.scripts as Record<string, string>).build === 'string' && (pkg.scripts as Record<string, string>).build?.startsWith('pkgbld-internal')  ? 'pkgbld-internal' : 'pkgbld';
         (pkg.scripts as Record<string, Json>).prepack = `${binary} prune`;
     }

@@ -1,4 +1,5 @@
-import type { CliOptions, PackageJson, PkgbldRollupPlugin, Provider } from './types';
+import type { CliOptions, PkgbldRollupPlugin, Provider } from './types';
+import type { PackageJson } from 'options';
 import type { RollupOptions } from 'rollup';
 import fs from 'fs/promises';
 import path from 'path';

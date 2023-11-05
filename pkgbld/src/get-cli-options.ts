@@ -1,6 +1,16 @@
 import { cli, command } from 'cleye';
-import { PackageJson, PkgbldPlugin } from './types';
-import { cliFlags, cliFlagsDefaults as defaults } from 'options';
+import { PkgbldPlugin } from './types';
+import { PackageJson, cliFlags, cliFlagsDefaults as defaults } from 'options';
+
+function FlattenParam(value: string | false) {
+    if (typeof value === 'boolean') {
+        return value; // false
+    }
+    if (value === '') {
+        return true; // means auto
+    }
+    return value; // string
+}
 
 export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson) {
     const cliOptions = cli({
@@ -16,6 +26,11 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
                         type: String,
                         description: 'profile to use',
                         default: 'library'
+                    },
+                    flatten: {
+                        type: FlattenParam,
+                        description: 'flatten package files',
+                        default: false
                     }
                 }
             })
@@ -25,7 +40,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
     if (cliOptions.command === 'prune') {
         return {
             kind: 'prune',
-            profile: cliOptions.flags.profile
+            profile: cliOptions.flags.profile,
+            flatten: cliOptions.flags.flatten
         } as const;
     } else {
         const flags = cliOptions.flags;
@@ -48,7 +64,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             commonjsPattern: flags.commonjsPattern,
             esPattern: flags.esmPattern,
             umdPattern: flags.umdPattern,
-            formatPackageJson: flags.formatPackageJson
+            formatPackageJson: flags.formatPackageJson,
+            noPack: flags.noPack
         };
 
         for (const plugin of plugins) {
@@ -73,7 +90,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             commonjsPattern: string,
             esPattern: string,
             umdPattern: string,
-            formatPackageJson: boolean
+            formatPackageJson: boolean,
+            noPack: boolean
         };
     }
 }

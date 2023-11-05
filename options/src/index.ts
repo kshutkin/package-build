@@ -121,6 +121,11 @@ export const cliFlags = {
         type: Boolean,
         description: 'Format package.json',
         default: cliFlagsDefaults.formatPackageJson
+    },
+    noPack: {
+        type: Boolean,
+        description: 'Do not pack',
+        default: false
     }
 };
 

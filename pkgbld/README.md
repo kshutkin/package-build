@@ -178,6 +178,14 @@ pkgbld --format-package-json
 
 Formats package.json file.
 
+### no-pack
+
+Do not setup pack script in package.json
+
+```
+pkgbld --no-pack
+```
+
 ### prune (command)
 
 ```
@@ -185,6 +193,18 @@ pkgbld prune
 ```
 
 prune devDependencies and redundunt scripts from package.json
+
+### flatten
+
+```
+pkgbld prune --flatten=<directory>
+```
+
+Flattens file structure by moving all files from `dist` or other directory to the root directory and updating package.json.
+
+If the directory is not specified it is guessed from package.json.
+
+If files cannot be copied because of name conflicts the command will fail.
 
 ## Plugin API
 

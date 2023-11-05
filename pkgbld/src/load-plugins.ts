@@ -1,4 +1,5 @@
-import { PackageJson, PkgbldPlugin } from './types';
+import { PackageJson } from 'options';
+import { PkgbldPlugin } from './types';
 
 export function loadPlugins(pkg: PackageJson) { 
     return Promise.all(
