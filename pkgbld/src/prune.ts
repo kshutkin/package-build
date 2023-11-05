@@ -1,6 +1,6 @@
 import { Logger } from '@niceties/logger';
 import { PackageJson } from 'options';
-import { readdir, access, rename, rm } from 'fs/promises';
+import { readdir, access, rename, rm, stat } from 'fs/promises';
 import path from 'path';
 
 export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profile: string, flatten: string | boolean }, logger: Logger) {
@@ -136,6 +136,24 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     });
     files.push(...newFiles);
     pkg.files = [...files];
+
+    // remove extra directories with package.json
+    const exports = pkg.exports ? Object.keys(pkg.exports) : [];
+    for (const key of exports) {
+        if (key === '.') {
+            continue;
+        }
+        const isDir = await isDirectory(key);
+        if (isDir) {
+            const pkgPath = path.join(key, 'package.json');
+            const pkgExists = await isExists(pkgPath);
+            // ensure nothing else is in the directory
+            const files = await readdir(key);
+            if (files.length === 1 && pkgExists) {
+                await rm(key, { recursive: true, force: true });
+            }
+        }
+    }
 }
 
 type JSONValue =
@@ -162,6 +180,14 @@ function cloneAndUpdate<T extends JSONValue>(pkg: T, updater: (value: string) =>
     }
     return pkg;
 }
+
+async function isDirectory(file: string) {
+    try {
+        const fileStat = await stat(file);
+        return fileStat.isDirectory();
+    } catch (e: unknown) { /**/ }
+}
+
 
 async function isExists(file: string) {
     try {

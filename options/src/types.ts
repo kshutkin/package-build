@@ -22,5 +22,6 @@ export type PackageJson = {
     homepage?: string,
     dependencies?: Record<string, string>,
     devDependencies?: Record<string, string>,
-    peerDependencies?: Record<string, string>
+    peerDependencies?: Record<string, string>,
+    exports?: Record<string, string | Record<string, string>>
 }
