@@ -1,5 +1,11 @@
 # options
 
+## 0.2.3
+
+### Patch Changes
+
+- 17d8400: remove folders with seemingly redundant package.json
+
 ## 0.2.2
 
 ### Patch Changes
