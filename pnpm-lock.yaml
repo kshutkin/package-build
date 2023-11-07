@@ -61,8 +61,8 @@ importers:
         specifier: 0.5.1
         version: 0.5.1
       '@types/git-user-name':
-        specifier: 2.0.2
-        version: 2.0.2
+        specifier: 2.0.3
+        version: 2.0.3
       '@types/lodash':
         specifier: 4.14.200
         version: 4.14.200
@@ -965,8 +965,8 @@ packages:
   /@types/estree@1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
 
-  /@types/git-user-name@2.0.2:
-    resolution: {integrity: sha512-brYjENbW946QC0xl8FWf3ebtwvhLZy2oHaegOcJ4fJwVxXhfNaG+zDFRphQgE22m/Dq3Mq7KFi8dDPFNSYpxfg==}
+  /@types/git-user-name@2.0.3:
+    resolution: {integrity: sha512-pA1hrehoG4hWACTHMEnen96zPMFI2qP1tzrG2HLN8Fhqhhq/trYfqle3IxVixAAMI32Z/QiAuXe4LRaProKgEw==}
     dev: true
 
   /@types/is-ci@3.0.0:
