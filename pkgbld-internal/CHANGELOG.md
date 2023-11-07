@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.16
+
+### Patch Changes
+
+- e6f6846: update pkg-dir
+
 ## 1.1.15
 
 ### Patch Changes
