@@ -64,7 +64,7 @@
     "@types/git-user-name": "2.0.3",
     "@types/parse-git-config": "3.0.3",
     "@types/prompts": "2.4.8",
-    "@types/lodash": "4.14.200",
+    "@types/lodash": "4.14.201",
     "@total-typescript/ts-reset": "0.5.1",
     "pkgbld": "workspace:*",
     "options": "workspace:*"
