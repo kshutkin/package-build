@@ -2,10 +2,12 @@ import path from 'path';
 import { createLogger, LogLevel } from '@niceties/logger';
 import { CliOptions, Json, PkgbldPlugin } from './types';
 import { PackageJson } from 'options';
+import { isExists } from './helpers';
 
 const emptySet = new Set as Set<string>;
+const sourceFileSuffixes = ['ts', 'tsx', 'js', 'jsx'] as const; // svelte, vue, etc. are not supported yet
 
-export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<PkgbldPlugin>[]): string[] {
+export async function processPackage(pkg: Json, config: CliOptions, plugins: Partial<PkgbldPlugin>[]): Promise<[string[], Map<string, typeof sourceFileSuffixes[number]>]> {
     const exportsFields = new Set([
         'types',
         'import',
@@ -21,6 +23,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
     const typesVersionsLastFields = new Set(['*']);
 
     const inputs = [];
+    const inputsExt = new Map<string, typeof sourceFileSuffixes[number]>;
     const logger = createLogger();
     const allowEsm = (config.formatsOverridden && config.formats.includes('es') || !config.formatsOverridden);
     const allowCjs = (config.formatsOverridden && config.formats.includes('cjs') || !config.formatsOverridden);
@@ -71,7 +74,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
         delete pkg.typings;
     }
 
-    pkg.types = `./${config.dir}/index.d.ts`; 
+    pkg.types = `./${config.dir}/${patternToName(typingsFilePattern, 'index')}`; 
     
     if (allowUmd && typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
@@ -159,7 +162,17 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
             }
         }
     
-        inputs.push(`./${config.sourceDir}/${basename}.ts`);
+        // check if source file exists
+        const sourceFileWithoutSuffix = `./${config.sourceDir}/${basename}.`;
+       
+        for (const suffix of sourceFileSuffixes) {
+            const file = sourceFileWithoutSuffix + suffix;
+            if (await isExists(file)) {
+                inputs.push(file);
+                inputsExt.set(file, suffix);
+                break;
+            }
+        }
     }
 
     ((pkg.typesVersions as Record<string, Json>)['*'] as Record<string, Json>)['*'] = [
@@ -177,7 +190,7 @@ export function processPackage(pkg: Json, config: CliOptions, plugins: Partial<P
         plugin.processPackageJson?.(pkg as PackageJson, inputs, logger);
     }
 
-    return inputs;
+    return [inputs, inputsExt];
 }
 
 function patternToName(pattern: string, input: string) {

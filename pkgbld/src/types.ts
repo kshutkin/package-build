@@ -48,7 +48,7 @@ export interface PkgbldPlugin {
     options(parsedArgs: ParsedOptions, options: CliOptions): void;
     processPackageJson(packageJson: PackageJson, inputs: string[], logger: Logger): void;
     processTsConfig(config: Json): void;
-    providePlugins(provider: Provider, config: ParsedOptions, inputs: string[]): Promise<void>;
+    providePlugins(provider: Provider, config: ParsedOptions, inputs: string[], inputsExt: Map<string, string>): Promise<void>;
     getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions>;
     buildEnd(): Promise<void>;
 }

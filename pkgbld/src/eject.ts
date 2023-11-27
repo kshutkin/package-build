@@ -44,7 +44,7 @@ export async function createEjectProvider(preimportMap: Map<string, Promise<neve
     }, plugins] as [Provider, PkgbldRollupPlugin[]];
 }
 
-export async function ejectConfig(config: RollupOptions[], pkgPath: string, options: CliOptions, inputs: string[], helpers: ReturnType<typeof getHelpers>, pkg: PackageJson) {
+export async function ejectConfig(config: RollupOptions[], pkgPath: string, options: CliOptions, inputs: string[], inputsExt: Map<string, string>, helpers: ReturnType<typeof getHelpers>, pkg: PackageJson) {
 
     const pkgName = (pkg as { name: string }).name;
 
@@ -55,6 +55,7 @@ export async function ejectConfig(config: RollupOptions[], pkgPath: string, opti
     // generate globals for config functions
     setup.add(`const config = ${generate(options)}`);
     setup.add(`const inputs = ${generate(inputs)}`);
+    setup.add(`const inputsExt = new Map(${generate(Array.from(inputsExt))})`);
 
     // generate helpers code
     if (options.formats.includes('umd')) {
