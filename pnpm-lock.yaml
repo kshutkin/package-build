@@ -245,9 +245,6 @@ importers:
       '@slimlib/refine-partition':
         specifier: ^1.0.2
         version: 1.0.2
-      '@types/lodash':
-        specifier: ^4.14.199
-        version: 4.14.199
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld

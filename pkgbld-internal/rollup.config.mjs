@@ -1,4 +1,3 @@
-import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import preprocess from 'rollup-plugin-preprocess';
@@ -9,7 +8,7 @@ import replace from '@rollup/plugin-replace';
 import path from 'path';
 import kleur from 'kleur';
 
-const input = 'src/index.ts';
+const input = 'src/index.js';
 
 const dest = 'dist';
 
@@ -48,7 +47,6 @@ const plugins = [
         exportConditions: ['default', 'require']
     }),
     commonjs(),
-    typescript(),
     binify()
 ];
 
