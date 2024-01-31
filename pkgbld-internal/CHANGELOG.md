@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.16
+
+### Patch Changes
+
+- 9fb37b7: added basic support for other input types (js, jsx, tsx)
+
 ## 1.1.15
 
 ### Patch Changes

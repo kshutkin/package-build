@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.28.0
+
+### Minor Changes
+
+- 9fb37b7: added basic support for other input types (js, jsx, tsx)
+
 ## 1.27.1
 
 ### Patch Changes
