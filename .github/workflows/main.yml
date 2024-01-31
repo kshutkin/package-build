@@ -79,7 +79,6 @@ jobs:
           name: dist-20.x
           path: .
       - run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
-      # - run: pnpm run build
       - name: create and publish versions
         uses: changesets/action@v1
         with:
