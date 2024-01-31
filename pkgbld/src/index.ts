@@ -41,17 +41,17 @@ async function execute() {
         process.stdout.moveCursor?.(0, 1);
         mainLogger.update('preparing...');
         checkTsConfig(options, mainLogger, plugins);
-        const inputs = processPackage(pkg, options, plugins);
+        const [inputs, inputsExt] = await processPackage(pkg, options, plugins);
         if (options.formatPackageJson) {
             pkg = formatPackageJson(pkg);
         }
         const helpers = getHelpers((pkg as { name: string }).name);
         const preimportMap = preimport();
         const provider = options.eject ? await createEjectProvider(preimportMap) : createProvider(preimportMap);
-        const rollupConfigs = await getRollupConfigs(provider, inputs, options, helpers, plugins);
+        const rollupConfigs = await getRollupConfigs(provider, inputs, inputsExt, options, helpers, plugins);
 
         if (options.eject) {
-            await ejectConfig(rollupConfigs, pkgPath, options, inputs, helpers, pkg);
+            await ejectConfig(rollupConfigs, pkgPath, options, inputs, inputsExt, helpers, pkg);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
             if (!options.noUpdatePackageJson) {
                 await writeJson(pkgPath, pkg);

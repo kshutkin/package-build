@@ -1,7 +1,8 @@
 import { Logger } from '@niceties/logger';
 import { PackageJson } from 'options';
-import { readdir, access, rename, rm, stat } from 'fs/promises';
+import { readdir, rename, rm, stat } from 'fs/promises';
 import path from 'path';
+import { isExists } from './helpers';
 
 export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profile: string, flatten: string | boolean }, logger: Logger) {
     if (options.kind !== 'prune') {
@@ -186,19 +187,6 @@ async function isDirectory(file: string) {
         const fileStat = await stat(file);
         return fileStat.isDirectory();
     } catch (e: unknown) { /**/ }
-}
-
-
-async function isExists(file: string) {
-    try {
-        await access(file);
-    } catch (e: unknown) {
-        if (typeof e === 'object' && e != null && 'code' in e && e.code === 'ENOENT') {
-            return false as const;
-        }
-        throw e;
-    }
-    return file;
 }
 
 async function walkDir(dir: string) {

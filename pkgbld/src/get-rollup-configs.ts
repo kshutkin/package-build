@@ -5,7 +5,7 @@ import { InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getHelpers } from './helpers';
 import type { CliOptions, PkgbldPlugin, PkgbldRollupPlugin, Provider } from './types';
 
-export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], config: CliOptions, helpers: ReturnType<typeof getHelpers>, externalPlugins: Partial<PkgbldPlugin>[]) {
+export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], inputsExt: Map<string, string>, config: CliOptions, helpers: ReturnType<typeof getHelpers>, externalPlugins: Partial<PkgbldPlugin>[]) {
     const factoryInProgress = [];
     
     const fileNamePatterns = {
@@ -15,11 +15,11 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
     } as {[key in InternalModuleFormat]: string};
 
     for (const factory of pluginFactories) {
-        factoryInProgress.push(factory(provider, config, inputs));
+        factoryInProgress.push(factory(provider, config, inputs, inputsExt));
     }
 
     for (const ePlugin of externalPlugins) {
-        ePlugin.providePlugins && factoryInProgress.push(ePlugin.providePlugins(provider, config, inputs));
+        ePlugin.providePlugins && factoryInProgress.push(ePlugin.providePlugins(provider, config, inputs, inputsExt));
     }
 
     await Promise.all(factoryInProgress);
@@ -175,7 +175,7 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
                     }
                 } else {
                     for (const input of config.umdInputs) {
-                        expanded.push(`${format}../${config.sourceDir}/${input}.ts`);
+                        expanded.push(`${format}../${config.sourceDir}/${input}.${inputsExt.get(input)}`);
                     }
                 }
             } else {

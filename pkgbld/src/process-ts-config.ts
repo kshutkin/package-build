@@ -14,6 +14,8 @@ const defaultTsConfig = {
         target: 'esnext',
         module: 'esnext',
         esModuleInterop: true,
+        allowJs: true,
+        skipLibCheck: true,
         strict: true,
         noUncheckedIndexedAccess: true,
         declaration: true,

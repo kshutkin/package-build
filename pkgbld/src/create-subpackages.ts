@@ -4,7 +4,7 @@ import { CliOptions } from './types';
 
 export async function createSubpackages(inputs: string[], config: CliOptions) {
     for (const input of inputs) {
-        const basename = path.basename(input, '.ts');
+        const basename = path.basename(input, path.extname(input));
         if (basename !== 'index') {
             const pkg = {
                 type: 'module',

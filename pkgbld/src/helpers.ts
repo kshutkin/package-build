@@ -3,10 +3,11 @@ import camelCase from 'lodash/camelCase';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 import { PackageJson, processPackageJson } from 'options';
+import { access } from 'fs/promises';
 
 export function getHelpers(pkgName: string) {
     function getGlobalName(anInput: string) {
-        return camelCase(path.join(pkgName, path.basename(anInput, '.ts') !== 'index' ? path.basename(anInput, '.ts') : ''));
+        return camelCase(path.join(pkgName, path.basename(anInput, path.extname(anInput)) !== 'index' ? path.basename(anInput, path.extname(anInput)) : ''));
     }
 
     function getExternalGlobalName(id: string) {
@@ -33,7 +34,7 @@ export function toArray<T>(object: T | T[] | undefined) {
 }
 
 export function formatInput(input: string[] | string): string {
-    return (Array.isArray(input) ? input : [input ?? '']).map(item => kleur.magenta(path.basename(item, '.ts'))).join(', ');
+    return (Array.isArray(input) ? input : [input ?? '']).map(item => kleur.magenta(path.basename(item, path.extname(item)))).join(', ');
 }
 
 export function formatOutput(output: OutputOptions | OutputOptions[] | undefined, field: 'dir' | 'format'): string {
@@ -56,4 +57,16 @@ export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [..
 
 export function formatPackageJson(pkg: PackageJson) {
     return processPackageJson(pkg, key => key in pkg, key => (pkg as Record<string, unknown>)[key]) as PackageJson;
+}
+
+export async function isExists(file: string) {
+    try {
+        await access(file);
+    } catch (e: unknown) {
+        if (typeof e === 'object' && e != null && 'code' in e && e.code === 'ENOENT') {
+            return false as const;
+        }
+        throw e;
+    }
+    return file;
 }

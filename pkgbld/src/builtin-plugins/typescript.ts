@@ -1,7 +1,10 @@
-import { Priority, Provider } from '../types';
+import { CliOptions, Priority, Provider } from '../types';
 
-export default async function(provider: Provider) {
-    const pluginTypescript = await provider.import('rollup-plugin-typescript2');
+export default async function(provider: Provider, config: CliOptions, inputs: string[]) {
+    const typescriptInputs = inputs.filter(input => input.endsWith('.ts') || input.endsWith('.tsx'));
+    if (typescriptInputs.length > 0) {
+        const pluginTypescript = await provider.import('rollup-plugin-typescript2');
 
-    provider.provide(() => pluginTypescript(), Priority.transpile);
+        provider.provide(() => pluginTypescript(), Priority.transpile, typescriptInputs.length === inputs.length ? undefined : { inputs: typescriptInputs });
+    }
 }
