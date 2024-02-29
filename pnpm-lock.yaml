@@ -110,7 +110,7 @@ importers:
     dependencies:
       '@niceties/draftlog-appender':
         specifier: ^1.3.2
-        version: 1.3.2(@niceties/logger@1.1.12)
+        version: 1.3.3(@niceties/logger@1.1.12)
       '@niceties/logger':
         specifier: ^1.1.12
         version: 1.1.12
@@ -226,7 +226,7 @@ importers:
     devDependencies:
       '@niceties/draftlog-appender':
         specifier: ^1.3.2
-        version: 1.3.2(@niceties/logger@1.1.12)
+        version: 1.3.3(@niceties/logger@1.1.12)
       '@niceties/logger':
         specifier: ^1.1.12
         version: 1.1.12
@@ -596,14 +596,14 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
-  /@niceties/draftlog-appender@1.3.2(@niceties/logger@1.1.12):
-    resolution: {integrity: sha512-aYAuZw178J59MBK/OyiCGq9Ec9U5g8hRIxPBe3CEZukkftRVVUL0nAsn8yompyEx3FDFR1lCNZr3zyI5VZ4nTw==}
+  /@niceties/draftlog-appender@1.3.3(@niceties/logger@1.1.12):
+    resolution: {integrity: sha512-F2o0wRlZsFhQWf6H7Fsd5QkvUtIEZU9zYd4ahpvlHARc6k1/r7/Wj1LKvGsw7IYzb2wZ/CZYpewGoDP+ydaHbA==}
     engines: {node: '>=15'}
     peerDependencies:
-      '@niceties/logger': ^1.1.12
+      '@niceties/logger': ^1.1.13
     dependencies:
       '@niceties/logger': 1.1.12
-      '@slimlib/list': 1.0.7
+      '@slimlib/list': 1.0.10
       draftlog: 1.0.13
 
   /@niceties/logger@1.1.12:
@@ -921,8 +921,8 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@slimlib/list@1.0.7:
-    resolution: {integrity: sha512-gBv6FU1TZCSZGDkD6oX7aZE5DknzwQK8AaNQkS1I2fWNwZHTjeZDFt5jhaFbLnkusF675THjQ5LQm+UvYeFhGQ==}
+  /@slimlib/list@1.0.10:
+    resolution: {integrity: sha512-RY+o8ywbIcatp6jMZ/HSQYcMZ/Ezv/rQzKY6Un0n37KHct00REXXdH14zrXvBb1PF/BT6SHVle9TcJDHTQBfbw==}
 
   /@slimlib/refine-partition@1.0.3:
     resolution: {integrity: sha512-Mkgy1JqyL9qKK2juRu+JA0OKQjFG/bXV7KHEIzErBxzvCgHcFS+TFQZ6cinhD6EwU3iC8PJbzNbRE6Kfr+6OOA==}
