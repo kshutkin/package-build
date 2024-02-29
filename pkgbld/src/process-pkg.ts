@@ -169,7 +169,7 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
             const file = sourceFileWithoutSuffix + suffix;
             if (await isExists(file)) {
                 inputs.push(file);
-                inputsExt.set(file, suffix);
+                inputsExt.set(basename, suffix);
                 break;
             }
         }
