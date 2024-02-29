@@ -137,7 +137,7 @@ importers:
         version: 0.4.4(rollup@4.0.0)
       '@slimlib/refine-partition':
         specifier: ^1.0.2
-        version: 1.0.2
+        version: 1.0.3
       '@slimlib/smart-mock':
         specifier: ^0.1.5
         version: 0.1.6
@@ -244,7 +244,7 @@ importers:
         version: 5.0.5(rollup@4.0.0)
       '@slimlib/refine-partition':
         specifier: ^1.0.2
-        version: 1.0.2
+        version: 1.0.3
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
@@ -929,8 +929,8 @@ packages:
   /@slimlib/list@1.0.7:
     resolution: {integrity: sha512-gBv6FU1TZCSZGDkD6oX7aZE5DknzwQK8AaNQkS1I2fWNwZHTjeZDFt5jhaFbLnkusF675THjQ5LQm+UvYeFhGQ==}
 
-  /@slimlib/refine-partition@1.0.2:
-    resolution: {integrity: sha512-VqJGuRAFQhBSTTB9upOqpxayVb7yWE6afshpCRwyT3ccWaGs8mvtPsWNHlQFc3blktxBjkG2MZ0WM8qtDwHRiA==}
+  /@slimlib/refine-partition@1.0.3:
+    resolution: {integrity: sha512-Mkgy1JqyL9qKK2juRu+JA0OKQjFG/bXV7KHEIzErBxzvCgHcFS+TFQZ6cinhD6EwU3iC8PJbzNbRE6Kfr+6OOA==}
     engines: {node: '>=15'}
 
   /@slimlib/smart-mock@0.1.6:
