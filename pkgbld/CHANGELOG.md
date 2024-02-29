@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.28.1
+
+### Patch Changes
+
+- 23129e5: do not build typeings for pkgbld, as we are not exporting them
+- 76069c2: fix get input extension argument (produces input.undefined input)
+
 ## 1.28.0
 
 ### Minor Changes
