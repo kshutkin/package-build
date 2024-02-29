@@ -11,13 +11,13 @@
     "postinstall": "ts-patch install"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.1",
-    "@types/node": "^16.00.0",
-    "@typescript-eslint/eslint-plugin": "^6.5.0",
-    "@typescript-eslint/parser": "^6.5.0",
-    "eslint": "^8.36.0",
-    "ts-node": "^10.9.1",
-    "ts-patch": "^3.0.2",
-    "typescript": "^5.2.2"
+    "@changesets/cli": "^2.27.1",
+    "@types/node": "^20.11.24",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
+    "ts-node": "^10.9.2",
+    "ts-patch": "^3.1.2",
+    "typescript": "^5.3.3"
   }
 }
