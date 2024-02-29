@@ -177,7 +177,7 @@ importers:
         version: 0.5.1
       '@types/lodash':
         specifier: ^4.14.199
-        version: 4.14.199
+        version: 4.14.202
       options:
         specifier: workspace:*
         version: link:../options
@@ -965,10 +965,6 @@ packages:
 
   /@types/json-schema@7.0.12:
     resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}
-    dev: true
-
-  /@types/lodash@4.14.199:
-    resolution: {integrity: sha512-Vrjz5N5Ia4SEzWWgIVwnHNEnb1UE1XMkvY5DGXrAeOGE9imk0hgTHh5GyDjLDJi9OTCn9oo9dXH1uToK1VRfrg==}
     dev: true
 
   /@types/lodash@4.14.202:
