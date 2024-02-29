@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.17
+
+### Patch Changes
+
+- 76069c2: fix get input extension argument (produces input.undefined input)
+
 ## 1.1.16
 
 ### Patch Changes
