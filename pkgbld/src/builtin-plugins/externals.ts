@@ -25,7 +25,7 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
         const curry = (await provider.import('lodash/curry.js')) as typeof import('lodash/curry');
         for(const currentInput of config.umdInputs) {
             const isExternal = curry((currentInput: string, id: string, external: boolean, importer: string) => includeExternals(importer, external, id, config) || isExternalInput(currentInput, inputs, inputsExt, id, config))(currentInput);
-            provider.provide(() => pluginExternals(isExternal), Priority.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get('currentInput')}`] });
+            provider.provide(() => pluginExternals(isExternal), Priority.externals, { format: 'umd', inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`] });
         }
         // for eject config
         if (config.formats.length === 0) {
