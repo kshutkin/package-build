@@ -137,7 +137,7 @@ importers:
         version: 0.4.4(rollup@4.0.0)
       '@slimlib/refine-partition':
         specifier: ^1.0.2
-        version: 1.0.2
+        version: 1.0.3
       '@slimlib/smart-mock':
         specifier: ^0.1.5
         version: 0.1.5
@@ -244,7 +244,7 @@ importers:
         version: 5.0.5(rollup@4.0.0)
       '@slimlib/refine-partition':
         specifier: ^1.0.2
-        version: 1.0.2
+        version: 1.0.3
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
@@ -929,8 +929,8 @@ packages:
   /@slimlib/list@1.0.7:
     resolution: {integrity: sha512-gBv6FU1TZCSZGDkD6oX7aZE5DknzwQK8AaNQkS1I2fWNwZHTjeZDFt5jhaFbLnkusF675THjQ5LQm+UvYeFhGQ==}
 
-  /@slimlib/refine-partition@1.0.2:
-    resolution: {integrity: sha512-VqJGuRAFQhBSTTB9upOqpxayVb7yWE6afshpCRwyT3ccWaGs8mvtPsWNHlQFc3blktxBjkG2MZ0WM8qtDwHRiA==}
+  /@slimlib/refine-partition@1.0.3:
+    resolution: {integrity: sha512-Mkgy1JqyL9qKK2juRu+JA0OKQjFG/bXV7KHEIzErBxzvCgHcFS+TFQZ6cinhD6EwU3iC8PJbzNbRE6Kfr+6OOA==}
     engines: {node: '>=15'}
 
   /@slimlib/smart-mock@0.1.5:
@@ -1946,8 +1946,8 @@ packages:
   /fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
-  /fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+  /fsevents@2.3.3:
+    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
@@ -3115,7 +3115,7 @@ packages:
       '@rollup/rollup-win32-arm64-msvc': 4.0.0
       '@rollup/rollup-win32-ia32-msvc': 4.0.0
       '@rollup/rollup-win32-x64-msvc': 4.0.0
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /run-async@2.4.1:
     resolution: {integrity: sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==}
