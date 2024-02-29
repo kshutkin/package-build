@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.18
+
+### Patch Changes
+
+- 5bde7c3: fix input extensions key (fixes input.undefined)
+
 ## 1.1.17
 
 ### Patch Changes
