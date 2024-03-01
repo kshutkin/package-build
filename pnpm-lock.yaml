@@ -164,13 +164,13 @@ importers:
         version: 0.0.4
       rollup-plugin-typescript2:
         specifier: ^0.36.0
-        version: 0.36.0(rollup@4.0.0)(typescript@5.2.2)
+        version: 0.36.0(rollup@4.0.0)(typescript@5.3.3)
       terser:
         specifier: ^5.21.0
         version: 5.21.0
       typescript:
         specifier: ^5.2.2
-        version: 5.2.2
+        version: 5.3.3
     devDependencies:
       '@total-typescript/ts-reset':
         specifier: ^0.5.1
@@ -219,10 +219,10 @@ importers:
         version: 0.0.4
       rollup-plugin-typescript2:
         specifier: ^0.36.0
-        version: 0.36.0(rollup@4.0.0)(typescript@5.2.2)
+        version: 0.36.0(rollup@4.0.0)(typescript@5.3.3)
       typescript:
         specifier: ^5.2.2
-        version: 5.2.2
+        version: 5.3.3
     devDependencies:
       '@niceties/draftlog-appender':
         specifier: ^1.3.2
@@ -3065,21 +3065,6 @@ packages:
       rollup-pluginutils: 2.8.2
     dev: false
 
-  /rollup-plugin-typescript2@0.36.0(rollup@4.0.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-NB2CSQDxSe9+Oe2ahZbf+B4bh7pHwjV5L+RSYpCu7Q5ROuN94F9b6ioWwKfz3ueL3KTtmX4o2MUH2cgHDIEUsw==}
-    peerDependencies:
-      rollup: '>=1.26.3'
-      typescript: '>=2.4.0'
-    dependencies:
-      '@rollup/pluginutils': 4.2.1
-      find-cache-dir: 3.3.2
-      fs-extra: 10.1.0
-      rollup: 4.0.0
-      semver: 7.5.4
-      tslib: 2.6.2
-      typescript: 5.2.2
-    dev: false
-
   /rollup-plugin-typescript2@0.36.0(rollup@4.0.0)(typescript@5.3.3):
     resolution: {integrity: sha512-NB2CSQDxSe9+Oe2ahZbf+B4bh7pHwjV5L+RSYpCu7Q5ROuN94F9b6ioWwKfz3ueL3KTtmX4o2MUH2cgHDIEUsw==}
     peerDependencies:
@@ -3093,7 +3078,6 @@ packages:
       semver: 7.5.4
       tslib: 2.6.2
       typescript: 5.3.3
-    dev: true
 
   /rollup-pluginutils@2.8.2:
     resolution: {integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==}
@@ -3528,17 +3512,10 @@ packages:
       is-typed-array: 1.1.10
     dev: true
 
-  /typescript@5.2.2:
-    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-    dev: false
-
   /typescript@5.3.3:
     resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /typia@5.1.6(typescript@5.3.3):
     resolution: {integrity: sha512-in/m6hhsoS4jDfztT/hMlWVS670+0BcQNR0AX/sVctqrY/VnVs8cNdJiFn8iZdQ/QvLqWaT/FW1WUuibn8prMw==}
