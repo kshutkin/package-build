@@ -104,7 +104,7 @@ importers:
         version: 0.36.0(rollup@4.0.0)(typescript@5.3.3)
       typia:
         specifier: ^5.1.6
-        version: 5.1.6(typescript@5.3.3)
+        version: 5.4.14(typescript@5.3.3)
 
   pkgbld:
     dependencies:
@@ -1364,8 +1364,8 @@ packages:
       restore-cursor: 3.1.0
     dev: true
 
-  /cli-spinners@2.9.0:
-    resolution: {integrity: sha512-4/aL9X3Wh0yiMQlE+eeRhWP6vclO3QRtw1JHKIT0FFUs5FjpFmESqtMvYZ0+lbzBw900b95mS0hohy+qn2VK/g==}
+  /cli-spinners@2.9.2:
+    resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
     engines: {node: '>=6'}
     dev: true
 
@@ -2724,7 +2724,7 @@ packages:
       bl: 4.1.0
       chalk: 4.1.2
       cli-cursor: 3.1.0
-      cli-spinners: 2.9.0
+      cli-spinners: 2.9.2
       is-interactive: 1.0.0
       is-unicode-supported: 0.1.0
       log-symbols: 4.1.0
@@ -3540,11 +3540,11 @@ packages:
     hasBin: true
     dev: true
 
-  /typia@5.1.6(typescript@5.3.3):
-    resolution: {integrity: sha512-in/m6hhsoS4jDfztT/hMlWVS670+0BcQNR0AX/sVctqrY/VnVs8cNdJiFn8iZdQ/QvLqWaT/FW1WUuibn8prMw==}
+  /typia@5.4.14(typescript@5.3.3):
+    resolution: {integrity: sha512-J7Klsryy4oMfIPU+ack6cXfBoh2ifUy0ZKWFeW4Zzxm6J7XGQsbbI4siKyC0E5is7egUmwJ6FkuWgu+1dw1Blw==}
     hasBin: true
     peerDependencies:
-      typescript: '>= 4.8.0'
+      typescript: '>=4.8.0 <5.5.0'
     dependencies:
       commander: 10.0.1
       comment-json: 4.2.3
