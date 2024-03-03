@@ -2,7 +2,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import preprocess from 'rollup-plugin-preprocess';
 import clean from '@rollup-extras/plugin-clean';
-import binify from '@rollup-extras/plugin-binify';
 import externals from '@rollup-extras/plugin-externals';
 import replace from '@rollup/plugin-replace';
 import path from 'path';
@@ -46,20 +45,17 @@ const plugins = [
     resolve({
         exportConditions: ['default', 'require']
     }),
-    commonjs(),
-    binify()
+    commonjs()
 ];
 
 export default {
     input,
 
     output: {
-        format: 'es',
+        format: 'esm',
         dir: dest,
         entryFileNames: '[name].mjs',
-        interop: 'compat',
-        inlineDynamicImports: true,
-        dynamicImportInCjs: false
+        chunkFileNames: '[name].[hash].mjs',
     },
 
     plugins: [preprocess.default({ include: [ 'src/index.ts' ], context: { esm: true } }), ...plugins]
