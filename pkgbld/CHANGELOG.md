@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.29.1
+
+### Patch Changes
+
+- 995cf22: fix \_\_dirname not defined
+
 ## 1.29.0
 
 ### Minor Changes
