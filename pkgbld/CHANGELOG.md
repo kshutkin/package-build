@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.29.2
+
+### Patch Changes
+
+- 6b6db84: fix preprocess plugin import
+
 ## 1.29.1
 
 ### Patch Changes
