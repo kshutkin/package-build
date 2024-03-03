@@ -40,8 +40,8 @@ async function execute() {
         }
         process.stdout.moveCursor?.(0, 1);
         mainLogger.update('preparing...');
-        checkTsConfig(options, mainLogger, plugins);
-        const [inputs, inputsExt] = await processPackage(pkg, options, plugins);
+        const tsConfig = await checkTsConfig(options, mainLogger, plugins);
+        const [inputs, inputsExt] = await processPackage(pkg, options, plugins, tsConfig);
         if (options.formatPackageJson) {
             pkg = formatPackageJson(pkg);
         }

@@ -1,5 +1,5 @@
 import path from 'path';
-import camelCase from 'lodash/camelCase';
+import camelCase from 'lodash/camelCase.js';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 import { PackageJson, processPackageJson } from 'options';

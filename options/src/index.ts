@@ -126,7 +126,12 @@ export const cliFlags = {
         type: Boolean,
         description: 'Do not pack',
         default: false
-    }
+    },
+    noExports: {
+        type: Boolean,
+        description: 'Do not add exports field in package.json',
+        default: false
+    },
 };
 
 export const packageJsonFieldsOrder = new Set([

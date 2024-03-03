@@ -1,11 +1,12 @@
+// @ts-check
 import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import clean from '@rollup-extras/plugin-clean';
-import binify from '@rollup-extras/plugin-binify';
 import externals from '@rollup-extras/plugin-externals';
 import json from '@rollup/plugin-json';
 import path from 'path';
+import process from 'process';
 
 const input = 'src/index.ts';
 
@@ -34,18 +35,19 @@ const plugins = [
     resolve(),
     commonjs(),
     json(),
-    typescript(),
-    binify()
+    typescript()
 ];
 
+/**
+ * @type {import('rollup').RollupOptions}
+  */
 export default {
     input,
 
     output: {
-        format: 'cjs',
+        format: 'esm',
         dir: dest,
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name].js'
+        entryFileNames: '[name].mjs'
     },
 
     plugins: plugins

@@ -3,35 +3,14 @@
   "name": "create-pkgbld",
   "license": "MIT",
   "author": "Konstantin Shutkin",
-  "bin": "./dist/index.cjs",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
-    },
-    "./package.json": "./package.json"
-  },
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      ".": [
-        "dist/index.d.ts"
-      ],
-      "*": [
-        "dist/index.d.ts",
-        "dist/*"
-      ]
-    }
-  },
+  "bin": "./index.js",
+  "main": "./dist/index.mjs",
+  "type": "module",
   "files": [
     "dist"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
@@ -47,9 +26,9 @@
     "init"
   ],
   "scripts": {
-    "build": "node ../pkgbld/dist/index.js --include-externals=options",
+    "build": "pkgbld --include-externals=options --formats=es --no-exports",
     "lint": "eslint ./src",
-    "prepack": "node ../pkgbld/dist/index.js prune"
+    "prepack": "pkgbld prune --flatten"
   },
   "dependencies": {
     "string-argv": "0.3.2",

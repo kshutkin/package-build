@@ -9,7 +9,7 @@ import { Option, PkgInfo, OptionsValue } from './types';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
 import getGitRoot from './get-git-root';
 import { cliFlags, processPackageJson, isPackageJson, toFormattedJson, PackageJson, cliFlagsDefaults } from 'options';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual.js';
 
 const done = Symbol('done');
 

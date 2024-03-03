@@ -1,11 +1,10 @@
 import path from 'path';
-import fsSync from 'fs';
 import { Logger } from '@niceties/logger';
 import { writeJson } from './write-json';
 import { CliOptions, Json, PkgbldPlugin } from './types';
 import { getJson } from './get-json';
-import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep.js';
+import isEqual from 'lodash/isEqual.js';
 
 const defaultTsConfig = {
     include: ['src', 'types'],
@@ -27,11 +26,17 @@ export async function checkTsConfig(options: CliOptions, mainLogger: Logger, plu
     if (options.noTsConfig) {
         return;
     }
-    const tsConfigPath = path.resolve('tsconfig.json');
-    let config: Json, needWrite = false;
-    if (fsSync.existsSync(tsConfigPath)) {
+    let config: Json | undefined, needWrite = false;
+    try {
         [, config] = await getJson('tsconfig.json');
-    } else {
+    } catch(_) {/*ignore*/}
+    try {
+        [, config] = await getJson('jsconfig.json');
+        if (config && typeof config === 'object' && !Array.isArray(config)) {
+            config['allowJs'] = true;
+        }
+    } catch(_) {/*ignore*/}
+    if (!config) {
         config = defaultTsConfig;
         needWrite = true;
     }
@@ -43,8 +48,9 @@ export async function checkTsConfig(options: CliOptions, mainLogger: Logger, plu
         needWrite = true;
     }
     if (needWrite) {
-        mainLogger('no tsconfig.json and --no-ts-config not specified, writing tsconfig...');
-        await writeJson(tsConfigPath, config);
+        mainLogger('no tsconfig.json or jsconfig.json and --no-ts-config not specified, writing tsconfig...');
+        await writeJson(path.resolve('tsconfig.json'), config);
         mainLogger('done');
     }
+    return config;
 }

@@ -65,7 +65,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             esPattern: flags.esmPattern,
             umdPattern: flags.umdPattern,
             formatPackageJson: flags.formatPackageJson,
-            noPack: flags.noPack
+            noPack: flags.noPack,
+            noExports: flags.noExports
         };
 
         for (const plugin of plugins) {
@@ -91,7 +92,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             esPattern: string,
             umdPattern: string,
             formatPackageJson: boolean,
-            noPack: boolean
+            noPack: boolean,
+            noExports: boolean
         };
     }
 }
