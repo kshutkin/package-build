@@ -2,7 +2,6 @@ import { OutputChunk } from 'rollup';
 import { CliOptions, Priority, Provider } from '../types';
 
 export default async function(provider: Provider, config: CliOptions) {
-    console.log('binify', config.bin);
     if (config.bin != null && config.bin.length > 0) {
         const pluginBinify = await provider.import('@rollup-extras/plugin-binify');
 
