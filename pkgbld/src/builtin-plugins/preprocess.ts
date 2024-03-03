@@ -3,7 +3,7 @@ import { CliOptions, Priority, Provider } from '../types';
 
 export default async function(provider: Provider, config: CliOptions, inputs: string[], inputsExt: Map<string, string>) {
     if (config.preprocess.length > 0) {
-        const pluginPreprocess = await provider.import('rollup-plugin-preprocess');
+        const pluginPreprocess = await provider.import('rollup-plugin-preprocess', 'default');
 
         const include = config.preprocess.map(name => `${config.sourceDir}/${name}.${inputsExt.get(name)}`);
 

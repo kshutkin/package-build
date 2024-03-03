@@ -10,6 +10,9 @@ import { parseArgsStringToArgv as toArgv } from 'string-argv';
 import getGitRoot from './get-git-root';
 import { cliFlags, processPackageJson, isPackageJson, toFormattedJson, PackageJson, cliFlagsDefaults } from 'options';
 import isEqual from 'lodash/isEqual.js';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const done = Symbol('done');
 

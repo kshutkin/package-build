@@ -4,6 +4,9 @@ import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 import { PackageJson, processPackageJson } from 'options';
 import { access } from 'fs/promises';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function getHelpers(pkgName: string) {
     function getGlobalName(anInput: string) {
