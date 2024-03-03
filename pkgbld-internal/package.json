@@ -24,7 +24,7 @@
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint ./src",
-    "prepack": "node ./dist/index.js prune"
+    "prepack": "node ./index.js prune"
   },
   "dependencies": {
     "lodash": "^4.17.21",
