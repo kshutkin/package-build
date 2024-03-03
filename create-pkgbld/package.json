@@ -28,7 +28,7 @@
   "scripts": {
     "build": "pkgbld --include-externals=options --formats=es --no-exports",
     "lint": "eslint ./src",
-    "prepack": "pkgbld prune --flatten"
+    "prepack": "pkgbld prune"
   },
   "dependencies": {
     "string-argv": "0.3.2",
