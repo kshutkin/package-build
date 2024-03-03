@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+### Patch Changes
+
+- f3ae3f1: update pkgbld-internal
+
 ## 1.2.0
 
 ### Minor Changes
