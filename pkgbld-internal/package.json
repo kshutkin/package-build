@@ -5,8 +5,7 @@
   "license": "MIT",
   "author": "Konstantin Shutkin",
   "bin": "./index.js",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
   "files": [
     "dist"
   ],
