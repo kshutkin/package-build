@@ -18,6 +18,7 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
     }
 
     delete pkg.devDependencies;
+    delete (pkg as Record<string, string>)['packageManager'];
 
     for (const key of Object.keys(pkg.scripts as Record<string, string>)) {
         if (!keys.has(key)) {

@@ -3,14 +3,13 @@
   "name": "pkgbld",
   "license": "MIT",
   "author": "Konstantin Shutkin",
-  "bin": "./dist/index.js",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "bin": "./index.js",
+  "main": "./dist/index.mjs",
   "files": [
     "dist"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
@@ -29,36 +28,36 @@
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint ./src",
-    "prepack": "node ./dist/index.js prune"
+    "prepack": "node ./dist/index.js prune --flatten"
   },
   "dependencies": {
     "@niceties/logger": "^1.1.12",
     "@niceties/draftlog-appender": "^1.3.2",
     "lodash": "^4.17.21",
-    "rollup": "^4.0.0",
+    "rollup": "^4.12.0",
     "rollup-plugin-typescript2": "^0.36.0",
     "rollup-plugin-preprocess": "^0.0.4",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup-extras/plugin-clean": "^1.3.8",
-    "@rollup-extras/plugin-binify": "^1.1.9",
-    "@rollup-extras/plugin-externals": "^1.2.0",
-    "@slimlib/refine-partition": "^1.0.2",
-    "@slimlib/smart-mock": "^0.1.5",
+    "@rollup-extras/plugin-clean": "^1.3.9",
+    "@rollup-extras/plugin-binify": "^1.1.10",
+    "@rollup-extras/plugin-externals": "^1.2.2",
+    "@slimlib/refine-partition": "^1.0.3",
+    "@slimlib/smart-mock": "^0.1.6",
     "is-builtin-module": "^3.2.1",
-    "terser": "^5.21.0",
+    "terser": "^5.28.1",
     "kleur": "^4.1.5",
     "cleye": "^1.3.2",
-    "jsonata": "^2.0.3"
+    "jsonata": "^2.0.4"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.199",
+    "@types/lodash": "^4.14.202",
     "@total-typescript/ts-reset": "^0.5.1",
     "options": "workspace:*"
   },
   "peerDependencies": {
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.3"
   }
 }

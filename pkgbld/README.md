@@ -107,7 +107,7 @@ Directory to search for input files.
 ### bin
 
 ```
-pkgbld --bin=./dist/index.cjs,./dist/index.mjs
+pkgbld --bin=./dist/index.cjs
 ```
 
 File(s) to make executable. The first entry will be added to package.json
@@ -205,6 +205,14 @@ Flattens file structure by moving all files from `dist` or other directory to th
 If the directory is not specified it is guessed from package.json.
 
 If files cannot be copied because of name conflicts the command will fail.
+
+### no-exports
+
+```
+pkgbld --no-exports
+```
+
+Do not add exports field in package.json.
 
 ## Plugin API
 

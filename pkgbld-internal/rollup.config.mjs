@@ -29,7 +29,7 @@ const plugins = [
                 return false;
             }
             const relative = path.relative('.', path.resolve(importer ?? '.', id));
-            if (relative === '../pkgbld/dist/index.js') {
+            if (relative === '../pkgbld/dist/index.mjs') {
                 console.log('inlining', kleur.cyan(relative));
                 return false;
             }
@@ -54,14 +54,13 @@ export default {
     input,
 
     output: {
-        format: 'cjs',
+        format: 'es',
         dir: dest,
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name].js',
+        entryFileNames: '[name].mjs',
         interop: 'compat',
         inlineDynamicImports: true,
         dynamicImportInCjs: false
     },
 
-    plugins: [preprocess.default({ include: [ 'src/index.ts' ], context: { esm: false } }), ...plugins]
+    plugins: [preprocess.default({ include: [ 'src/index.ts' ], context: { esm: true } }), ...plugins]
 };
