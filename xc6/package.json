@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "name": "xc6",
+  "description": "",
+  "license": "MIT",
+  "author": "Konstantin Shutkin",
+  "readme": "README.md",
+  "type": "module",
+  "bin": "index.js",
+  "files": [
+    "rm.js"
+  ]
+}
