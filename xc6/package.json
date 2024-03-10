@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.0.2",
   "name": "xc6",
   "description": "",
   "license": "MIT",
@@ -7,7 +7,17 @@
   "readme": "README.md",
   "type": "module",
   "bin": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kshutkin/package-build.git",
+    "directory": "xc6"
+  },
+  "bugs": "https://github.com/kshutkin/package-build/issues",
+  "homepage": "https://github.com/kshutkin/package-build/blob/main/xc6/README.md",
   "files": [
-    "rm.js"
+    "c6s"
   ]
 }
