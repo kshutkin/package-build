@@ -19,5 +19,12 @@
   "homepage": "https://github.com/kshutkin/package-build/blob/main/xc6/README.md",
   "files": [
     "c6s"
-  ]
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "prepack": "pkgbld prune"
+  },
+  "devDependencies": {
+    "pkgbld": "workspace:*"
+  }
 }
