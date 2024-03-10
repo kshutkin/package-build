@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 
 export function cp(src, dest) {
-    if (!path) {
+    if (!src || !dest) {
         return 'Usage: cp <src> <dest>';
     }
 

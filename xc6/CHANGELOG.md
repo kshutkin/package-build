@@ -8,3 +8,7 @@
 
 - Implemented mv, cp, ln and help commands
 - Now it is working with npx
+
+## 0.0.3
+
+- Fixed cp arguments check
