@@ -1,5 +1,6 @@
 import { InternalModuleFormat } from 'rollup';
-import { CliOptions, Priority, Provider } from '../types';
+import { CliOptions, Provider } from '../types';
+import { Priority } from '../priorities';
 
 export default async function(provider: Provider, config: CliOptions, inputs: string[], inputsExt: Map<string, string>) {
     if (config.preprocess.length > 0) {

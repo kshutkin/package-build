@@ -5,6 +5,7 @@
   "author": "Konstantin Shutkin",
   "bin": "./index.js",
   "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -26,7 +27,7 @@
     "rollup"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "xc6 rm src/options-types.ts && xc6 ln ../options/src/types.ts src/options-types.ts && rollup -c && dts-buddy dist/index.d.ts -m pkgbld:dist/src/index.d.ts && xc6 rm dist/src",
     "lint": "eslint ./src",
     "prepack": "node ./index.js prune"
   },
@@ -54,8 +55,11 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.202",
+    "rollup-plugin-dts": "^6.1.0",
     "@total-typescript/ts-reset": "^0.5.1",
-    "options": "workspace:*"
+    "dts-buddy": "^0.4.4",
+    "options": "workspace:*",
+    "xc6": "workspace:*"
   },
   "peerDependencies": {
     "typescript": "^5.3.3"

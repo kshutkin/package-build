@@ -1,0 +1,21 @@
+{
+  "include": [
+    "./index.js"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "esnext"
+    ],
+    "target": "esnext",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "declaration": true,
+    "moduleResolution": "node"
+  }
+}

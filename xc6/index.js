@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 const argv = process.argv.slice(2);
-const cmd = argv[0] || 'help';
+const cmd = argv.shift() ?? 'help';
 
 try {
     const cmdFn = await import(`./c6s/${cmd}.js`);
-    const result = await cmdFn[cmd](argv[1], argv[2]);
+    const result = await cmdFn[cmd](...argv);
     if (result) {
         console.error(result);
     }

@@ -1,0 +1,36 @@
+{
+  "name": "cli-tests",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "files": [
+    "index.d.ts",
+    "index.d.ts.map"
+  ],
+  "types": "index.d.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "tsc && dts-buddy index.d.ts -m cli-tests:index.js",
+    "test": "c8 --src=. --all -r=html node test.js",
+    "prepack": "pkgbld prune"
+  },
+  "author": "Konstantin Shutkin",
+  "license": "MIT",
+  "devDependencies": {
+    "c8": "^9.1.0",
+    "dts-buddy": "^0.4.5",
+    "pkgbld": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kshutkin/package-build.git",
+    "directory": "cli-tests"
+  },
+  "bugs": "https://github.com/kshutkin/package-build/issues",
+  "homepage": "https://github.com/kshutkin/package-build/blob/main/cli-tests/README.md",
+  "readme": "README.md",
+  "keywords": [
+    "test"
+  ]
+}

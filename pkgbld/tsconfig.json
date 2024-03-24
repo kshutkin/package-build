@@ -7,9 +7,9 @@
     "esModuleInterop": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "declaration": false,
+    "declaration": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
   }
 }

@@ -1,7 +1,7 @@
 {
   "version": "0.0.3",
   "name": "xc6",
-  "description": "",
+  "description": "eXecute c(ommand) (xc6) is a command line tool to execute commands in a package.json script or a shell script.",
   "license": "MIT",
   "author": "Konstantin Shutkin",
   "readme": "README.md",
@@ -26,5 +26,12 @@
   },
   "devDependencies": {
     "pkgbld": "workspace:*"
-  }
+  },
+  "keywords": [
+    "cli",
+    "remove",
+    "symlink",
+    "copy",
+    "move"
+  ]
 }

@@ -76,8 +76,7 @@ async function execute() {
             mainLogger.finish(updater(true));
         }
     } catch(e) {
-        console.log(e);
-        mainLogger.finish(`${e}}`, LogLevel.error);
+        mainLogger.finish(JSON.stringify(e), LogLevel.error);
         process.exit(-1);
     }
 
@@ -97,3 +96,6 @@ function preimport() {
         ['@rollup-extras/plugin-externals', import('@rollup-extras/plugin-externals')]
     ]) : new Map) as Map<string, Promise<never>>;
 }
+
+export * from './types';
+export * from './options-types';

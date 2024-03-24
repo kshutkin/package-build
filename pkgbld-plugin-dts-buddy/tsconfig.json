@@ -1,0 +1,20 @@
+{
+  "include": [
+    "src",
+    "types"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "target": "esnext",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "declaration": false,
+    "moduleResolution": "node"
+  }
+}

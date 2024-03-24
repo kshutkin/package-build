@@ -5,7 +5,7 @@ import { PackageJson } from 'options';
 import { isExists } from './helpers';
 
 const emptySet = new Set as Set<string>;
-const sourceFileSuffixes = ['ts', 'tsx', 'js', 'jsx'] as const; // svelte, vue, etc. are not supported yet
+const sourceFileSuffixes = ['ts', 'tsx', 'js', 'jsx', 'cjs', 'mjs'] as const; // svelte, vue, etc. are not supported yet
 
 export async function processPackage(pkg: Json, config: CliOptions, plugins: Partial<PkgbldPlugin>[], tsConfig?: Json): Promise<[string[], Map<string, typeof sourceFileSuffixes[number]>]> {
     const typingsFilePattern = '[name].d.ts';

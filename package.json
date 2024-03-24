@@ -7,6 +7,7 @@
   "scripts": {
     "build": "pnpm --aggregate-output --reporter=append-only --stream -r build",
     "lint": "pnpm --aggregate-output --reporter=append-only --stream --parallel -r lint",
+    "test": "pnpm --aggregate-output --reporter=append-only --stream --parallel -r test",
     "ci:publish": "changeset publish",
     "postinstall": "ts-patch install"
   },

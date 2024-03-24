@@ -1,4 +1,5 @@
-import { CliOptions, Priority, Provider } from '../types';
+import { Priority } from '../priorities';
+import { CliOptions, Provider } from '../types';
 
 export default async function(provider: Provider, config: CliOptions, inputs: string[]) {
     const typescriptInputs = inputs.filter(input => input.endsWith('.ts') || input.endsWith('.tsx'));

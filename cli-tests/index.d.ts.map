@@ -1,0 +1,15 @@
+{
+	"version": 3,
+	"file": "index.d.ts",
+	"names": [
+		"stringToFiles",
+		"filesToString"
+	],
+	"sources": [
+		"index.js"
+	],
+	"sourcesContent": [
+		null
+	],
+	"mappings": ";;;;iBAQsBA,aAAaA;;;;iBAgGbC,aAAaA"
+}

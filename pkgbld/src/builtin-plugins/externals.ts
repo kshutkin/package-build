@@ -1,6 +1,7 @@
 import { InternalModuleFormat } from 'rollup';
 import path from 'path';
-import { CliOptions, Priority, Provider } from '../types';
+import { CliOptions, Provider } from '../types';
+import { Priority } from '../priorities';
 
 export default async function(provider: Provider, config: CliOptions, inputs: string[], inputsExt: Map<string, string>) {
     if (config.includeExternals === true) {

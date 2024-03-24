@@ -1,23 +1,11 @@
 import type { Plugin, InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getCliOptions } from './get-cli-options';
 import { Logger } from '@niceties/logger';
-import { PackageJson } from 'options';
+import { PackageJson } from './options-types';
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
 
-export const enum Priority {
-    preprocess = 1000,
-    // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
-    cleanup = 1000,
-    externals = 2000,
-    resolve = 3000,
-    commonjs = 4000,
-    transpile = 6000,
-    compress = 10000,
-    finalize = 20000
-}
-
-export type ProvideFunction = (factory: () => Plugin, priority: Priority, options?: {
+export type ProvideFunction = (factory: () => Plugin, priority: number, options?: {
     format?: InternalModuleFormat | InternalModuleFormat[],
     inputs?: string[],
     outputPlugin?: true
@@ -33,7 +21,7 @@ export type Provider = {
 
 export type PkgbldRollupPlugin = {
     plugin: () => Plugin;
-    priority: Priority;
+    priority: number;
     format?: InternalModuleFormat | InternalModuleFormat[];
     inputs?: string[];
     outputPlugin?: true;

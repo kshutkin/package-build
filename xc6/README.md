@@ -12,7 +12,7 @@ Why:
 
 Notes
 
-- It is not a reimplementation of unix commands, but a simple wrapper around nodejs fs module.
+- It is not a reimplementation of unix commands, but a simple wrapper around nodejs fs module. BTW there is [shelljs](https://www.npmjs.com/package/shelljs) that provides Unix shell commands for Node.js.
 - No glob patterns are supported.
 
 [Changelog](./CHANGELOG.md)
