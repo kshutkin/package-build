@@ -1,11 +1,11 @@
-# cli-tests
+# cli-test
 
 It is a very simple helper module to test command line tools.
 
 # Installation
 
 ```sh
-npm install --save-dev cli-tests
+npm install --save-dev cli-test
 ```
 
 ## API
