@@ -1,5 +1,5 @@
 {
-  "name": "cli-test",
+  "name": "cli-test-helper",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -11,7 +11,7 @@
   "types": "index.d.ts",
   "scripts": {
     "lint": "eslint .",
-    "build": "tsc && dts-buddy index.d.ts -m cli-test:index.js",
+    "build": "tsc && dts-buddy index.d.ts -m cli-test-helper:index.js",
     "test": "c8 --src=. --all -r=html node test.js",
     "prepack": "pkgbld prune"
   },
@@ -25,10 +25,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kshutkin/package-build.git",
-    "directory": "cli-test"
+    "directory": "cli-test-helper"
   },
   "bugs": "https://github.com/kshutkin/package-build/issues",
-  "homepage": "https://github.com/kshutkin/package-build/blob/main/cli-test/README.md",
+  "homepage": "https://github.com/kshutkin/package-build/blob/main/cli-test-helper/README.md",
   "readme": "README.md",
   "keywords": [
     "test"

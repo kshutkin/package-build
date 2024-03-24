@@ -1,4 +1,4 @@
-declare module 'cli-test' {
+declare module 'cli-test-helper' {
 	/**
 	 * Converts a string to real files and directories in the file system.
 	 * */

@@ -4,5 +4,5 @@ packages:
   - "pkgbld-internal"
   - "options"
   - "xc6"
-  - "cli-test"
+  - "cli-test-helper"
   - "pkgbld-plugin-dts-buddy"

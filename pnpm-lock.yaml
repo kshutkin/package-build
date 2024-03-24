@@ -33,7 +33,7 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
-  cli-test:
+  cli-test-helper:
     devDependencies:
       c8:
         specifier: ^9.1.0
