@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.29.3
+
+### Patch Changes
+
+- be41a7a: better types generated
+
 ## 1.29.2
 
 ### Patch Changes
