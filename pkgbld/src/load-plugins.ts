@@ -10,5 +10,6 @@ export async function loadPlugins(pkg: PackageJson) {
         ) as Partial<PkgbldPlugin>[];
     } catch (e) {
         console.error(e);
+        return [];
     }
 }
