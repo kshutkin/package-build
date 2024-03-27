@@ -119,7 +119,7 @@ importers:
         version: 0.36.0(rollup@4.12.0)(typescript@5.3.3)
       typia:
         specifier: ^5.1.14
-        version: 5.4.14(typescript@5.3.3)
+        version: 5.5.0(typescript@5.3.3)
 
   pkgbld:
     dependencies:
@@ -3753,8 +3753,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  /typia@5.4.14(typescript@5.3.3):
-    resolution: {integrity: sha512-J7Klsryy4oMfIPU+ack6cXfBoh2ifUy0ZKWFeW4Zzxm6J7XGQsbbI4siKyC0E5is7egUmwJ6FkuWgu+1dw1Blw==}
+  /typia@5.5.0(typescript@5.3.3):
+    resolution: {integrity: sha512-nr6MfHRjfY67IcNbTu4pG/BqfRDezaCQrDF1eoHYQXlr2qTo9clBVOvjIkABZMXjsvb5ZR8sIwC44O7TO/eZsQ==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <5.5.0'
