@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.29.4
+
+### Patch Changes
+
+- 29f84ce: use >= to reference typescript
+
 ## 1.29.3
 
 ### Patch Changes
