@@ -118,8 +118,8 @@ importers:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.12.0)(typescript@5.3.3)
       typia:
-        specifier: ^5.1.14
-        version: 5.5.0(typescript@5.3.3)
+        specifier: ^5.5.7
+        version: 5.5.7(typescript@5.3.3)
 
   pkgbld:
     dependencies:
@@ -184,7 +184,7 @@ importers:
         specifier: ^5.28.1
         version: 5.28.1
       typescript:
-        specifier: ^5.3.3
+        specifier: '>=5.3.3'
         version: 5.3.3
     devDependencies:
       '@total-typescript/ts-reset':
@@ -245,7 +245,7 @@ importers:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.12.0)(typescript@5.3.3)
       typescript:
-        specifier: ^5.3.3
+        specifier: '>=5.3.3'
         version: 5.3.3
     devDependencies:
       '@niceties/draftlog-appender':
@@ -3753,8 +3753,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  /typia@5.5.0(typescript@5.3.3):
-    resolution: {integrity: sha512-nr6MfHRjfY67IcNbTu4pG/BqfRDezaCQrDF1eoHYQXlr2qTo9clBVOvjIkABZMXjsvb5ZR8sIwC44O7TO/eZsQ==}
+  /typia@5.5.7(typescript@5.3.3):
+    resolution: {integrity: sha512-SwI1FPMbJz+XE0NGrPyWFn+azIjZ/+hbp0uxpqsfVBrvQlAAOFesuvUiOjm/SsSjgG/2TKcBUVgQkSmLRF3ZvA==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <5.5.0'

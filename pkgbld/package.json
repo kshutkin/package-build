@@ -62,6 +62,6 @@
     "xc6": "workspace:*"
   },
   "peerDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": ">=5.3.3"
   }
 }
