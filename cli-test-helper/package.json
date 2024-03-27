@@ -1,7 +1,7 @@
 {
   "name": "cli-test-helper",
   "version": "0.0.2",
-  "description": "",
+  "description": "It is a very simple helper module to test command line tools.",
   "main": "index.js",
   "type": "module",
   "files": [
