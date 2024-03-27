@@ -21,11 +21,14 @@
     "c6s"
   ],
   "scripts": {
+    "test": "c8 --src=. --all -r=html node test.js",
     "lint": "eslint .",
     "prepack": "pkgbld prune"
   },
   "devDependencies": {
-    "pkgbld": "workspace:*"
+    "pkgbld": "workspace:*",
+    "cli-test-helper": "workspace:*",
+    "c8": "^9.1.0"
   },
   "keywords": [
     "cli",

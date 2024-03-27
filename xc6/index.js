@@ -4,13 +4,8 @@ const cmd = argv.shift() ?? 'help';
 
 try {
     const cmdFn = await import(`./c6s/${cmd}.js`);
-    const result = await cmdFn[cmd](...argv);
-    if (result) {
-        console.error(result);
-    }
-    process.exit(0);
+    await cmdFn[cmd](...argv);
 } catch (e) {
     console.error(e.code === 'ERR_MODULE_NOT_FOUND' ? `Unknown command: ${cmd}` : e);
+    process.exit(1);
 }
-
-process.exit(-1);

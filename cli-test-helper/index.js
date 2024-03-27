@@ -121,7 +121,7 @@ async function filesToStringArray(baseDir, identation = 0) {
     let result = [];
     for (const file of files) {
         result.push(identationString(identation) + file.name);
-        if (file.isDirectory()) {            
+        if (file.isDirectory() || file.isSymbolicLink()) {            
             result.push(...await filesToStringArray(path.join(baseDir, file.name), identation + 1));
         } else {
             const content = await fs.readFile(path.join(baseDir, file.name), 'utf8');

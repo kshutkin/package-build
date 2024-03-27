@@ -291,6 +291,12 @@ importers:
 
   xc6:
     devDependencies:
+      c8:
+        specifier: ^9.1.0
+        version: 9.1.0
+      cli-test-helper:
+        specifier: workspace:*
+        version: link:../cli-test-helper
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld

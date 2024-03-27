@@ -1,9 +1,14 @@
 import fs from 'fs/promises';
 
-export function ln(existingPath, newPath) {
+export async function ln(existingPath, newPath) {
     if (!existingPath || !newPath) {
-        return 'Usage: ln <existingPath> <newPath>';
+        throw 'Usage: ln <existingPath> <newPath>';
     }
 
-    return fs.link(existingPath, newPath);
+    const stat = await fs.stat(existingPath);
+    if (stat.isFile()) {
+        await fs.link(existingPath, newPath);
+    } else {
+        await fs.symlink(existingPath, newPath, 'dir');
+    }
 }
