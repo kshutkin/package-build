@@ -4,6 +4,7 @@
   "license": "MIT",
   "author": "Konstantin Shutkin",
   "bin": "./index.js",
+  "type": "module",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
@@ -29,7 +30,8 @@
   "scripts": {
     "build": "xc6 rm src/options-types.ts && xc6 ln ../options/src/types.ts src/options-types.ts && rollup -c && dts-buddy dist/index.d.ts -m pkgbld:dist/src/index.d.ts && xc6 rm dist/src",
     "lint": "eslint ./src",
-    "prepack": "node ./index.js prune"
+    "prepack": "node ./index.js prune",
+    "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
   },
   "dependencies": {
     "@niceties/logger": "^1.1.12",
@@ -55,11 +57,12 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.202",
-    "rollup-plugin-dts": "^6.1.0",
     "@total-typescript/ts-reset": "^0.5.1",
-    "dts-buddy": "^0.4.4",
+    "dts-buddy": "^0.4.5",
     "options": "workspace:*",
-    "xc6": "workspace:*"
+    "xc6": "workspace:*",
+    "c8": "^9.1.0",
+    "cli-test-helper": "workspace:*"
   },
   "peerDependencies": {
     "typescript": ">=5.3.3"

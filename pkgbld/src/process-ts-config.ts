@@ -16,6 +16,7 @@ const defaultTsConfig = {
         allowJs: true,
         skipLibCheck: true,
         strict: true,
+        sourceMap: true,
         noUncheckedIndexedAccess: true,
         declaration: true,
         moduleResolution: 'node'

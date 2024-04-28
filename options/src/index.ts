@@ -132,6 +132,16 @@ export const cliFlags = {
         description: 'Do not add exports field in package.json',
         default: false
     },
+    noClean: {
+        type: Boolean,
+        description: 'Do not clean output directory',
+        default: false
+    },
+    noBundle: {
+        type: Boolean,
+        description: 'Do not bundle',
+        default: false
+    },
 };
 
 export const packageJsonFieldsOrder = new Set([

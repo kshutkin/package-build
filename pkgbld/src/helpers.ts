@@ -49,11 +49,8 @@ export function formatOutput(output: OutputOptions | OutputOptions[] | undefined
 }
 
 export function getTimeDiff(starting: number) {
-    const now = Date.now();
-    if (now - starting > 1000) {
-        return `${((now - starting) / 1000).toFixed(1)}s`;
-    }
-    return `${now - starting}ms`;
+    const diff = Date.now() - starting;
+    return diff >= 1000 ? `${(diff / 1000).toFixed(1)}s` : `${diff}ms`;
 }
 
 export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;

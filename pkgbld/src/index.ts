@@ -50,6 +50,10 @@ async function execute() {
         const provider = options.eject ? await createEjectProvider(preimportMap) : createProvider(preimportMap);
         const rollupConfigs = await getRollupConfigs(provider, inputs, inputsExt, options, helpers, plugins);
 
+        if (options.noBundle) {
+            rollupConfigs.length = 0;
+        }
+
         if (options.eject) {
             await ejectConfig(rollupConfigs, pkgPath, options, inputs, inputsExt, helpers, pkg);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);

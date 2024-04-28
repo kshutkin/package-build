@@ -11,7 +11,6 @@ export default [ {
         dir: 'dist',
         entryFileNames: '[name].mjs',
         plugins: [ clean() ],
-        sourcemap: false,
         chunkFileNames: '[name].mjs'
     },
     plugins: [ externals(), resolve(), commonjs(), typescript() ]

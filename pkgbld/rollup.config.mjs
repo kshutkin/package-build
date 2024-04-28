@@ -5,7 +5,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import clean from '@rollup-extras/plugin-clean';
 import externals from '@rollup-extras/plugin-externals';
 import json from '@rollup/plugin-json';
-// import dts from 'rollup-plugin-dts';
 import path from 'path';
 import process from 'process';
 
@@ -23,23 +22,20 @@ const plugins = [
 ];
 
 /**
- * @type {import('rollup').RollupOptions[]}
+ * @type {import('rollup').RollupOptions}
   */
-export default [{
+export default {
     input,
 
     output: {
+        sourcemap: true,
         format: 'esm',
         dir: dest,
         entryFileNames: '[name].mjs'
     },
 
     plugins: plugins
-// }, {
-//     input: './dist/src/index.d.ts',
-//     output: [{ file: 'dist/index.d.ts', format: 'es' }],
-//     plugins: [dts(), externals({ external })],
-}];
+};
 
 function external(id, external, importer) {
     const internals = ['options'];

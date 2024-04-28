@@ -129,12 +129,12 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     // update files
     let files = pkg.files ?? [];
     files = files.filter(file => {
-        let fileNormilized = path.normalize(file);
-        if (fileNormilized.endsWith('/')) {
+        let fileNormalized = path.normalize(file);
+        if (fileNormalized.endsWith('/')) {
             // remove trailing slash
-            fileNormilized = fileNormilized.slice(0, -1);
+            fileNormalized = fileNormalized.slice(0, -1);
         }
-        return fileNormilized !== distDir as string;
+        return fileNormalized !== distDir as string;
     });
     files.push(...newFiles);
     pkg.files = [...files];

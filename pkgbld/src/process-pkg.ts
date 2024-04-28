@@ -27,17 +27,17 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
     const allowCjs = (config.formatsOverridden && config.formats.includes('cjs') || !config.formatsOverridden);
     const allowUmd = (config.formatsOverridden && config.formats.includes('umd') || !config.formatsOverridden || config.umdInputs);
 
-    if (typeof pkg !== 'object' || Array.isArray(pkg)) {
+    if (typeof pkg !== 'object' || Array.isArray(pkg) || pkg == null) {
         logger.finish('expecting object on top level of package.json', LogLevel.error);
         process.exit(-1);
     }
 
-    if (typeof pkg?.name !== 'string') {
+    if (typeof pkg.name !== 'string' && config.umdInputs.length > 0) {
         logger.finish('expecting name to be a string in package.json', LogLevel.error);
         process.exit(-1);
     }
     
-    if (!Array.isArray(pkg?.files)) {
+    if (!Array.isArray(pkg.files)) {
         pkg.files = [];
     }
     

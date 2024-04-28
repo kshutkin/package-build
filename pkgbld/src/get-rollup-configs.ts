@@ -131,7 +131,7 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
                 break;
             }
             if (inputs.length > 1) {
-                throw new Error(`Cannot produce global name for mutliple umd inputs in one output: ${inputs}`);
+                throw new Error(`Cannot produce global name for multiple umd inputs in one output: ${inputs}`);
             }
             result = {
                 name: helpers.getGlobalName(inputs.join('_')),

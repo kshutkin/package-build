@@ -67,7 +67,9 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             umdPattern: flags.umdPattern,
             formatPackageJson: flags.formatPackageJson,
             noPack: flags.noPack,
-            noExports: flags.noExports
+            noExports: flags.noExports,
+            noClean: flags.noClean,
+            noBundle: flags.noBundle
         };
 
         for (const plugin of plugins) {
@@ -94,7 +96,9 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             umdPattern: string,
             formatPackageJson: boolean,
             noPack: boolean,
-            noExports: boolean
+            noExports: boolean,
+            noClean: boolean,
+            noBundle: boolean
         };
     }
 }
