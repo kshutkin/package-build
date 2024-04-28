@@ -45,6 +45,7 @@ jobs:
       - run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
       - run: pnpm run lint
       - run: pnpm run build
+      - run: pnpm run test
       - uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.node-version }}
