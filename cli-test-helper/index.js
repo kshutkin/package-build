@@ -100,19 +100,22 @@ function occurrencesBeginningOfString(string, subString) {
 /**
  * Converts files and directories in the file system to a string.
  * @param {string} baseDir
+ * @param {string[]} [ignore]
  * @returns {Promise<string>}
  */
-export async function filesToString(baseDir) {
-    return (await filesToStringArray(baseDir)).join('\n');
+export async function filesToString(baseDir, ignore = []) {
+    await fs.mkdir(baseDir, { recursive: true });
+    return (await filesToStringArray(baseDir, 0, ignore)).join('\n');
 }
 
 /**
  * @param {string} baseDir
- * @param {number} identation
+ * @param {number} [indentation]
+ * @param {string[]} [ignore]
  * @returns {Promise<string[]>}
  */
-async function filesToStringArray(baseDir, identation = 0) {
-    const files = await fs.readdir(baseDir, { withFileTypes: true });
+async function filesToStringArray(baseDir, indentation = 0, ignore = []) {
+    const files = (await fs.readdir(baseDir, { withFileTypes: true })).filter(file => !ignore.includes(file.name));
     // sort files and directories
     files.sort((a, b) => a.name.localeCompare(b.name));
     /**
@@ -120,9 +123,9 @@ async function filesToStringArray(baseDir, identation = 0) {
      */
     let result = [];
     for (const file of files) {
-        result.push(identationString(identation) + file.name);
+        result.push(indentationString(indentation) + file.name);
         if (file.isDirectory() || file.isSymbolicLink()) {            
-            result.push(...await filesToStringArray(path.join(baseDir, file.name), identation + 1));
+            result.push(...await filesToStringArray(path.join(baseDir, file.name), indentation + 1, ignore));
         } else {
             const content = await fs.readFile(path.join(baseDir, file.name), 'utf8');
             result.push(...content.split('\n').map(line => '|' + line));
@@ -132,9 +135,9 @@ async function filesToStringArray(baseDir, identation = 0) {
 }
 
 /**
- * @param {number} identation 
+ * @param {number} indentation 
  * @returns {string}
  */
-function identationString(identation) {
-    return ' '.repeat(identation * 2);
+function indentationString(indentation) {
+    return ' '.repeat(indentation * 2);
 }
