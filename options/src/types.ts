@@ -2,6 +2,8 @@ export type PackageJson = {
     private?: boolean,
     version?: string,
     name?: string,
+    bin?: string | Record<string, string>,
+    main?: string,
     license?: string,
     readme?: string,
     author?: string | {

@@ -1,14 +1,10 @@
 import { Logger } from '@niceties/logger';
 import { PackageJson } from 'options';
-import { readdir, rename, rm, stat } from 'fs/promises';
+import { mkdir, readdir, rename, rm, stat } from 'fs/promises';
 import path from 'path';
 import { isExists } from './helpers';
 
 export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profile: string, flatten: string | boolean }, logger: Logger) {
-    if (options.kind !== 'prune') {
-        throw new Error('prunePkg should only be called in prune mode');
-    }
-
     const scriptsToKeep = getScriptsData();
 
     const keys = scriptsToKeep[options.profile];
@@ -20,40 +16,68 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
     delete pkg.devDependencies;
     delete (pkg as Record<string, string>)['packageManager'];
 
-    for (const key of Object.keys(pkg.scripts as Record<string, string>)) {
-        if (!keys.has(key)) {
-            delete (pkg.scripts as Record<string, string>)[key];
+    if (pkg.scripts) {
+        for (const key of Object.keys(pkg.scripts as Record<string, string>)) {
+            if (!keys.has(key)) {
+                delete (pkg.scripts as Record<string, string>)[key];
+            }
         }
-    }
 
-    if (Object.keys(pkg.scripts as Record<string, string>).length === 0) {
-        delete pkg.scripts;
+        if (Object.keys(pkg.scripts as Record<string, string>).length === 0) {
+            delete pkg.scripts;
+        }
     }
 
     if (options.flatten) {
         await flatten(pkg, options.flatten, logger);
     }
+
+    if (pkg.files && Array.isArray(pkg.files)) {
+        const filterFiles = ['package.json'];
+        const specialFiles = ['README', 'LICENSE', 'LICENCE'];
+        if (pkg.main && typeof pkg.main === 'string') {
+            filterFiles.push(normalizePath(pkg.main));
+        }
+        if (pkg.bin) {
+            if (typeof pkg.bin === 'string') {
+                filterFiles.push(normalizePath(pkg.bin));
+            }
+            if (typeof pkg.bin === 'object' && pkg.bin !== null) {
+                filterFiles.push(...Object.values(pkg.bin).map(normalizePath));
+            }
+        }
+        pkg.files = pkg.files.filter(file => {            
+            const fileNormalized = normalizePath(file);
+            const dirname = path.dirname(fileNormalized);
+            const basenameWithoutExtension = path.basename(fileNormalized, path.extname(fileNormalized)).toUpperCase();
+            return !filterFiles.includes(fileNormalized) && (dirname !== '' && dirname !== '.' || !specialFiles.includes(basenameWithoutExtension));
+        });
+    }
+
+    if (pkg.files && pkg.files.length === 0) {
+        pkg.files = undefined;
+    }
 }
 
 async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger) {
     const { default: jsonata } = await import('jsonata');
-
+    
     // find out where is the dist folder
-
-    const expression = jsonata('[bin, main, module, unpkg, umd, types, typings, exports[].*.*, typesVersions.*.*]');
+    
+    const expression = jsonata('[bin, bin.*, main, module, unpkg, umd, types, typings, exports[].*.*, typesVersions.*.*, directories.bin]');
     const allReferences = (await expression.evaluate(pkg)) as string[];
     let distDir: string | undefined;
-
+    
     if (flatten === true) {
         let commonSegments: string[] | undefined;
-
+        
         for (const entry of allReferences) {
             if (typeof entry !== 'string') {
                 continue;
             }
-
+            
             const dirname = path.dirname(entry);
-
+            
             const cleanedSegments = dirname.split('/').filter(path => path && path !== '.');
             if (!commonSegments) {
                 commonSegments = cleanedSegments;
@@ -70,75 +94,88 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     } else {
         distDir = flatten;
     }    
-
+    
     if (!distDir) {
         throw new Error('could not find dist folder');
     }
-
+    
     logger.update(`flattening ${distDir}...`);
-
+    
     // check if dist can be flattened
-
+    
     const relativeDistDir = './' + distDir;
-
+    
     const existsPromises = [] as Promise<string | false>[];
-
+    
     const filesInDist = await walkDir(relativeDistDir);
-
+    
     for (const file of filesInDist) {
         // check file is not in root dir
         const relativePath = path.relative(relativeDistDir, file);
         existsPromises.push(isExists(relativePath));
     }
-
+    
     const exists = await Promise.all(existsPromises);
-
+    
     const filesAlreadyExist = exists.filter(Boolean);
     
     if (filesAlreadyExist.length) {
         throw new Error(`dist folder cannot be flattened because files already exist: ${filesAlreadyExist.join(', ')}`);
     }
 
+    // create new directory structure
+    const mkdirPromises = [] as Promise<void | string>[];
+    for (const file of filesInDist) {
+        // check file is not in root dir
+        const relativePath = path.relative(relativeDistDir, file);
+        mkdirPromises.push(mkdir(path.dirname(relativePath), { recursive: true }));
+    }
+
+    await Promise.all(mkdirPromises);
+    
     // move files to root dir (rename)
     const renamePromises = [] as Promise<void>[];
     const newFiles = [] as string[];
-
+    
     for (const file of filesInDist) {
         // check file is not in root dir
         const relativePath = path.relative(relativeDistDir, file);
         newFiles.push(relativePath);
         renamePromises.push(rename(file, relativePath));
     }
-
+    
     await Promise.all(renamePromises);
-
-    // remove dist folder
-    try {
-        await rm(relativeDistDir, { recursive: true, force: true });
-    } catch (e: unknown) {
-        // ignore
+    
+    let cleanedDir = relativeDistDir;
+    while (isEmptyDir(cleanedDir)) {
+        await rm(cleanedDir, { recursive: true, force: true });
+        const parentDir = path.dirname(cleanedDir);
+        if (parentDir === '.') {
+            break;
+        }
+        cleanedDir = parentDir;
     }
 
+    const normalizedCleanDir = normalizePath(cleanedDir);
+    
     const allReferencesSet = new Set(allReferences);
-
+    
     // update package.json
-    const stringToReplace = distDir + '/';
+    const stringToReplace = distDir + '/'; // we append / to remove in from the middle of the string
     const pkgClone = cloneAndUpdate(pkg, value => allReferencesSet.has(value) ? value.replace(stringToReplace, '') : value);
     Object.assign(pkg, pkgClone);
-
+    
     // update files
-    let files = pkg.files ?? [];
-    files = files.filter(file => {
-        let fileNormalized = path.normalize(file);
-        if (fileNormalized.endsWith('/')) {
-            // remove trailing slash
-            fileNormalized = fileNormalized.slice(0, -1);
-        }
-        return fileNormalized !== distDir as string;
-    });
-    files.push(...newFiles);
-    pkg.files = [...files];
-
+    let files = pkg.files;
+    if (files) {
+        files = files.filter(file => {
+            const fileNormalized = normalizePath(file);
+            return !isSubDirectory(cleanedDir, fileNormalized) && fileNormalized !== normalizedCleanDir;
+        });
+        files.push(...newFiles);
+        pkg.files = [...files];
+    }
+    
     // remove extra directories with package.json
     const exports = pkg.exports ? Object.keys(pkg.exports) : [];
     for (const key of exports) {
@@ -158,13 +195,22 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     }
 }
 
+function normalizePath(file: string) {
+    let fileNormalized = path.normalize(file);
+    if (fileNormalized.endsWith('/') || fileNormalized.endsWith('\\')) {
+        // remove trailing slash
+        fileNormalized = fileNormalized.slice(0, -1);
+    }
+    return fileNormalized;
+}
+
 type JSONValue =
-    | string
-    | number
-    | boolean
-    | null
-    | { [x: string]: JSONValue }
-    | Array<JSONValue>;
+| string
+| number
+| boolean
+| null
+| { [x: string]: JSONValue }
+| Array<JSONValue>;
 
 function cloneAndUpdate<T extends JSONValue>(pkg: T, updater: (value: string) => string): T {
     if (typeof pkg === 'string') {
@@ -183,11 +229,18 @@ function cloneAndUpdate<T extends JSONValue>(pkg: T, updater: (value: string) =>
     return pkg;
 }
 
+function isSubDirectory(parent: string, child: string) {
+    return path.relative(child, parent).startsWith('..');
+}
+
+async function isEmptyDir(dir: string) {
+    const entries = await readdir(dir);
+    return entries.length === 0;
+}
+
 async function isDirectory(file: string) {
-    try {
-        const fileStat = await stat(file);
-        return fileStat.isDirectory();
-    } catch (e: unknown) { /**/ }
+    const fileStat = await stat(file);
+    return fileStat.isDirectory();
 }
 
 async function walkDir(dir: string) {

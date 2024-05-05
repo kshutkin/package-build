@@ -192,7 +192,17 @@ pkgbld --no-pack
 pkgbld prune
 ```
 
-prune devDependencies and redundunt scripts from package.json
+prune devDependencies and redundant scripts from package.json
+
+### prune --profile=<profile>
+
+There are two profiles: `library` and `app`. `library` is default.
+
+Right now it only affects how `prune` command removes entries in the `scripts` field.
+
+For `library` profile it retains: 'preinstall', 'install', 'postinstall', 'prepublish', 'preprepare', 'prepare', 'postprepare'.
+
+For `app` profile it retains in addition: 'prestart', 'start', 'poststart', 'prerestart', 'restart', 'postrestart', 'prestop', 'stop', 'poststop', 'pretest', 'test',        'posttest'.
 
 ### flatten
 

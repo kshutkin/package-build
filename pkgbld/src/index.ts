@@ -80,7 +80,7 @@ async function execute() {
             mainLogger.finish(updater(true));
         }
     } catch(e) {
-        mainLogger.finish(JSON.stringify(e), LogLevel.error);
+        mainLogger.finish(String(e), LogLevel.error);
         process.exit(-1);
     }
 
