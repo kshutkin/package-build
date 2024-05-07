@@ -73,8 +73,8 @@ importers:
         specifier: 2.0.3
         version: 2.0.3
       '@types/lodash':
-        specifier: 4.17.0
-        version: 4.17.0
+        specifier: 4.17.1
+        version: 4.17.1
       '@types/parse-git-config':
         specifier: 3.0.4
         version: 3.0.4
@@ -675,9 +675,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/lodash@4.17.0':
-    resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
 
   '@types/lodash@4.17.1':
     resolution: {integrity: sha512-X+2qazGS3jxLAIz5JDXDzglAF3KpijdhFxlf/V1+hEsOUc+HnWi81L/uv/EvGuV90WY+7mPGFCUDGfQC3Gj95Q==}
@@ -2737,8 +2734,6 @@ snapshots:
   '@types/istanbul-lib-coverage@2.0.6': {}
 
   '@types/json-schema@7.0.15': {}
-
-  '@types/lodash@4.17.0': {}
 
   '@types/lodash@4.17.1': {}
 
