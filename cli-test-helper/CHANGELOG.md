@@ -1,5 +1,18 @@
 # cli-test-helper
 
+## 0.1.0
+
+### Minor Changes
+
+- d1705d0: fixes:
+
+  - ensure we have directory for stringToFiles
+  - fixed typo
+
+  minor:
+
+  - added ignore parameter in filesToString
+
 ## 0.0.2
 
 ### Patch Changes
