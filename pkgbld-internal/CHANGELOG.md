@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- 8a2b25e: added missing dependency: jsonata
+
 ## 1.3.0
 
 ### Minor Changes
