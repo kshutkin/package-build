@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.30.0
+
+### Minor Changes
+
+- 2eb3f45: added no-clean and no-bundle options & basic tests
+- 86dc4bb: added 2 more options to prune: removeSourcemaps and optimizeFiles
+
+### Patch Changes
+
+- 3183d8e: fixed prune logic:
+
+  - handle case with no scripts (it was crashing)
+  - handle creating directories that don't exist on flatten (it was crashing)
+  - added tests
+
 ## 1.29.4
 
 ### Patch Changes
