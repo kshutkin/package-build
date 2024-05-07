@@ -36,7 +36,7 @@
             "name": "simple prune",
             "args": "prune",
             "input": "dist\n  index.js\n|\npackage.json\n|{\n|  \"scripts\": {},\n|  \"devDependencies\": {},\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}",
-            "output": "dist\n  index.js\n|\npackage.json\n|{\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}\n|",
+            "output": "dist\n  index.js\n|\npackage.json\n|{\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\"\n|}\n|",
             "stdout": "preparing..\n\n",
             "stderr": ""
         },
@@ -73,7 +73,7 @@
             "name": "prune with library profile removes all but postinstall from scripts",
             "args": "prune --profile=library",
             "input": "dist\n  index.js\n|\nlicence.txt\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"serve\": \"rollup -c -w\",\n|    \"build\": \"rollup -c\",\n|    \"postinstall\": \"npm run build\",\n|    \"prepack\": \"pkgbld prune\"\n|  },\n|  \"devDependencies\": {},\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\",\n|    \"./licence.txt\",\n|    \"README.md\"\n|  ]\n|}\nREADME.md\n|",
-            "output": "dist\n  index.js\n|\nlicence.txt\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"postinstall\": \"npm run build\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}\n|\nREADME.md\n|",
+            "output": "dist\n  index.js\n|\nlicence.txt\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"postinstall\": \"npm run build\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\"\n|}\n|\nREADME.md\n|",
             "stdout": "preparing..\n\n",
             "stderr": ""
         },
@@ -82,7 +82,7 @@
             "name": "prune with app profile removes all but postinstall and start from scripts",
             "args": "prune --profile=app",
             "input": "dist\n  index.js\n|\nlicence.txt\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"start\": \"rollup -c -w\",\n|    \"build\": \"rollup -c\",\n|    \"postinstall\": \"npm run build\",\n|    \"prepack\": \"pkgbld prune\"\n|  },\n|  \"devDependencies\": {},\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\",\n|    \"./licence.txt\",\n|    \"README.md\"\n|  ]\n|}\nREADME.md\n|",
-            "output": "dist\n  index.js\n|\nlicence.txt\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"start\": \"rollup -c -w\",\n|    \"postinstall\": \"npm run build\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}\n|\nREADME.md\n|",
+            "output": "dist\n  index.js\n|\nlicence.txt\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"start\": \"rollup -c -w\",\n|    \"postinstall\": \"npm run build\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\"\n|}\n|\nREADME.md\n|",
             "stdout": "preparing..\n\n",
             "stderr": ""
         },
@@ -201,8 +201,44 @@
             "name": "flatten with directories.bin",
             "args": "prune --flatten",
             "input": "dist\n  bin\n    1.js\n|\n    2.js\n|\n  index.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./dist/bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}",
-            "output": "bin\n  1.js\n|\n  2.js\n|\nindex.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./index.js\",\n|  \"files\": [\n|    \"bin/1.js\",\n|    \"bin/2.js\"\n|  ]\n|}\n|",
+            "output": "bin\n  1.js\n|\n  2.js\n|\nindex.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./index.js\",\n|  \"files\": [\n|    \"bin\"\n|  ]\n|}\n|",
             "stdout": "preparing..\n\nflattening dist...\n",
+            "stderr": ""
+        },
+        {
+            "id": 22,
+            "name": "flatten with directories.bin 2",
+            "args": "prune --flatten --optimizeFiles=false",
+            "input": "dist\n  bin\n    1.js\n|\n    2.js\n|\n  index.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./dist/bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}",
+            "output": "bin\n  1.js\n|\n  2.js\n|\nindex.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./index.js\",\n|  \"files\": [\n|    \"index.js\",\n|    \"bin/1.js\",\n|    \"bin/2.js\"\n|  ]\n|}\n|",
+            "stdout": "preparing..\n\nflattening dist...\n",
+            "stderr": ""
+        },
+        {
+            "id": 23,
+            "name": "deep optimize",
+            "args": "prune",
+            "input": "dist\n  2\n    bin\n      1.js\n|\n      2.js\n|\n    index.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./dist/2/bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/2/index.js\",\n|  \"files\": [\n|    \"dist/2/bin/1.js\",\n|    \"dist/2/bin/2.js\",\n|    \"dist/2/index.js\"\n|  ]\n|}",
+            "output": "dist\n  2\n    bin\n      1.js\n|\n      2.js\n|\n    index.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./dist/2/bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/2/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}\n|",
+            "stdout": "preparing..\n\n",
+            "stderr": ""
+        },
+        {
+            "id": 24,
+            "name": "deep optimize 2",
+            "args": "prune",
+            "input": "dist\n  2\n    1\n      index.js\n|\n    bin\n      1.js\n|\n      2.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./dist/2/bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/2/1/index.js\",\n|  \"files\": [\n|    \"dist/2/bin/1.js\",\n|    \"dist/2/bin/2.js\",\n|    \"dist/2/1/index.js\"\n|  ]\n|}",
+            "output": "dist\n  2\n    1\n      index.js\n|\n    bin\n      1.js\n|\n      2.js\n|\npackage.json\n|{\n|  \"directories\": {\n|    \"bin\": \"./dist/2/bin\"\n|  },\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/2/1/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}\n|",
+            "stdout": "preparing..\n\n",
+            "stderr": ""
+        },
+        {
+            "id": 25,
+            "name": "remove sourcemaps",
+            "args": "prune --removeSourcemaps",
+            "input": "dist\n  index.js\n|// something\n|\n|console.log('Hello, world!');\n|\n|//# sourceMappingURL=index.js.map\n|\n  index.js.map\n|\npackage.json\n|{\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}",
+            "output": "dist\n  index.js\n|// something\n|\n|console.log('Hello, world!');\n|\n|\n|\npackage.json\n|{\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\"\n|}\n|",
+            "stdout": "preparing..\n\n",
             "stderr": ""
         }
     ]

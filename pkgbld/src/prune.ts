@@ -1,10 +1,10 @@
 import { Logger } from '@niceties/logger';
 import { PackageJson } from 'options';
-import { mkdir, readdir, rename, rm, stat } from 'fs/promises';
+import { mkdir, readdir, rename, rm, stat, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { isExists } from './helpers';
 
-export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profile: string, flatten: string | boolean }, logger: Logger) {
+export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profile: string, flatten: string | boolean, removeSourcemaps: boolean, optimizeFiles: boolean }, logger: Logger) {
     const scriptsToKeep = getScriptsData();
 
     const keys = scriptsToKeep[options.profile];
@@ -32,7 +32,25 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
         await flatten(pkg, options.flatten, logger);
     }
 
-    if (pkg.files && Array.isArray(pkg.files)) {
+    if (options.removeSourcemaps) {
+        const sourceMaps = await walkDir('.').then(files => files.filter(file => file.endsWith('.map')));
+        for (const sourceMap of sourceMaps) {
+            // find corresponding file
+            const sourceFile = sourceMap.slice(0, -4);
+            // load file
+            const sourceFileContent = await readFile(sourceFile, 'utf8');
+            // find sourceMappingURL
+            const sourceMappingUrl = `//# sourceMappingURL=${path.basename(sourceMap)}`;
+            // remove sourceMappingURL
+            const newContent = sourceFileContent.replace(sourceMappingUrl, '');
+            // write file
+            await writeFile(sourceFile, newContent, 'utf8');
+            // remove sourceMap
+            await rm(sourceMap);
+        }
+    }
+
+    if (pkg.files && Array.isArray(pkg.files) && options.optimizeFiles) {
         const filterFiles = ['package.json'];
         const specialFiles = ['README', 'LICENSE', 'LICENCE'];
         if (pkg.main && typeof pkg.main === 'string') {
@@ -46,17 +64,79 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
                 filterFiles.push(...Object.values(pkg.bin).map(normalizePath));
             }
         }
+
+        const depthToFiles = new Map<number, string[]>();
+
+        for (const file of pkg.files.concat(filterFiles)) {
+            const dirname = path.dirname(file);
+            const depth = dirname.split('/').length;
+            if (!depthToFiles.has(depth)) {
+                depthToFiles.set(depth, [file]);
+            } else {
+                depthToFiles.get(depth)?.push(file);
+            }
+        }
+
+        // walk depth keys from the highest to the lowest
+        const maxDepth = Math.max(...depthToFiles.keys());
+        for (let depth = maxDepth; depth > 0; --depth) {
+            const files = depthToFiles.get(depth) as string[];
+            const mapDirToFiles = new Map<string, string[]>();
+            for (const file of files) {
+                const dirname = path.dirname(file);
+                const basename = normalizePath(path.basename(file));
+                if (!mapDirToFiles.has(dirname)) {
+                    mapDirToFiles.set(dirname, [basename]);
+                } else {
+                    mapDirToFiles.get(dirname)?.push(basename);
+                }
+            }
+            for (const [dirname, filesInDir] of mapDirToFiles) {
+                // find out real content of the directory
+                const realFiles = await readdir(dirname);
+                // check if all files in the directory are in the filesInDir
+                const allFilesInDir = realFiles.every(file => filesInDir.includes(file)) || realFiles.length === 0;
+                if (allFilesInDir && dirname !== '.') {
+                    if (!depthToFiles.has(depth - 1)) {
+                        depthToFiles.set(depth - 1, [dirname]);
+                    }  else {
+                        (depthToFiles.get(depth - 1) as string[]).push(dirname);
+                    }
+                    const thisDepth = depthToFiles.get(depth) as string[];
+                    depthToFiles.set(depth, thisDepth.filter(file => filesInDir.every(fileInDir => path.join(dirname, fileInDir) !== file)));
+                }
+            }
+        }
+
+        pkg.files = [...new Set(Array.from(depthToFiles.values()).flat())];
+
         pkg.files = pkg.files.filter(file => {            
             const fileNormalized = normalizePath(file);
             const dirname = path.dirname(fileNormalized);
             const basenameWithoutExtension = path.basename(fileNormalized, path.extname(fileNormalized)).toUpperCase();
             return !filterFiles.includes(fileNormalized) && (dirname !== '' && dirname !== '.' || !specialFiles.includes(basenameWithoutExtension));
         });
-    }
 
-    if (pkg.files && pkg.files.length === 0) {
-        pkg.files = undefined;
-    }
+        const ignoreDirs: string[] = [];
+
+        for (const fileOrDir of pkg.files) {
+            if (await isDirectory(fileOrDir)) {
+                const allFiles = await walkDir(fileOrDir);
+                if (allFiles.every(file => {
+                    const fileNormalized = normalizePath(file);
+                    return filterFiles.includes(fileNormalized);
+                })) {
+                    ignoreDirs.push(fileOrDir);
+                }
+            }
+        }
+
+        pkg.files = pkg.files.filter(dir => !ignoreDirs.includes(dir));
+
+        if (pkg.files.length === 0) {
+            delete pkg.files;
+        }
+    }    
 }
 
 async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger) {

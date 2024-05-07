@@ -21,7 +21,7 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         commands: [
             command({
                 name: 'prune',
-                description: 'prune devDependencies and redundunt scripts from package.json',
+                description: 'prune devDependencies and redundant scripts from package.json',
                 flags: {
                     profile: {
                         type: String,
@@ -32,6 +32,16 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
                         type: FlattenParam,
                         description: 'flatten package files',
                         default: false
+                    },
+                    removeSourcemaps: {
+                        type: Boolean,
+                        description: 'remove sourcemaps',
+                        default: false
+                    },
+                    optimizeFiles: {
+                        type: Boolean,
+                        description: 'optimize files array',
+                        default: true
                     }
                 }
             })
@@ -42,7 +52,9 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         return {
             kind: 'prune',
             profile: cliOptions.flags.profile,
-            flatten: cliOptions.flags.flatten
+            flatten: cliOptions.flags.flatten,
+            removeSourcemaps: cliOptions.flags.removeSourcemaps,
+            optimizeFiles: cliOptions.flags.optimizeFiles
         } as const;
     } else {
         const flags = cliOptions.flags;

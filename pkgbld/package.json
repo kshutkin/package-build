@@ -30,7 +30,7 @@
   "scripts": {
     "build": "xc6 rm src/options-types.ts && xc6 ln ../options/src/types.ts src/options-types.ts && rollup -c && dts-buddy dist/index.d.ts -m pkgbld:dist/src/index.d.ts && xc6 rm dist/src",
     "lint": "eslint ./src",
-    "prepack": "node ./index.js prune",
+    "prepack": "node ./index.js prune --removeSourcemaps",
     "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
   },
   "dependencies": {

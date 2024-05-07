@@ -13,11 +13,10 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.12.8",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "eslint": "^8.57.0",
-    "ts-node": "^10.9.2",
     "ts-patch": "^3.1.2",
     "typescript": "^5.3.3"
   }
