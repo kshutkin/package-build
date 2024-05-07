@@ -223,6 +223,9 @@ importers:
       is-builtin-module:
         specifier: ^3.2.1
         version: 3.2.1
+      jsonata:
+        specifier: ^2.0.4
+        version: 2.0.4
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
