@@ -186,6 +186,14 @@ Do not setup pack script in package.json
 pkgbld --no-pack
 ```
 
+### no-exports
+
+```
+pkgbld --no-exports
+```
+
+Do not add exports field in package.json.
+
 ### prune (command)
 
 ```
@@ -216,13 +224,23 @@ If the directory is not specified it is guessed from package.json.
 
 If files cannot be copied because of name conflicts the command will fail.
 
-### no-exports
+### removeSourcemaps
 
 ```
-pkgbld --no-exports
+pkgbld prune --removeSourcemaps
 ```
 
-Do not add exports field in package.json.
+Removes all sourcemaps from the package. The logic is very simple and removes all files with `.map` extension and references in format `//# sourceMappingURL=<mapFile>`.
+
+### optimizeFiles (default)
+
+```
+pkgbld prune --optimizeFiles=false
+```
+
+Optimizes files by removing all files that are not required for pack at the given moment.
+
+You might want to disable this option in some edge cases.
 
 ## Plugin API
 
