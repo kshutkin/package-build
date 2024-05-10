@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.30.1
+
+### Patch Changes
+
+- ff03e3b: also handle directories.bin explicit flatten
+
 ## 1.30.0
 
 ### Minor Changes
