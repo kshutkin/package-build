@@ -147,6 +147,11 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     const expression = jsonata('[bin, bin.*, main, module, unpkg, umd, types, typings, exports[].*.*, typesVersions.*.*, directories.bin]');
     const allReferences = (await expression.evaluate(pkg)) as string[];
     let distDir: string | undefined;
+
+    // at this point we requested directories.bin, but it is the only one that is directory and not a file
+    // later when we get dirname we can't flatten directories.bin completely
+    // it is easy to fix by checking element is a directory but it is kind of good
+    // to have it as a separate directory, but user still can flatten it by specifying the directory
     
     if (flatten === true) {
         let commonSegments: string[] | undefined;
@@ -172,7 +177,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
         }
         distDir = commonSegments?.join('/');
     } else {
-        distDir = flatten;
+        distDir = normalizePath(flatten);
     }    
     
     if (!distDir) {
@@ -201,6 +206,25 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     
     if (filesAlreadyExist.length) {
         throw new Error(`dist folder cannot be flattened because files already exist: ${filesAlreadyExist.join(', ')}`);
+    }
+
+    if (typeof flatten === 'string' && 'directories' in pkg && pkg.directories != null
+        && typeof pkg.directories === 'object' && 'bin' in pkg.directories
+        && typeof pkg.directories.bin === 'string' && normalizePath(pkg.directories.bin) === normalizePath(flatten)) {
+        delete pkg.directories.bin;
+        if (Object.keys(pkg.directories).length === 0) {
+            delete pkg.directories;
+        }
+        const files = await readdir(flatten);
+        if (files.length === 1) {
+            const file = files[0];
+            pkg.bin = file;
+        } else {
+            pkg.bin = {};
+            for (const file of files) {
+                pkg.bin[path.basename(file, path.extname(file))] = file;
+            }
+        }
     }
 
     // create new directory structure
