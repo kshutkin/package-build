@@ -113,7 +113,7 @@ importers:
         version: 0.36.0(rollup@4.17.2)(typescript@5.4.5)
       typia:
         specifier: ^6.0.3
-        version: 6.0.3(typescript@5.4.5)
+        version: 6.0.4(typescript@5.4.5)
 
   pkgbld:
     dependencies:
@@ -1382,6 +1382,7 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
+    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2192,8 +2193,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@6.0.3:
-    resolution: {integrity: sha512-Yq69N1EbVcU3kXxeEQEdl9J9mhWRJLfGiKBl9e2zLCIVfzYt/WVjEidlpy1BAPybfOTuIZ+jFtsooZ4FQNJffw==}
+  typia@6.0.4:
+    resolution: {integrity: sha512-8Ilr6xNVjpt3fdq7xQbAU8xQRjFa0y78TkEDG5i1UBXeFIw0524pom8uFj/30t1gO5JD/u+ddQ8CfdQEG/wqsg==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <5.5.0'
@@ -4352,7 +4353,7 @@ snapshots:
 
   typescript@5.4.5: {}
 
-  typia@6.0.3(typescript@5.4.5):
+  typia@6.0.4(typescript@5.4.5):
     dependencies:
       '@samchon/openapi': 0.1.21
       commander: 10.0.1
