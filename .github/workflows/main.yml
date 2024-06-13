@@ -21,6 +21,7 @@ on:
       - beta
 
 env:
+  COREPACK_ROOT: 0
   SKIP_YARN_COREPACK_CHECK: 0
 
 concurrency:
