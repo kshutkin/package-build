@@ -19,7 +19,7 @@
   "license": "MIT",
   "devDependencies": {
     "c8": "^9.1.0",
-    "dts-buddy": "^0.4.5",
+    "dts-buddy": "^0.5.0",
     "pkgbld": "workspace:*",
     "typescript": ">=5.3.3"
   },
