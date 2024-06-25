@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.31.0
+
+### Minor Changes
+
+- cb126d3: new API for plugins
+
 ## 1.30.1
 
 ### Patch Changes
