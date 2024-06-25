@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.31.2
+
+### Patch Changes
+
+- 7b85311: update commonjs plugin
+
 ## 1.31.1
 
 ### Patch Changes
