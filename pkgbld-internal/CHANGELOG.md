@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1
+
+### Patch Changes
+
+- 7b85311: update commonjs plugin
+
 ## 1.4.0
 
 ### Minor Changes
