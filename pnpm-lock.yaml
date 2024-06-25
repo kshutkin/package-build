@@ -128,7 +128,7 @@ importers:
         version: 0.36.0(rollup@4.17.2)(typescript@5.4.5)
       typia:
         specifier: ^6.0.3
-        version: 6.2.1(typescript@5.4.5)
+        version: 6.2.2(typescript@5.4.5)
 
   pkgbld:
     dependencies:
@@ -2253,6 +2253,9 @@ packages:
   tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
+  tslib@2.6.3:
+    resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
+
   tty-table@4.2.3:
     resolution: {integrity: sha512-Fs15mu0vGzCrj8fmJNP7Ynxt5J7praPXqFN0leZeZBXJwkMxv9cb2D454k1ltrtUSJbZ4yH4e0CynsHLxmUfFA==}
     engines: {node: '>=8.0.0'}
@@ -2310,8 +2313,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@6.2.1:
-    resolution: {integrity: sha512-hmw/AVHJOv++pOvI772OUQ30sxNRSy407nQLP2Lion92fwfFWXQKBL/7Wg6VnF8CXqe86420LG1/tcjNdU6+bQ==}
+  typia@6.2.2:
+    resolution: {integrity: sha512-TBrk8LMvbE7Od/PkAT+dS3IvHYf7a62zZ1rhBXYCbci8SgZmhjS9jHcyEljxvnD1QSKav5XLKcb+KZk1LBoXpg==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <5.5.0'
@@ -4331,7 +4334,7 @@ snapshots:
 
   rxjs@7.8.1:
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.6.3
 
   sade@1.8.1:
     dependencies:
@@ -4562,6 +4565,8 @@ snapshots:
 
   tslib@2.6.2: {}
 
+  tslib@2.6.3: {}
+
   tty-table@4.2.3:
     dependencies:
       chalk: 4.1.2
@@ -4624,7 +4629,7 @@ snapshots:
 
   typescript@5.4.5: {}
 
-  typia@6.2.1(typescript@5.4.5):
+  typia@6.2.2(typescript@5.4.5):
     dependencies:
       '@samchon/openapi': 0.1.22
       commander: 10.0.1
