@@ -41,6 +41,9 @@ importers:
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
+      typescript:
+        specifier: '>=5.3.3'
+        version: 5.4.5
 
   create-pkgbld:
     dependencies:
@@ -74,7 +77,7 @@ importers:
         version: 2.0.3
       '@types/lodash':
         specifier: 4.17.1
-        version: 4.17.3
+        version: 4.17.1
       '@types/parse-git-config':
         specifier: 3.0.4
         version: 3.0.4
@@ -87,6 +90,18 @@ importers:
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
+
+  integration-tests/dts-buddy-plugin-integration:
+    devDependencies:
+      cli-test-helper:
+        specifier: workspace:*
+        version: link:../../cli-test-helper
+      pkgbld:
+        specifier: workspace:*
+        version: link:../../pkgbld
+      pkgbld-plugin-dts-buddy:
+        specifier: workspace:*
+        version: link:../../pkgbld-plugin-dts-buddy
 
   options:
     devDependencies:
@@ -113,7 +128,7 @@ importers:
         version: 0.36.0(rollup@4.17.2)(typescript@5.4.5)
       typia:
         specifier: ^6.0.3
-        version: 6.0.4(typescript@5.4.5)
+        version: 6.2.1(typescript@5.4.5)
 
   pkgbld:
     dependencies:
@@ -193,15 +208,15 @@ importers:
       cli-test-helper:
         specifier: workspace:*
         version: link:../cli-test-helper
-      dts-buddy:
-        specifier: ^0.4.5
-        version: 0.4.5(typescript@5.4.5)
+      dts-bundle-generator:
+        specifier: ^9.5.1
+        version: 9.5.1
       options:
         specifier: workspace:*
         version: link:../options
-      xc6:
-        specifier: workspace:*
-        version: link:../xc6
+      type-fest:
+        specifier: ^4.20.1
+        version: 4.20.1
 
   pkgbld-internal:
     dependencies:
@@ -276,18 +291,18 @@ importers:
   pkgbld-plugin-dts-buddy:
     dependencies:
       dts-buddy:
-        specifier: ^0.4.5
-        version: 0.4.5(typescript@5.4.5)
+        specifier: ^0.5.0
+        version: 0.5.0(typescript@5.4.5)
     devDependencies:
-      '@niceties/logger':
-        specifier: ^1.1.13
-        version: 1.1.13
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
       rollup:
         specifier: ^4.12.0
         version: 4.17.2
+      type-fest:
+        specifier: ^4.20.1
+        version: 4.20.1
 
   xc6:
     devDependencies:
@@ -650,8 +665,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@samchon/openapi@0.1.21':
-    resolution: {integrity: sha512-IUCOZpLOx8IZzxW87ySvFRSyGMRRQS5vpUwhUddzVR9vlDvTfVYjQjFuiJBqQIeGSdZExV3JzuHJCogacmd0/g==}
+  '@samchon/openapi@0.1.22':
+    resolution: {integrity: sha512-SXbXTKwS33agE+GiAskDc7v40wVLnTizxn6YPqD7iNStPckMagJZV1g/IlpqH/hhWOm/MrbEJGvgQ+Fr9TG7mQ==}
 
   '@slimlib/list@1.0.10':
     resolution: {integrity: sha512-RY+o8ywbIcatp6jMZ/HSQYcMZ/Ezv/rQzKY6Un0n37KHct00REXXdH14zrXvBb1PF/BT6SHVle9TcJDHTQBfbw==}
@@ -678,6 +693,9 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  '@types/lodash@4.17.1':
+    resolution: {integrity: sha512-X+2qazGS3jxLAIz5JDXDzglAF3KpijdhFxlf/V1+hEsOUc+HnWi81L/uv/EvGuV90WY+7mPGFCUDGfQC3Gj95Q==}
 
   '@types/lodash@4.17.3':
     resolution: {integrity: sha512-zmNrEJaBvNskZXQWaUQq6bktF4IDGVfDS78M+YEk5aCn9M/b94/mB/6WCyfH2/MjwBdc6QuOor95CIlKWYRL3A==}
@@ -1061,6 +1079,17 @@ packages:
     hasBin: true
     peerDependencies:
       typescript: '>=5.0.4 <5.5'
+
+  dts-buddy@0.5.0:
+    resolution: {integrity: sha512-bKyWCdyt8Yd2bjZX6hKldUFt3SpLPjxw6lQwWHKY1szGxEfRUPWMc76SHtNT+m2aTCI3Zqw3CXhtjw2vKadFnQ==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=5.0.4 <5.5'
+
+  dts-bundle-generator@9.5.1:
+    resolution: {integrity: sha512-DxpJOb2FNnEyOzMkG11sxO2dmxPjthoVWxfKqWYJ/bI/rT1rvTMktF5EKjAYrRZu6Z6t3NhOUZ0sZ5ZXevOfbA==}
+    engines: {node: '>=14.0.0'}
+    hasBin: true
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -2261,6 +2290,10 @@ packages:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
 
+  type-fest@4.20.1:
+    resolution: {integrity: sha512-R6wDsVsoS9xYOpy8vgeBlqpdOyzJ12HNfQhC/aAKWM3YoCV9TtunJzh/QpkMgeDhkoynDcw5f1y+qF9yc/HHyg==}
+    engines: {node: '>=16'}
+
   type-flag@3.0.0:
     resolution: {integrity: sha512-3YaYwMseXCAhBB14RXW5cRQfJQlEknS6i4C8fCfeUdS3ihG9EdccdR9kt3vP73ZdeTGmPb4bZtkDn5XMIn1DLA==}
 
@@ -2285,8 +2318,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@6.0.4:
-    resolution: {integrity: sha512-8Ilr6xNVjpt3fdq7xQbAU8xQRjFa0y78TkEDG5i1UBXeFIw0524pom8uFj/30t1gO5JD/u+ddQ8CfdQEG/wqsg==}
+  typia@6.2.1:
+    resolution: {integrity: sha512-hmw/AVHJOv++pOvI772OUQ30sxNRSy407nQLP2Lion92fwfFWXQKBL/7Wg6VnF8CXqe86420LG1/tcjNdU6+bQ==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <5.5.0'
@@ -2808,7 +2841,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.17.2':
     optional: true
 
-  '@samchon/openapi@0.1.21': {}
+  '@samchon/openapi@0.1.22': {}
 
   '@slimlib/list@1.0.10': {}
 
@@ -2825,6 +2858,8 @@ snapshots:
   '@types/istanbul-lib-coverage@2.0.6': {}
 
   '@types/json-schema@7.0.15': {}
+
+  '@types/lodash@4.17.1': {}
 
   '@types/lodash@4.17.3': {}
 
@@ -3253,6 +3288,24 @@ snapshots:
       tiny-glob: 0.2.9
       ts-api-utils: 1.3.0(typescript@5.4.5)
       typescript: 5.4.5
+
+  dts-buddy@0.5.0(typescript@5.4.5):
+    dependencies:
+      '@jridgewell/source-map': 0.3.6
+      '@jridgewell/sourcemap-codec': 1.4.15
+      globrex: 0.1.2
+      kleur: 4.1.5
+      locate-character: 3.0.0
+      magic-string: 0.30.10
+      sade: 1.8.1
+      tiny-glob: 0.2.9
+      ts-api-utils: 1.3.0(typescript@5.4.5)
+      typescript: 5.4.5
+
+  dts-bundle-generator@9.5.1:
+    dependencies:
+      typescript: 5.4.5
+      yargs: 17.7.2
 
   emoji-regex@8.0.0: {}
 
@@ -4546,6 +4599,8 @@ snapshots:
 
   type-fest@0.8.1: {}
 
+  type-fest@4.20.1: {}
+
   type-flag@3.0.0: {}
 
   typed-array-buffer@1.0.2:
@@ -4582,9 +4637,9 @@ snapshots:
 
   typescript@5.4.5: {}
 
-  typia@6.0.4(typescript@5.4.5):
+  typia@6.2.1(typescript@5.4.5):
     dependencies:
-      '@samchon/openapi': 0.1.21
+      '@samchon/openapi': 0.1.22
       commander: 10.0.1
       comment-json: 4.2.3
       inquirer: 8.2.6

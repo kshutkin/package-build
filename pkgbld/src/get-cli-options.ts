@@ -1,7 +1,7 @@
 import { cli, command } from 'cleye';
 import { PkgbldPlugin } from './types';
 import { cliFlags, cliFlagsDefaults as defaults } from 'options';
-import { PackageJson } from './options-types';
+import { PackageJson } from 'type-fest';
 
 function FlattenParam(value: string | false) {
     if (typeof value === 'boolean') {

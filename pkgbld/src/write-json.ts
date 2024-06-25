@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
-import { Json } from './types';
 import { toFormattedJson } from 'options';
+import { JsonObject } from 'type-fest';
 
-export async function writeJson(path: string, json: Json) {
+export async function writeJson(path: string, json: JsonObject) {
     await fs.writeFile(path, toFormattedJson(json));
 }

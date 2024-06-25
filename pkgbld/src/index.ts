@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./rollup-plugin-preprocess.d.ts" />
 import '@niceties/draftlog-appender';
 import { createLogger, LogLevel } from '@niceties/logger';
 import { rollup, RollupOptions } from 'rollup';
@@ -16,7 +18,7 @@ import { checkTsConfig } from './process-ts-config';
 import { PkgbldPlugin } from './types';
 import { loadPlugins } from './load-plugins';
 import { prunePkg } from './prune';
-import { PackageJson } from 'options';
+import { PackageJson } from 'type-fest';
 
 execute();
 
@@ -102,4 +104,4 @@ function preimport() {
 }
 
 export * from './types';
-export * from './options-types';
+export { PackageJson } from 'type-fest';

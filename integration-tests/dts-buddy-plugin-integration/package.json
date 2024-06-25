@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "name": "test1",
+  "scripts": {
+    "build": "pkgbld --formats=es --no-exports",
+    "test": "node ./test.js",
+    "prepack": "pkgbld prune"
+  },
+  "devDependencies": {
+    "pkgbld": "workspace:*",
+    "pkgbld-plugin-dts-buddy": "workspace:*",
+    "cli-test-helper": "workspace:*"
+  },
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "type": "module",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts",
+        "dist/*"
+      ]
+    }
+  }
+}

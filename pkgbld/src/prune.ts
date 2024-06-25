@@ -1,5 +1,5 @@
 import { Logger } from '@niceties/logger';
-import { PackageJson } from 'options';
+import { JsonObject, JsonValue, PackageJson } from 'type-fest';
 import { mkdir, readdir, rename, rm, stat, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { isExists } from './helpers';
@@ -299,8 +299,8 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     }
 }
 
-function normalizePath(file: string) {
-    let fileNormalized = path.normalize(file);
+function normalizePath(file?: string) {
+    let fileNormalized = path.normalize(file!);
     if (fileNormalized.endsWith('/') || fileNormalized.endsWith('\\')) {
         // remove trailing slash
         fileNormalized = fileNormalized.slice(0, -1);
@@ -308,15 +308,7 @@ function normalizePath(file: string) {
     return fileNormalized;
 }
 
-type JSONValue =
-| string
-| number
-| boolean
-| null
-| { [x: string]: JSONValue }
-| Array<JSONValue>;
-
-function cloneAndUpdate<T extends JSONValue>(pkg: T, updater: (value: string) => string): T {
+function cloneAndUpdate<T extends JsonValue>(pkg: T, updater: (value: string) => string): T {
     if (typeof pkg === 'string') {
         return updater(pkg) as T;
     }
@@ -324,9 +316,9 @@ function cloneAndUpdate<T extends JSONValue>(pkg: T, updater: (value: string) =>
         return pkg.map(value => cloneAndUpdate(value, updater)) as T;
     }
     if (typeof pkg === 'object' && pkg !== null) {
-        const clone = {} as Record<string, JSONValue>;
+        const clone = {} as Record<string, JsonValue>;
         for (const key of Object.keys(pkg)) {
-            clone[key] = cloneAndUpdate(pkg[key] as JSONValue, updater);
+            clone[key] = cloneAndUpdate((pkg as JsonObject)[key] as JsonValue, updater);
         }
         return clone as T;
     }

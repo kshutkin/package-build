@@ -1,9 +1,9 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { Json } from './types';
+import { JsonObject } from 'type-fest';
 
-export async function getJson(fileName: string): Promise<[string, Json]> {
+export async function getJson(fileName: string): Promise<[string, JsonObject]> {
     const pkgPath = path.resolve(fileName);
     const buffer = await fs.readFile(pkgPath);
-    return [pkgPath, JSON.parse(buffer.toString()) as Json];
+    return [pkgPath, JSON.parse(buffer.toString()) as JsonObject];
 }

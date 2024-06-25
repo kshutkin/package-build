@@ -6,3 +6,4 @@ packages:
   - "xc6"
   - "cli-test-helper"
   - "pkgbld-plugin-dts-buddy"
+  - "integration-tests/*"

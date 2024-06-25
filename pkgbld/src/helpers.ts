@@ -2,9 +2,10 @@ import path from 'path';
 import camelCase from 'lodash/camelCase.js';
 import { OutputOptions } from 'rollup';
 import kleur from 'kleur';
-import { PackageJson, processPackageJson } from 'options';
+import { processPackageJson, PackageJson as PackageJsonO } from 'options';
 import { access } from 'fs/promises';
 import { fileURLToPath } from 'url';
+import { PackageJson } from 'type-fest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -56,7 +57,7 @@ export function getTimeDiff(starting: number) {
 export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;
 
 export function formatPackageJson(pkg: PackageJson) {
-    return processPackageJson(pkg, key => key in pkg, key => (pkg as Record<string, unknown>)[key]) as PackageJson;
+    return processPackageJson(pkg as PackageJsonO, key => key in pkg, key => (pkg as Record<string, unknown>)[key]) as PackageJson;
 }
 
 export async function isExists(file: string) {

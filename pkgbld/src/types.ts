@@ -1,7 +1,6 @@
 import type { Plugin, InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getCliOptions } from './get-cli-options';
-import { Logger } from '@niceties/logger';
-import { PackageJson } from './options-types';
+import { JsonObject, PackageJson } from 'type-fest';
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
 
@@ -32,10 +31,14 @@ export type ParsedOptions = Record<string, string | number | string[] | number[]
 
 // plugins API
 
+export interface PkgbldPluginFactory {
+    create(): Promise<Partial<PkgbldPlugin>>;
+}
+
 export interface PkgbldPlugin {
     options(parsedArgs: ParsedOptions, options: CliOptions): void;
-    processPackageJson(packageJson: PackageJson, inputs: string[], logger: Logger): void;
-    processTsConfig(config: Json): void;
+    processPackageJson(packageJson: PackageJson, inputs: string[]): void;
+    processTsConfig(config: JsonObject): void;
     providePlugins(provider: Provider, config: ParsedOptions, inputs: string[], inputsExt: Map<string, string>): Promise<void>;
     getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions>;
     buildEnd(): Promise<void>;

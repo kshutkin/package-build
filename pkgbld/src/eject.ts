@@ -1,11 +1,11 @@
 import type { CliOptions, PkgbldRollupPlugin, Provider } from './types';
-import type { PackageJson } from 'options';
 import type { RollupOptions } from 'rollup';
 import fs from 'fs/promises';
 import path from 'path';
 import camelCase from 'lodash/camelCase.js';
 import { getHelpers } from './helpers';
 import pkgbldPkg from '../package.json';
+import { PackageJson } from 'type-fest';
 
 const imports = new Map<string, string | string[]>;
 const setup = new Set<string>;

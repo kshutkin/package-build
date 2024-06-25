@@ -1,20 +1,20 @@
 import path from 'path';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { CliOptions, Json, PkgbldPlugin } from './types';
-import { PackageJson } from 'options';
+import { CliOptions, PkgbldPlugin } from './types';
+import { PackageJson, JsonObject, JsonValue } from 'type-fest';
 import { isExists } from './helpers';
 
 const emptySet = new Set as Set<string>;
 const sourceFileSuffixes = ['ts', 'tsx', 'js', 'jsx', 'cjs', 'mjs'] as const; // svelte, vue, etc. are not supported yet
 
-export async function processPackage(pkg: Json, config: CliOptions, plugins: Partial<PkgbldPlugin>[], tsConfig?: Json): Promise<[string[], Map<string, typeof sourceFileSuffixes[number]>]> {
+export async function processPackage(pkg: JsonObject, config: CliOptions, plugins: Partial<PkgbldPlugin>[], tsConfig?: JsonObject): Promise<[string[], Map<string, typeof sourceFileSuffixes[number]>]> {
     const typingsFilePattern = '[name].d.ts';
     
     const indexId = 'index';
     
     const typesVersionsLastFields = new Set(['*']);
 
-    // check if declarations ebabled
+    // check if declarations enabled
     const isDeclarations = typeof tsConfig === 'object'
         && tsConfig != null && 'compilerOptions' in tsConfig
         && typeof tsConfig.compilerOptions === 'object' && tsConfig.compilerOptions !== null
@@ -42,16 +42,16 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
     }
     
     if (!pkg.files.includes(config.dir)) {
-        pkg.files.push(config.dir);
+        (pkg.files as string[]).push(config.dir);
     }
 
     if (typeof pkg.scripts !== 'object' && pkg.scripts !== null) {
         pkg.scripts = {};
     }
 
-    if (!config.noPack && !('prepack' in (pkg.scripts as Record<string, Json>))) {
+    if (!config.noPack && !('prepack' in (pkg.scripts as Record<string, JsonObject>))) {
         const binary = typeof (pkg.scripts as Record<string, string>).build === 'string' && (pkg.scripts as Record<string, string>).build?.startsWith('pkgbld-internal')  ? 'pkgbld-internal' : 'pkgbld';
-        (pkg.scripts as Record<string, Json>).prepack = `${binary} prune`;
+        (pkg.scripts as Record<string, JsonValue>).prepack = `${binary} prune`;
     }
 
     if (allowEsm && !allowCjs && typeof pkg.type !== 'string') {
@@ -102,8 +102,8 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
             pkg.typesVersions = {};
         }
         
-        if (typeof (pkg.typesVersions as Record<string, Json>)['*'] !== 'object' && (pkg.typesVersions as Record<string, Json>)['*'] !== null) {
-            (pkg.typesVersions as Record<string, Json>)['*'] = {};
+        if (typeof (pkg.typesVersions as Record<string, JsonValue>)['*'] !== 'object' && (pkg.typesVersions as Record<string, JsonValue>)['*'] !== null) {
+            (pkg.typesVersions as Record<string, JsonValue>)['*'] = {};
         }
     }
 
@@ -112,18 +112,18 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
             pkg.exports = {};
         }
 
-        if ((pkg.exports as Record<string, Json>)['.'] == null) {
-            (pkg.exports as Record<string, Json>)['.'] = {};
+        if ((pkg.exports as Record<string, JsonValue>)['.'] == null) {
+            (pkg.exports as Record<string, JsonValue>)['.'] = {};
         }
 
-        (pkg.exports as Record<string, Json>)['./package.json'] = './package.json';
+        (pkg.exports as Record<string, JsonValue>)['./package.json'] = './package.json';
 
-        if (allowCjs && pkg.main !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require) {
-            ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).require = pkg.main as Json;
+        if (allowCjs && pkg.main !== ((pkg.exports as Record<string, JsonValue>)['.'] as Record<string, JsonValue>).require) {
+            ((pkg.exports as Record<string, JsonValue>)['.'] as Record<string, JsonValue>).require = pkg.main as JsonValue;
         }
 
-        if (pkg.module !== ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>)?.default) {
-            ((pkg.exports as Record<string, Json>)['.'] as Record<string, Json>).default = pkg.module as Json;
+        if (pkg.module !== ((pkg.exports as Record<string, JsonValue>)['.'] as Record<string, JsonValue>)?.default) {
+            ((pkg.exports as Record<string, JsonValue>)['.'] as Record<string, JsonValue>).default = pkg.module as JsonValue;
         }
 
         for (const id in pkg.exports as object) {
@@ -131,33 +131,33 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
 
             const basename = id == '.' ? indexId : path.basename(id);
 
-            if (typeof (pkg.exports as Record<string, Json>)[id] !== 'object') {
-                (pkg.exports as Record<string, Json>)[id] = {};
+            if (typeof (pkg.exports as Record<string, JsonValue>)[id] !== 'object') {
+                (pkg.exports as Record<string, JsonValue>)[id] = {};
             }
 
             if (isDeclarations) {
-                ((pkg.typesVersions as Record<string, Json>)['*'] as Record<string, Json>)[id] = [`${config.dir}/${patternToName(typingsFilePattern, basename)}`];
+                ((pkg.typesVersions as Record<string, JsonValue>)['*'] as Record<string, JsonValue>)[id] = [`${config.dir}/${patternToName(typingsFilePattern, basename)}`];
 
-                ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>).types = `./${config.dir}/${patternToName(typingsFilePattern, basename)}`;
+                ((pkg.exports as Record<string, JsonValue>)[id] as Record<string, JsonValue>).types = `./${config.dir}/${patternToName(typingsFilePattern, basename)}`;
             }
 
             const cjsFieldName = pkg.type === 'module' ? 'require' : 'default';
             const esmFieldName = pkg.type === 'module' ? 'default' : 'import';
 
             if (allowEsm) {
-                ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>)[esmFieldName] = `./${config.dir}/${patternToName(config.esPattern, basename)}`;
+                ((pkg.exports as Record<string, JsonValue>)[id] as Record<string, JsonValue>)[esmFieldName] = `./${config.dir}/${patternToName(config.esPattern, basename)}`;
             }
 
             if (allowCjs) {
-                ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>)[cjsFieldName] = `./${config.dir}/${patternToName(config.commonjsPattern, basename)}`;
+                ((pkg.exports as Record<string, JsonValue>)[id] as Record<string, JsonValue>)[cjsFieldName] = `./${config.dir}/${patternToName(config.commonjsPattern, basename)}`;
             }
 
-            ((pkg.exports as Record<string, Json>)[id] as Record<string, Json>) = orderFields(exportsFields,(pkg.exports as Record<string, Json>)[id] as Record<string, Json>);
+            ((pkg.exports as Record<string, JsonValue>)[id] as Record<string, JsonValue>) = orderFields(exportsFields,(pkg.exports as Record<string, JsonValue>)[id] as Record<string, JsonValue>);
 
         
             if (basename !== indexId) {
                 if (!pkg.files.includes(basename)) {
-                    pkg.files.push(basename);
+                    (pkg.files as string[]).push(basename);
                 }
             }
         
@@ -168,12 +168,12 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
     }
 
     if (isDeclarations) {
-        ((pkg.typesVersions as Record<string, Json>)['*'] as Record<string, Json>)['*'] = [
+        ((pkg.typesVersions as Record<string, JsonValue>)['*'] as Record<string, JsonValue>)['*'] = [
             `${config.dir}/${patternToName(typingsFilePattern, indexId)}`,
             `${config.dir}/*`
         ];
 
-        ((pkg.typesVersions as Record<string, Json>)['*'] as Record<string, Json>) = orderFields(emptySet, (pkg.typesVersions as Record<string, Json>)['*'] as Record<string, Json>, typesVersionsLastFields);
+        ((pkg.typesVersions as Record<string, JsonValue>)['*'] as Record<string, JsonValue>) = orderFields(emptySet, (pkg.typesVersions as Record<string, JsonValue>)['*'] as Record<string, JsonValue>, typesVersionsLastFields);
     }
 
     if (allowUmd && config.umdInputs.length > 0 && !config.formats.includes('umd')) {
@@ -181,7 +181,7 @@ export async function processPackage(pkg: Json, config: CliOptions, plugins: Par
     }
 
     for (const plugin of plugins) {
-        plugin.processPackageJson?.(pkg as PackageJson, inputs, logger);
+        plugin.processPackageJson?.(pkg as PackageJson, inputs);
     }
 
     if (config.bin) {
