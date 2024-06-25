@@ -246,9 +246,9 @@ You might want to disable this option in some edge cases.
 
 `pkgbld` reads all installed packages named `pkgbld-plugin-*` and assumes they are plugins
 
-Plugins suppose to implement one or more of the following interface methods as their package exports:
+Plugins suppose to implement one or more of the following interface methods on an object that returned by `create()` function exported by the plugin module.
 
-```
+```typescript
 interface PkgbldPlugin {
     options(parsedArgs: {[key: string]: string | number}, options: ReturnType<typeof getCliOptions>): void;
     processPackageJson(packageJson: PackageJson, inputs: string[], logger: Logger): void;
