@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.1.0",
   "name": "pkgbld-plugin-dts-buddy",
   "description": "Plugin to generate d.ts files for your project using dts-buddy",
   "license": "MIT",

@@ -1,5 +1,5 @@
 {
-  "version": "1.3.2",
+  "version": "1.4.0",
   "name": "pkgbld-internal",
   "description": "Special version of pkgbld to install it in MY workspace-enabled repositories to build in-house packages",
   "license": "MIT",
