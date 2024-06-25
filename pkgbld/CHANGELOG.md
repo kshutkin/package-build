@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.31.1
+
+### Patch Changes
+
+- c336296: fix docs about plugin
+
 ## 1.31.0
 
 ### Minor Changes
