@@ -18,7 +18,7 @@
   "author": "Konstantin Shutkin",
   "license": "MIT",
   "devDependencies": {
-    "c8": "^9.1.0",
+    "c8": "^10.0.0",
     "dts-buddy": "^0.5.0",
     "pkgbld": "workspace:*",
     "typescript": ">=5.3.3"

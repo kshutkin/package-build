@@ -61,7 +61,7 @@
     "type-fest": "^4.20.1",
     "dts-bundle-generator": "^9.5.1",
     "options": "workspace:*",
-    "c8": "^9.1.0",
+    "c8": "^10.0.0",
     "cli-test-helper": "workspace:*"
   },
   "peerDependencies": {
