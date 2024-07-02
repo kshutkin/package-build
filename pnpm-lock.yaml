@@ -37,7 +37,7 @@ importers:
         version: 10.1.2
       dts-buddy:
         specifier: ^0.5.0
-        version: 0.5.0(typescript@5.5.2)
+        version: 0.5.1(typescript@5.5.2)
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
@@ -77,7 +77,7 @@ importers:
         version: 2.0.3
       '@types/lodash':
         specifier: 4.17.5
-        version: 4.17.6
+        version: 4.17.5
       '@types/parse-git-config':
         specifier: 3.0.4
         version: 3.0.4
@@ -292,7 +292,7 @@ importers:
     dependencies:
       dts-buddy:
         specifier: ^0.5.0
-        version: 0.5.0(typescript@5.5.2)
+        version: 0.5.1(typescript@5.5.2)
     devDependencies:
       pkgbld:
         specifier: workspace:*
@@ -680,6 +680,9 @@ packages:
   '@types/istanbul-lib-coverage@2.0.6':
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
 
+  '@types/lodash@4.17.5':
+    resolution: {integrity: sha512-MBIOHVZqVqgfro1euRDWX7OO0fBVUUMrN6Pwm8LQsz8cWhEpihlvR70ENj3f40j58TNxZaWv2ndSkInykNBBJw==}
+
   '@types/lodash@4.17.6':
     resolution: {integrity: sha512-OpXEVoCKSS3lQqjx9GGGOapBeuW5eUboYHRlHP9urXPX25IKZ6AnP5ZRxtVf63iieUbsHxLn8NQ5Nlftc6yzAA==}
 
@@ -999,11 +1002,11 @@ packages:
     resolution: {integrity: sha512-pYxfDYpued//QpnLIm4Avk7rsNtAtQkUES2cwAYSvD/wd2pKD71gN2Ebj3e7klzXwjocvE8c5vx/1fxwpqmSxA==}
     engines: {node: '>=4'}
 
-  dts-buddy@0.5.0:
-    resolution: {integrity: sha512-bKyWCdyt8Yd2bjZX6hKldUFt3SpLPjxw6lQwWHKY1szGxEfRUPWMc76SHtNT+m2aTCI3Zqw3CXhtjw2vKadFnQ==}
+  dts-buddy@0.5.1:
+    resolution: {integrity: sha512-naiM3F8hSlBIrMl+WyU9KQsC+Vd0i9jVBeksQ5IsH9Rfzpqx27TmSCftlsY9UxFxAWxoGcf5EB3p1xi0JxWzPw==}
     hasBin: true
     peerDependencies:
-      typescript: '>=5.0.4 <5.5'
+      typescript: '>=5.0.4 <5.6'
 
   dts-bundle-generator@9.5.1:
     resolution: {integrity: sha512-DxpJOb2FNnEyOzMkG11sxO2dmxPjthoVWxfKqWYJ/bI/rT1rvTMktF5EKjAYrRZu6Z6t3NhOUZ0sZ5ZXevOfbA==}
@@ -2415,6 +2418,8 @@ snapshots:
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
+  '@types/lodash@4.17.5': {}
+
   '@types/lodash@4.17.6': {}
 
   '@types/node@12.20.55': {}
@@ -2726,7 +2731,7 @@ snapshots:
 
   drange@1.1.1: {}
 
-  dts-buddy@0.5.0(typescript@5.5.2):
+  dts-buddy@0.5.1(typescript@5.5.2):
     dependencies:
       '@jridgewell/source-map': 0.3.6
       '@jridgewell/sourcemap-codec': 1.4.15
