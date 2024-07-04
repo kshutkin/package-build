@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.32.0
+
+### Minor Changes
+
+- 0921a94: added json plugin
+
 ## 1.31.2
 
 ### Patch Changes
