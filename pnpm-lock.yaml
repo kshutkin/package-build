@@ -128,7 +128,7 @@ importers:
         version: 0.36.0(rollup@4.18.0)(typescript@5.5.2)
       typia:
         specifier: ^6.0.3
-        version: 6.3.2(typescript@5.5.2)
+        version: 6.4.0(typescript@5.5.2)
 
   pkgbld:
     dependencies:
@@ -654,8 +654,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@samchon/openapi@0.2.2':
-    resolution: {integrity: sha512-BBfBIIYuSNp1FKb7edPL5Lfw2hQ8crV7xwF71PEbO16MDBlKFmc6iuisAlaBaxO8ac5sm/e57Nnm/kfemS9Gew==}
+  '@samchon/openapi@0.3.0':
+    resolution: {integrity: sha512-rl+0XwM0DzSOiL664KB6oC5hgfMaXqxweGRVFdTt+U0bFJTIHLO+C+n9KCZUpMln8eQepXQ9RT8HjFAFe+Z6Hg==}
 
   '@slimlib/list@1.0.10':
     resolution: {integrity: sha512-RY+o8ywbIcatp6jMZ/HSQYcMZ/Ezv/rQzKY6Un0n37KHct00REXXdH14zrXvBb1PF/BT6SHVle9TcJDHTQBfbw==}
@@ -932,8 +932,8 @@ packages:
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
-  comment-json@4.2.3:
-    resolution: {integrity: sha512-SsxdiOf064DWoZLH799Ata6u7iV658A11PlWtZATDlXPpKGJnbJZ5Z24ybixAi+LUUqJ/GKowAejtC5GFUG7Tw==}
+  comment-json@4.2.4:
+    resolution: {integrity: sha512-E5AjpSW+O+N5T2GsOQMHLLsJvrYw6G/AFt9GvU6NguEAfzKShh7hRiLtVo6S9KbRpFMGqE5ojo0/hE+sdteWvQ==}
     engines: {node: '>= 6'}
 
   commondir@1.0.1:
@@ -1913,8 +1913,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@6.3.2:
-    resolution: {integrity: sha512-eIDibf9lXIxi8CqHad0H8760YltZivVfOE5JtokkGAFsH97NEMwehv9Sc7ixvRoR/0qVUeSTowkOWl41jtssVw==}
+  typia@6.4.0:
+    resolution: {integrity: sha512-VJszDm+zGVrA3do9NApwfQYvd2J29vN3H9TpBW4FStVsQazX18GRXx8PmFWAxKb2dJTobUpIm2kQxQKVns6mkA==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <5.6.0'
@@ -2406,7 +2406,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.18.0':
     optional: true
 
-  '@samchon/openapi@0.2.2': {}
+  '@samchon/openapi@0.3.0': {}
 
   '@slimlib/list@1.0.10': {}
 
@@ -2677,7 +2677,7 @@ snapshots:
 
   commander@2.20.3: {}
 
-  comment-json@4.2.3:
+  comment-json@4.2.4:
     dependencies:
       array-timsort: 1.0.3
       core-util-is: 1.0.3
@@ -3651,11 +3651,11 @@ snapshots:
 
   typescript@5.5.2: {}
 
-  typia@6.3.2(typescript@5.5.2):
+  typia@6.4.0(typescript@5.5.2):
     dependencies:
-      '@samchon/openapi': 0.2.2
+      '@samchon/openapi': 0.3.0
       commander: 10.0.1
-      comment-json: 4.2.3
+      comment-json: 4.2.4
       inquirer: 8.2.6
       randexp: 0.5.3
       typescript: 5.5.2
