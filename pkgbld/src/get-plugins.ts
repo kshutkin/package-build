@@ -7,6 +7,7 @@ import resolve from './builtin-plugins/resolve';
 import terser from './builtin-plugins/terser';
 import typescript from './builtin-plugins/typescript';
 import binify from './builtin-plugins/binify';
+import json from './builtin-plugins/json';
 
 export const plugins = [
     clean,
@@ -16,7 +17,8 @@ export const plugins = [
     resolve,
     terser,
     typescript,
-    binify
+    binify,
+    json
 ];
 
 const noop = () => undefined;
