@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.32.1
+
+### Patch Changes
+
+- f56efeb: fix and simplify externals
+
 ## 1.32.0
 
 ### Minor Changes
