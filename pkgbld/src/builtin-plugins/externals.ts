@@ -40,15 +40,8 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
 function includeExternals(importer: string, external: boolean, id: string, config: CliOptions) {
     if (config.includeExternals === false) return external;
     if (!external) return false;
-    if (path.isAbsolute(id)) {
-        id = path.relative(path.join(process.cwd(), '..'), id);
-    }
     const internals = config.includeExternals as string[];
-    if (internals.includes(id) || internals.some(internal => id.startsWith(internal))) {
-        return false;
-    }
-    const relative = path.relative('.', path.resolve(importer ?? '.', id));
-    if (internals.some(internal => relative.includes(`node_modules/${internal}/`))) {
+    if (internals.includes(id) || internals.some(internal => id.includes(internal))) {
         return false;
     }
     return true;

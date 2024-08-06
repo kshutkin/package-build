@@ -259,5 +259,16 @@
             "stdout": "preparing..\n\nflattening dist/bin...\n",
             "stderr": ""
         }
+    ],
+    "pkgsz": [
+        {
+            "id": 28,
+            "name": "single file",
+            "args": "--no-ts-config --formats=es --no-update-package-json --no-clean --compress=es",
+            "input": "package.json\n|{}\n|\nsrc\n  index.js\n|export const test = 0;",
+            "output": "dist\n  index.mjs\n|const o=0;export{o as test};\n|\npackage.json\n|{}\n|\nsrc\n  index.js\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\n✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "stderr": ""
+        }
     ]
 }
