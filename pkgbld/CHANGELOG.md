@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.32.2
+
+### Patch Changes
+
+- 56da37b: remove also line when removing sourcemap comment
+
 ## 1.32.1
 
 ### Patch Changes
