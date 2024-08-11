@@ -237,7 +237,7 @@
             "name": "remove sourcemaps",
             "args": "prune --removeSourcemaps",
             "input": "dist\n  index.js\n|// something\n|\n|console.log('Hello, world!');\n|\n|//# sourceMappingURL=index.js.map\n|\n  index.js.map\n|\npackage.json\n|{\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\",\n|  \"files\": [\n|    \"dist\"\n|  ]\n|}",
-            "output": "dist\n  index.js\n|// something\n|\n|console.log('Hello, world!');\n|\n|\n|\npackage.json\n|{\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\"\n|}\n|",
+            "output": "dist\n  index.js\n|// something\n|\n|console.log('Hello, world!');\n|\n|\npackage.json\n|{\n|  \"name\": \"mylib\",\n|  \"main\": \"./dist/index.js\"\n|}\n|",
             "stdout": "preparing..\n\n",
             "stderr": ""
         },

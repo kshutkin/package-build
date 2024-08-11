@@ -40,7 +40,7 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
             // load file
             const sourceFileContent = await readFile(sourceFile, 'utf8');
             // find sourceMappingURL
-            const sourceMappingUrl = `//# sourceMappingURL=${path.basename(sourceMap)}`;
+            const sourceMappingUrl = `\n//# sourceMappingURL=${path.basename(sourceMap)}`;
             // remove sourceMappingURL
             const newContent = sourceFileContent.replace(sourceMappingUrl, '');
             // write file
