@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.33.0
+
+### Minor Changes
+
+- 03d4dbb: added remove-legal-comments flag
+
 ## 1.32.2
 
 ### Patch Changes
