@@ -142,6 +142,11 @@ export const cliFlags = {
         description: 'Do not bundle',
         default: false
     },
+    removeLegalComments: {
+        type: Boolean,
+        description: 'Remove legal comments',
+        default: false
+    }
 };
 
 export const packageJsonFieldsOrder = new Set([

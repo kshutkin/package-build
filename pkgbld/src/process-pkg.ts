@@ -129,7 +129,7 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
         for (const id in pkg.exports as object) {
             if (id === './package.json') continue;
 
-            const basename = id == '.' ? indexId : path.basename(id);
+            const basename = id == '.' ? indexId : path.join(path.dirname(id), path.basename(id));
 
             if (typeof (pkg.exports as Record<string, JsonValue>)[id] !== 'object') {
                 (pkg.exports as Record<string, JsonValue>)[id] = {};

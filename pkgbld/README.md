@@ -227,7 +227,7 @@ If files cannot be copied because of name conflicts the command will fail.
 ### removeSourcemaps
 
 ```
-pkgbld prune --removeSourcemaps
+pkgbld prune --remove-sourcemaps
 ```
 
 Removes all sourcemaps from the package. The logic is very simple and removes all files with `.map` extension and references in format `//# sourceMappingURL=<mapFile>`.
@@ -235,12 +235,20 @@ Removes all sourcemaps from the package. The logic is very simple and removes al
 ### optimizeFiles (default)
 
 ```
-pkgbld prune --optimizeFiles=false
+pkgbld prune --optimize-files=false
 ```
 
 Optimizes files by removing all files that are not required for pack at the given moment.
 
 You might want to disable this option in some edge cases.
+
+### removeLegalComments
+
+```
+pkgbld prune --remove-legal-comments --compress=es,cjs
+```
+
+Removes all legal comments from the package. Only works with compress.
 
 ## Plugin API
 

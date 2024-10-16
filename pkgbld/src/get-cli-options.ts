@@ -81,7 +81,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             noPack: flags.noPack,
             noExports: flags.noExports,
             noClean: flags.noClean,
-            noBundle: flags.noBundle
+            noBundle: flags.noBundle,
+            removeLegalComments: flags.removeLegalComments
         };
 
         for (const plugin of plugins) {
@@ -110,7 +111,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             noPack: boolean,
             noExports: boolean,
             noClean: boolean,
-            noBundle: boolean
+            noBundle: boolean,
+            removeLegalComments: boolean
         };
     }
 }

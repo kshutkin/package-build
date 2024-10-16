@@ -112,6 +112,9 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
                 entryFileNames: fileNamePatterns[format],
                 plugins: getPlugins([format], inputs, true),
                 sourcemap: config.sourcemapFormats.includes(format),
+                // this requires more work
+                // preserveModules: true,
+                // preserveModulesRoot: config.sourceDir,
                 ...getExtraOutputSettings(format, inputs)
             })),
     

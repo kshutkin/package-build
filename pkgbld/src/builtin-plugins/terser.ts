@@ -14,7 +14,13 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
                     regex: /_$/
                 }
             }
-        };        
+        };
+        
+        if (config.removeLegalComments) {
+            (options as unknown as { output: { comments: boolean } }).output = {
+                comments: false,
+            };
+        }
 
         if (filteredFormats.length > 0) {
             for (const format of filteredFormats as InternalModuleFormat[]) {
