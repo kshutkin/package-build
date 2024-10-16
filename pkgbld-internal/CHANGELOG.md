@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.0
+
+### Minor Changes
+
+- 03d4dbb: added remove-legal-comments flag
+
 ## 1.5.2
 
 ### Patch Changes
