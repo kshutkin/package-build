@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1
+
+### Patch Changes
+
+- 737885b: ignore node_modules when doing prune with `--remove-sourcemaps`
+
 ## 1.6.0
 
 ### Minor Changes
