@@ -33,7 +33,7 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
     }
 
     if (options.removeSourcemaps) {
-        const sourceMaps = await walkDir('.').then(files => files.filter(file => file.endsWith('.map')));
+        const sourceMaps = await walkDir('.', ['node_modules']).then(files => files.filter(file => file.endsWith('.map')));
         for (const sourceMap of sourceMaps) {
             // find corresponding file
             const sourceFile = sourceMap.slice(0, -4);
@@ -339,12 +339,12 @@ async function isDirectory(file: string) {
     return fileStat.isDirectory();
 }
 
-async function walkDir(dir: string) {
+async function walkDir(dir: string, ignoreDirs: string[] = []) {
     const entries = await readdir(dir, { withFileTypes: true });
     const files = [] as string[];
     await Promise.all(entries.map(entry => {
         const childPath = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
+        if (entry.isDirectory() && !ignoreDirs.includes(entry.name)) {
             return walkDir(childPath)
                 .then(childFiles => {
                     files.push(...childFiles);
