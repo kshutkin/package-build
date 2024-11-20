@@ -29,7 +29,7 @@ const args = parseArgs({ options: {
         type: 'string',
         short: 'r'
     }
-}, args: process.argv.slice(2)}).values;
+}}).values;
 
 const allTestCases = Object.entries(tests).flatMap(entry => entry[1]);
 
