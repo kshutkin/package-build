@@ -217,8 +217,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
         }
         const files = await readdir(flatten);
         if (files.length === 1) {
-            const file = files[0];
-            pkg.bin = file;
+            pkg.bin = files[0];
         } else {
             pkg.bin = {};
             for (const file of files) {
@@ -251,7 +250,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     await Promise.all(renamePromises);
     
     let cleanedDir = relativeDistDir;
-    while (isEmptyDir(cleanedDir)) {
+    while (await isEmptyDir(cleanedDir)) {
         await rm(cleanedDir, { recursive: true, force: true });
         const parentDir = path.dirname(cleanedDir);
         if (parentDir === '.') {
