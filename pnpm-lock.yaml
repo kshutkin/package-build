@@ -128,7 +128,7 @@ importers:
         version: 0.36.0(rollup@4.22.4)(typescript@5.5.3)
       typia:
         specifier: ^6.0.3
-        version: 6.4.0(typescript@5.5.3)
+        version: 6.4.1(typescript@5.5.3)
 
   pkgbld:
     dependencies:
@@ -654,8 +654,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@samchon/openapi@0.3.0':
-    resolution: {integrity: sha512-rl+0XwM0DzSOiL664KB6oC5hgfMaXqxweGRVFdTt+U0bFJTIHLO+C+n9KCZUpMln8eQepXQ9RT8HjFAFe+Z6Hg==}
+  '@samchon/openapi@0.3.1':
+    resolution: {integrity: sha512-vnKcQmteAGhB7goVpG++06Ut8ecwUpLN+QOmpaAoE4ByL8AqQ/rgCVWvPJw9syN+DlaDMuzmmOvJct0XicoENA==}
 
   '@slimlib/list@1.0.10':
     resolution: {integrity: sha512-RY+o8ywbIcatp6jMZ/HSQYcMZ/Ezv/rQzKY6Un0n37KHct00REXXdH14zrXvBb1PF/BT6SHVle9TcJDHTQBfbw==}
@@ -1914,8 +1914,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@6.4.0:
-    resolution: {integrity: sha512-VJszDm+zGVrA3do9NApwfQYvd2J29vN3H9TpBW4FStVsQazX18GRXx8PmFWAxKb2dJTobUpIm2kQxQKVns6mkA==}
+  typia@6.4.1:
+    resolution: {integrity: sha512-1cDcPQ5AayEkKKHFa2sPczljB80v1e10zj+DVCGn9uxcAcUwxEEXm34emBJMT5q4dhwUGwzfk0GoxK2/OeNi6w==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <5.6.0'
@@ -2407,7 +2407,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.22.4':
     optional: true
 
-  '@samchon/openapi@0.3.0': {}
+  '@samchon/openapi@0.3.1': {}
 
   '@slimlib/list@1.0.10': {}
 
@@ -3652,9 +3652,9 @@ snapshots:
 
   typescript@5.5.3: {}
 
-  typia@6.4.0(typescript@5.5.3):
+  typia@6.4.1(typescript@5.5.3):
     dependencies:
-      '@samchon/openapi': 0.3.0
+      '@samchon/openapi': 0.3.1
       commander: 10.0.1
       comment-json: 4.2.4
       inquirer: 8.2.6
