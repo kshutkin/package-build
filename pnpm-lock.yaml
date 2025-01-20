@@ -216,7 +216,7 @@ importers:
         version: link:../options
       type-fest:
         specifier: ^4.20.1
-        version: 4.21.0
+        version: 4.33.0
 
   pkgbld-internal:
     dependencies:
@@ -302,7 +302,7 @@ importers:
         version: 4.22.4
       type-fest:
         specifier: ^4.20.1
-        version: 4.21.0
+        version: 4.33.0
 
   xc6:
     devDependencies:
@@ -1902,8 +1902,8 @@ packages:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
     engines: {node: '>=10'}
 
-  type-fest@4.21.0:
-    resolution: {integrity: sha512-ADn2w7hVPcK6w1I0uWnM//y1rLXZhzB9mr0a3OirzclKF1Wp6VzevUmzz/NRAWunOT6E8HrnpGY7xOfc6K57fA==}
+  type-fest@4.33.0:
+    resolution: {integrity: sha512-s6zVrxuyKbbAsSAD5ZPTB77q4YIdRctkTbJ2/Dqlinwz+8ooH2gd+YA7VA6Pa93KML9GockVvoxjZ2vHP+mu8g==}
     engines: {node: '>=16'}
 
   type-flag@3.0.0:
@@ -3646,7 +3646,7 @@ snapshots:
 
   type-fest@0.21.3: {}
 
-  type-fest@4.21.0: {}
+  type-fest@4.33.0: {}
 
   type-flag@3.0.0: {}
 
