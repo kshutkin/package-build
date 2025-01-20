@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.33.2
+
+### Patch Changes
+
+- 158a9e7: fix(deps): update dependency rollup to v4.22.4 [security]
+
 ## 1.33.1
 
 ### Patch Changes
