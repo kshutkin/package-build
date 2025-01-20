@@ -115,7 +115,7 @@ export async function filesToString(baseDir, ignore = []) {
  * @returns {Promise<string[]>}
  */
 async function filesToStringArray(baseDir, indentation = 0, ignore = []) {
-    const files = (await fs.readdir(baseDir, { withFileTypes: true })).filter(file => !ignore.includes(file.name));
+    const files = (await fs.readdir(baseDir, { withFileTypes: true })).filter(file => !ignore.includes(file.name)).sort((a, b) => a.name.localeCompare(b.name));
     // sort files and directories
     files.sort((a, b) => a.name.localeCompare(b.name));
     /**
