@@ -70,8 +70,8 @@ importers:
         version: 0.3.2
     devDependencies:
       '@total-typescript/ts-reset':
-        specifier: 0.5.1
-        version: 0.5.1
+        specifier: 0.6.1
+        version: 0.6.1
       '@types/git-user-name':
         specifier: 2.0.3
         version: 2.0.3
@@ -118,8 +118,8 @@ importers:
         specifier: ^16.0.0
         version: 16.0.0(rollup@4.22.4)
       '@total-typescript/ts-reset':
-        specifier: ^0.5.1
-        version: 0.5.1
+        specifier: ^0.6.0
+        version: 0.6.1
       rollup:
         specifier: ^4.12.0
         version: 4.22.4
@@ -197,8 +197,8 @@ importers:
         version: 5.5.3
     devDependencies:
       '@total-typescript/ts-reset':
-        specifier: ^0.5.1
-        version: 0.5.1
+        specifier: ^0.6.0
+        version: 0.6.1
       '@types/lodash':
         specifier: ^4.14.202
         version: 4.17.7
@@ -669,8 +669,8 @@ packages:
     resolution: {integrity: sha512-ApGREOKWPUvSOLeLn/PvZnP0LdQl80P7j5VcMYsLUsKbwNqAaEcrqq8gQluiNSV7BF2ophJWbutp+6W75yfAtg==}
     engines: {node: '>=15'}
 
-  '@total-typescript/ts-reset@0.5.1':
-    resolution: {integrity: sha512-AqlrT8YA1o7Ff5wPfMOL0pvL+1X+sw60NN6CcOCqs658emD6RfiXhF7Gu9QcfKBH7ELY2nInLhKSCWVoNL70MQ==}
+  '@total-typescript/ts-reset@0.6.1':
+    resolution: {integrity: sha512-cka47fVSo6lfQDIATYqb/vO1nvFfbPw7uWLayIXIhGETj0wcOOlrlkobOMDNQOFr9QOafegUPq13V2+6vtD7yg==}
 
   '@types/estree@1.0.5':
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
@@ -2429,7 +2429,7 @@ snapshots:
 
   '@slimlib/smart-mock@0.1.6': {}
 
-  '@total-typescript/ts-reset@0.5.1': {}
+  '@total-typescript/ts-reset@0.6.1': {}
 
   '@types/estree@1.0.5': {}
 
