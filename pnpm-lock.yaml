@@ -173,7 +173,7 @@ importers:
         version: 3.2.1
       jsonata:
         specifier: ^2.0.4
-        version: 2.0.5
+        version: 2.0.6
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -240,7 +240,7 @@ importers:
         version: 3.2.1
       jsonata:
         specifier: ^2.0.4
-        version: 2.0.5
+        version: 2.0.6
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -1393,8 +1393,8 @@ packages:
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
-  jsonata@2.0.5:
-    resolution: {integrity: sha512-wEse9+QLIIU5IaCgtJCPsFi/H4F3qcikWzF4bAELZiRz08ohfx3Q6CjDRf4ZPF5P/92RI3KIHtb7u3jqPaHXdQ==}
+  jsonata@2.0.6:
+    resolution: {integrity: sha512-WhQB5tXQ32qjkx2GYHFw2XbL90u+LLzjofAYwi+86g6SyZeXHz9F1Q0amy3dWRYczshOC3Haok9J4pOCgHtwyQ==}
     engines: {node: '>= 8'}
 
   jsonfile@4.0.0:
@@ -3176,7 +3176,7 @@ snapshots:
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
-  jsonata@2.0.5: {}
+  jsonata@2.0.6: {}
 
   jsonfile@4.0.0:
     optionalDependencies:
