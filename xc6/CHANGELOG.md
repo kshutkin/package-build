@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.5
+
+### Patch Changes
+
+- f48d8a8: fix linting errors
+
 ## 0.0.4
 
 ### Patch Changes

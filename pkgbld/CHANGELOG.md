@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.34.0
+
+### Minor Changes
+
+- bde5817: updated dependencies
+
+### Patch Changes
+
+- 158a9e7: fix(deps): update dependency rollup to v4.22.4 [security]
+- f03de7d: fix: isEmptyDir should be awaited
+
 ## 1.33.1
 
 ### Patch Changes
