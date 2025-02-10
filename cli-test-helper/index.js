@@ -23,7 +23,7 @@ export async function stringToFiles(data, baseDir) {
         }
         if (line.startsWith('|')) {
             const contentLine = line.slice(1);
-            content = content != null ? content + '\n' + contentLine : contentLine;
+            content = content != null ? `${content}\n${contentLine}` : contentLine;
             continue;
         }
         let newString = line;
@@ -115,20 +115,20 @@ export async function filesToString(baseDir, ignore = []) {
  * @returns {Promise<string[]>}
  */
 async function filesToStringArray(baseDir, indentation = 0, ignore = []) {
-    const files = (await fs.readdir(baseDir, { withFileTypes: true })).filter(file => !ignore.includes(file.name)).sort((a, b) => a.name.localeCompare(b.name));
+    const files = (await fs.readdir(baseDir, { withFileTypes: true })).filter(file => !ignore.includes(file.name));
     // sort files and directories
     files.sort((a, b) => a.name.localeCompare(b.name));
     /**
      * @type {string[]}
      */
-    let result = [];
+    const result = [];
     for (const file of files) {
         result.push(indentationString(indentation) + file.name);
         if (file.isDirectory() || file.isSymbolicLink()) {            
             result.push(...await filesToStringArray(path.join(baseDir, file.name), indentation + 1, ignore));
         } else {
             const content = await fs.readFile(path.join(baseDir, file.name), 'utf8');
-            result.push(...content.split('\n').map(line => '|' + line));
+            result.push(...content.split('\n').map(line => `|${line}`));
         }
     }
     return result;
