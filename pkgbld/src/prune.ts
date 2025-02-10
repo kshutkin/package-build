@@ -1,7 +1,7 @@
-import { Logger } from '@niceties/logger';
-import { JsonObject, JsonValue, PackageJson } from 'type-fest';
-import { mkdir, readdir, rename, rm, stat, readFile, writeFile } from 'fs/promises';
-import path from 'path';
+import type { Logger } from '@niceties/logger';
+import type { JsonObject, JsonValue, PackageJson } from 'type-fest';
+import { mkdir, readdir, rename, rm, stat, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { isExists } from './helpers';
 
 export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profile: string, flatten: string | boolean, removeSourcemaps: boolean, optimizeFiles: boolean }, logger: Logger) {
@@ -13,8 +13,8 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
         throw new Error(`unknown profile ${options.profile}`);
     }
 
-    delete pkg.devDependencies;
-    delete (pkg as Record<string, string>)['packageManager'];
+    pkg.devDependencies = undefined;
+    (pkg as Record<string, string | undefined>).packageManager = undefined;
 
     if (pkg.scripts) {
         for (const key of Object.keys(pkg.scripts as Record<string, string>)) {
@@ -24,7 +24,7 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
         }
 
         if (Object.keys(pkg.scripts as Record<string, string>).length === 0) {
-            delete pkg.scripts;
+            pkg.scripts = undefined;
         }
     }
 
@@ -61,7 +61,7 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
                 filterFiles.push(normalizePath(pkg.bin));
             }
             if (typeof pkg.bin === 'object' && pkg.bin !== null) {
-                filterFiles.push(...Object.values(pkg.bin).map(normalizePath));
+                filterFiles.push(...Object.values(pkg.bin).map(normalizePath as (value: string | undefined) => string));
             }
         }
 
@@ -134,7 +134,7 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
         pkg.files = pkg.files.filter(dir => !ignoreDirs.includes(dir));
 
         if (pkg.files.length === 0) {
-            delete pkg.files;
+            pkg.files = undefined;
         }
     }    
 }
@@ -188,7 +188,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     
     // check if dist can be flattened
     
-    const relativeDistDir = './' + distDir;
+    const relativeDistDir = `./${distDir}`;
     
     const existsPromises = [] as Promise<string | false>[];
     
@@ -213,7 +213,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
         && typeof pkg.directories.bin === 'string' && normalizePath(pkg.directories.bin) === normalizePath(flatten)) {
         delete pkg.directories.bin;
         if (Object.keys(pkg.directories).length === 0) {
-            delete pkg.directories;
+            pkg.directories = undefined;
         }
         const files = await readdir(flatten);
         if (files.length === 1) {
@@ -227,7 +227,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     }
 
     // create new directory structure
-    const mkdirPromises = [] as Promise<void | string>[];
+    const mkdirPromises = [] as Promise<undefined | string>[];
     for (const file of filesInDist) {
         // check file is not in root dir
         const relativePath = path.relative(relativeDistDir, file);
@@ -264,7 +264,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     const allReferencesSet = new Set(allReferences);
     
     // update package.json
-    const stringToReplace = distDir + '/'; // we append / to remove in from the middle of the string
+    const stringToReplace = `${distDir}/`; // we append / to remove in from the middle of the string
     const pkgClone = cloneAndUpdate(pkg, value => allReferencesSet.has(value) ? value.replace(stringToReplace, '') : value);
     Object.assign(pkg, pkgClone);
     
@@ -298,8 +298,8 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     }
 }
 
-function normalizePath(file?: string) {
-    let fileNormalized = path.normalize(file!);
+function normalizePath(file: string) {
+    let fileNormalized = path.normalize(file);
     if (fileNormalized.endsWith('/') || fileNormalized.endsWith('\\')) {
         // remove trailing slash
         fileNormalized = fileNormalized.slice(0, -1);
@@ -329,8 +329,8 @@ function isSubDirectory(parent: string, child: string) {
 }
 
 async function isEmptyDir(dir: string) {
-    const entries = await readdir(dir);
-    return entries.length === 0;
+    const entries = await readdir(dir, { withFileTypes: true });
+    return entries.filter(entry => !entry.isDirectory()).length === 0;
 }
 
 async function isDirectory(file: string) {
@@ -348,9 +348,8 @@ async function walkDir(dir: string, ignoreDirs: string[] = []) {
                 .then(childFiles => {
                     files.push(...childFiles);
                 });
-        } else {
-            files.push(childPath);
         }
+        files.push(childPath);
     }).filter(Boolean));
     return files;
 }

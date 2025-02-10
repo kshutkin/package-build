@@ -1,11 +1,11 @@
 import type { CliOptions, PkgbldRollupPlugin, Provider } from './types';
 import type { RollupOptions } from 'rollup';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import camelCase from 'lodash/camelCase.js';
-import { getHelpers } from './helpers';
+import type { getHelpers } from './helpers';
 import pkgbldPkg from '../package.json';
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 
 const imports = new Map<string, string | string[]>;
 const setup = new Set<string>;
@@ -105,9 +105,9 @@ async function updatePackageJson(pkg: PackageJson) {
     }
     const devDependencies = pkg.devDependencies;
     if ('pkgbld' in devDependencies) {
-        delete devDependencies.pkgbld;
+        devDependencies.pkgbld = undefined;
     }
-    devDependencies['rollup'] = (pkgbldPkg.dependencies as Record<string, string>)['rollup'] ?? '*';
+    devDependencies.rollup = (pkgbldPkg.dependencies as Record<string, string>).rollup ?? '*';
     const isBuiltin = (await import('is-builtin-module')).default;
     for (const key of imports.keys()) {
         const packageName = getPackageName(key);

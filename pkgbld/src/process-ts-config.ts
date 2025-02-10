@@ -1,11 +1,11 @@
-import path from 'path';
-import { Logger } from '@niceties/logger';
+import path from 'node:path';
+import type { Logger } from '@niceties/logger';
 import { writeJson } from './write-json';
-import { CliOptions, PkgbldPlugin } from './types';
+import type { CliOptions, PkgbldPlugin } from './types';
 import { getJson } from './get-json';
 import cloneDeep from 'lodash/cloneDeep.js';
 import isEqual from 'lodash/isEqual.js';
-import { JsonObject } from 'type-fest';
+import type { JsonObject } from 'type-fest';
 
 const defaultTsConfig = {
     include: ['src', 'types'],
@@ -35,7 +35,7 @@ export async function checkTsConfig(options: CliOptions, mainLogger: Logger, plu
     try {
         [, config] = await getJson('jsconfig.json');
         if (config && typeof config === 'object' && !Array.isArray(config)) {
-            config['allowJs'] = true;
+            config.allowJs = true;
         }
     } catch(_) {/*ignore*/}
     if (!config) {

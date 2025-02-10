@@ -1,6 +1,6 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { CliOptions } from './types';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import type { CliOptions } from './types';
 
 export async function createSubpackages(inputs: string[], config: CliOptions) {
     for (const input of inputs) {

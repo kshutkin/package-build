@@ -1,7 +1,7 @@
-import path from 'path';
+import path from 'node:path';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { CliOptions, PkgbldPlugin } from './types';
-import { PackageJson, JsonObject, JsonValue } from 'type-fest';
+import type { CliOptions, PkgbldPlugin } from './types';
+import type { PackageJson, JsonObject, JsonValue } from 'type-fest';
 import { isExists } from './helpers';
 
 const emptySet = new Set as Set<string>;
@@ -67,7 +67,7 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
     ]);
 
     if (typeof pkg.typings === 'string') {
-        delete pkg.typings;
+        (pkg as Record<string, unknown>).typings = undefined;
     }
 
     if (isDeclarations) {
@@ -129,7 +129,7 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
         for (const id in pkg.exports as object) {
             if (id === './package.json') continue;
 
-            const basename = id == '.' ? indexId : path.join(path.dirname(id), path.basename(id));
+            const basename = id === '.' ? indexId : path.join(path.dirname(id), path.basename(id));
 
             if (typeof (pkg.exports as Record<string, JsonValue>)[id] !== 'object') {
                 (pkg.exports as Record<string, JsonValue>)[id] = {};
@@ -191,7 +191,7 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
             }
             config.bin = config.bin.filter(Boolean);
             if (config.bin.length === 0) {
-                delete config.bin;
+                config.bin = undefined;
             }
         }
     } else if (allowCjs && inputs.length > 0) {

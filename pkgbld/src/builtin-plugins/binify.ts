@@ -1,5 +1,5 @@
-import { OutputChunk } from 'rollup';
-import { CliOptions, Provider } from '../types';
+import type { OutputChunk } from 'rollup';
+import type { CliOptions, Provider } from '../types';
 import { Priority } from '../priorities';
 
 export default async function(provider: Provider, config: CliOptions) {

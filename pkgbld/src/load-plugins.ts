@@ -1,5 +1,5 @@
-import { PackageJson } from 'type-fest';
-import { PkgbldPluginFactory } from './types';
+import type { PackageJson } from 'type-fest';
+import type { PkgbldPluginFactory } from './types';
 
 export async function loadPlugins(pkg: PackageJson) {
     try {

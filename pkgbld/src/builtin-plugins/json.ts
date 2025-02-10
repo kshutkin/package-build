@@ -1,5 +1,5 @@
 import { Priority } from '../priorities';
-import { Provider } from '../types';
+import type { Provider } from '../types';
 
 export default async function(provider: Provider) {
     const pluginJson = await provider.import('@rollup/plugin-json');

@@ -1,11 +1,11 @@
-import path from 'path';
+import path from 'node:path';
 import camelCase from 'lodash/camelCase.js';
-import { OutputOptions } from 'rollup';
+import type { OutputOptions } from 'rollup';
 import kleur from 'kleur';
-import { processPackageJson, PackageJson as PackageJsonO } from 'options';
-import { access } from 'fs/promises';
-import { fileURLToPath } from 'url';
-import { PackageJson } from 'type-fest';
+import { processPackageJson, type PackageJson as PackageJsonO } from 'options';
+import { access } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import type { PackageJson } from 'type-fest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

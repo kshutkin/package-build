@@ -1,6 +1,6 @@
 import type { Plugin, InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getCliOptions } from './get-cli-options';
-import { JsonObject, PackageJson } from 'type-fest';
+import type { JsonObject, PackageJson } from 'type-fest';
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
 

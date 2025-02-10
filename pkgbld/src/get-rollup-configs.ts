@@ -1,7 +1,7 @@
 import { plugins as pluginFactories } from './get-plugins';
 import refiner from '@slimlib/refine-partition';
 import { areSetsEqual, toArray } from './helpers';
-import { InternalModuleFormat, OutputOptions } from 'rollup';
+import type { InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getHelpers } from './helpers';
 import type { CliOptions, PkgbldPlugin, PkgbldRollupPlugin, Provider } from './types';
 

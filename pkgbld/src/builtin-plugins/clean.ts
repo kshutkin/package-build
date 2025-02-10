@@ -1,5 +1,5 @@
 import { Priority } from '../priorities';
-import { CliOptions, Provider } from '../types';
+import type { CliOptions, Provider } from '../types';
 
 export default async function(provider: Provider, config: CliOptions) {
     if (config.noClean) {

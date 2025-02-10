@@ -2,7 +2,7 @@
 /// <reference path="./rollup-plugin-preprocess.d.ts" />
 import '@niceties/draftlog-appender';
 import { createLogger, LogLevel } from '@niceties/logger';
-import { rollup, RollupOptions } from 'rollup';
+import { rollup, type RollupOptions } from 'rollup';
 import { createSubpackages } from './create-subpackages';
 import { getCliOptions } from './get-cli-options';
 import { getJson } from './get-json';
@@ -15,10 +15,10 @@ import kleur from 'kleur';
 import { createProvider } from './get-plugins';
 import { createEjectProvider, ejectConfig } from './eject';
 import { checkTsConfig } from './process-ts-config';
-import { PkgbldPlugin } from './types';
+import type { PkgbldPlugin } from './types';
 import { loadPlugins } from './load-plugins';
 import { prunePkg } from './prune';
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 
 execute();
 

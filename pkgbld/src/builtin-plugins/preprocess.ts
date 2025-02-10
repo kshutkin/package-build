@@ -1,5 +1,5 @@
-import { InternalModuleFormat } from 'rollup';
-import { CliOptions, Provider } from '../types';
+import type { InternalModuleFormat } from 'rollup';
+import type { CliOptions, Provider } from '../types';
 import { Priority } from '../priorities';
 
 export default async function(provider: Provider, config: CliOptions, inputs: string[], inputsExt: Map<string, string>) {

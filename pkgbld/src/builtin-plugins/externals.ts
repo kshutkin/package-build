@@ -1,6 +1,6 @@
-import { InternalModuleFormat } from 'rollup';
-import path from 'path';
-import { CliOptions, Provider } from '../types';
+import type { InternalModuleFormat } from 'rollup';
+import path from 'node:path';
+import type { CliOptions, Provider } from '../types';
 import { Priority } from '../priorities';
 
 export default async function(provider: Provider, config: CliOptions, inputs: string[], inputsExt: Map<string, string>) {
@@ -48,14 +48,9 @@ function includeExternals(importer: string, external: boolean, id: string, confi
 }
 
 function isExternalInput(currentInput: string, inputs: string | string[], inputsExt: Map<string, string>, id: string, config: CliOptions) {
-    let normalizedPath;
-    if (path.isAbsolute(currentInput)) {
-        normalizedPath = './' + path.relative(process.cwd(), `${currentInput}.${inputsExt.get(currentInput)}`);
-    } else {
-        normalizedPath = './' + path.join(config.sourceDir, `${currentInput}.${inputsExt.get(currentInput)}`);
-    }
-    if (path.isAbsolute(id)) {
-        id = './' + path.relative(process.cwd(), id);
-    }
-    return normalizedPath !== id && inputs.includes(normalizedPath);
+    const normalizedPath = path.isAbsolute(currentInput)
+        ? `./${path.relative(process.cwd(), `${currentInput}.${inputsExt.get(currentInput)}`)}`
+        : `./${path.join(config.sourceDir, `${currentInput}.${inputsExt.get(currentInput)}`)}`;
+    const normalizedId = path.isAbsolute(id) ? `./${path.relative(process.cwd(), id)}` : id;
+    return normalizedPath !== normalizedId && inputs.includes(normalizedPath);
 }
