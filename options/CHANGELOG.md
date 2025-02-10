@@ -1,5 +1,11 @@
 # options
 
+## 0.3.0
+
+### Minor Changes
+
+- bde5817: updated dependencies
+
 ## 0.2.3
 
 ### Patch Changes

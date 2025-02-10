@@ -1,5 +1,5 @@
 {
-  "version": "0.0.4",
+  "version": "0.0.5",
   "name": "xc6",
   "description": "eXecute c(ommand) (xc6) is a command line tool to execute commands in a package.json script or a shell script.",
   "license": "MIT",

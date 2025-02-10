@@ -1,5 +1,11 @@
 # cli-test-helper
 
+## 0.1.2
+
+### Patch Changes
+
+- 4c8d9c2: fix linting errors
+
 ## 0.1.1
 
 ### Patch Changes

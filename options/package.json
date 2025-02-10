@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "0.2.3",
+  "version": "0.3.0",
   "name": "options",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.0
+
+### Minor Changes
+
+- bde5817: updated dependencies
+
+### Patch Changes
+
+- f48d8a8: fix linting errors
+
 ## 1.6.1
 
 ### Patch Changes
