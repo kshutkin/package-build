@@ -4,7 +4,7 @@ import preprocess from 'rollup-plugin-preprocess';
 import clean from '@rollup-extras/plugin-clean';
 import externals from '@rollup-extras/plugin-externals';
 import replace from '@rollup/plugin-replace';
-import path from 'path';
+import path from 'node:path';
 import kleur from 'kleur';
 
 const input = 'src/index.js';

@@ -1,11 +1,11 @@
 import { filesToString, stringToFiles } from 'cli-test-helper';
-import os from 'os';
-import path from 'path';
-import fs from 'fs/promises';
-import assert from 'assert';
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import assert from 'node:assert';
 import test, { afterEach, beforeEach, describe } from 'node:test';
-import cd from 'child_process';
-import util from 'util';
+import cd from 'node:child_process';
+import util from 'node:util';
 
 const exec = util.promisify(cd.exec);
 

@@ -1,5 +1,5 @@
 import type { CliOptions, Json, PackageJson, ParsedOptions } from 'pkgbld';
-import path from 'path';
+import path from 'node:path';
 import { createBundle } from 'dts-buddy';
 
 export function create() {
@@ -29,7 +29,7 @@ export function create() {
             if (jsExtensions.includes(extension.slice(1))) {
                 config.modules[getOutputName(input)] = input;
             } else {
-                config.modules[getOutputName(input)] = path.join(dir, path.basename(input, extension) + '.d.ts');
+                config.modules[getOutputName(input)] = path.join(dir, `${path.basename(input, extension)}.d.ts`);
             }
         }
         return config;
@@ -58,7 +58,7 @@ export function create() {
         if (path.basename(input, path.extname(input)) === 'index') {
             return pkgName;
         }
-        return pkgName + '/' + path.basename(input, path.extname(input));
+        return `${pkgName}/${path.basename(input, path.extname(input))}`;
     }
 }
 
