@@ -38,8 +38,7 @@ jobs:
         with:
             fetch-depth: 0
       - run: npm install -g corepack@latest
-      - run: corepack enable
-      - run: corepack prepare pnpm@10.2.1 --activate
+      - run: corepack enable pnpm
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -67,8 +66,7 @@ jobs:
         with:
           fetch-depth: 0
       - run: npm install -g corepack@latest
-      - run: corepack enable
-      - run: corepack prepare pnpm@10.2.1 --activate
+      - run: corepack enable pnpm
       - uses: actions/setup-node@v4
         with:
           node-version: '20.x'
