@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.2
+
+### Patch Changes
+
+- 23056c6: update packages, fix lint errors
+
 ## 1.8.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # pkgbld-plugin-dts-buddy
 
+## 0.1.2
+
+### Patch Changes
+
+- 23056c6: update packages, fix lint errors
+
 ## 0.1.1
 
 ### Patch Changes
