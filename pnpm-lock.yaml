@@ -291,8 +291,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.2(rollup@4.34.7)
       '@rollup/plugin-replace':
-        specifier: ^5.0.5
-        version: 5.0.7(rollup@4.34.7)
+        specifier: ^6.0.0
+        version: 6.0.2(rollup@4.34.7)
       '@slimlib/refine-partition':
         specifier: ^1.0.2
         version: 1.0.3
@@ -583,8 +583,8 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/plugin-replace@5.0.7':
-    resolution: {integrity: sha512-PqxSfuorkHz/SPpyngLyg5GCEkOcee9M1bkxiVDr41Pd61mqP1PLOoDPbpl44SB2mQGKwV/In74gqQmGITOhEQ==}
+  '@rollup/plugin-replace@6.0.2':
+    resolution: {integrity: sha512-7QaYCf8bqF04dOy7w/eHmJeNExxTYwvKAmlSAH/EaWWUzbT0h5sbF6bktFoX/0F/0qwng5/dWFMyf3gzaM8DsQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
@@ -2321,7 +2321,7 @@ snapshots:
     optionalDependencies:
       rollup: 4.34.7
 
-  '@rollup/plugin-replace@5.0.7(rollup@4.34.7)':
+  '@rollup/plugin-replace@6.0.2(rollup@4.34.7)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.34.7)
       magic-string: 0.30.10
