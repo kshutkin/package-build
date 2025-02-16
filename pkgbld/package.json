@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.15",
-    "@total-typescript/ts-reset": "^0.5.1",
+    "@total-typescript/ts-reset": "^0.6.0",
     "type-fest": "^4.20.1",
     "dts-bundle-generator": "^9.5.1",
     "options": "workspace:*",
