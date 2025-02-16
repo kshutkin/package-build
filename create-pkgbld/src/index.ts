@@ -1,16 +1,16 @@
-import prompts, { PromptObject } from 'prompts';
-import path from 'path';
-import fs from 'fs/promises';
+import prompts, { type PromptObject } from 'prompts';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import userName from 'git-user-name';
 import gitConfig from 'parse-git-config';
 import { cli } from 'cleye';
 import kleur from 'kleur';
-import { Option, PkgInfo, OptionsValue } from './types';
+import type { Option, PkgInfo, OptionsValue } from './types';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
 import getGitRoot from './get-git-root';
-import { cliFlags, processPackageJson, isPackageJson, toFormattedJson, PackageJson, cliFlagsDefaults } from 'options';
+import { cliFlags, processPackageJson, isPackageJson, toFormattedJson, type PackageJson, cliFlagsDefaults } from 'options';
 import isEqual from 'lodash/isEqual.js';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,15 +37,15 @@ async function execute() {
         }
     });
 
-    !args.flags.quiet && args.showVersion();
+    if (!args.flags.quiet) args.showVersion();
 
     const targetDir = path.join(process.cwd(), args._.packageName ?? '.');
 
-    !args.flags.quiet && console.log(kleur.grey(pad16plus('Target Directory', 0)) + kleur.white(targetDir));
+    if (!args.flags.quiet) console.log(kleur.grey(pad16plus('Target Directory', 0)) + kleur.white(targetDir));
 
     const pkg = await readPackage(targetDir);
 
-    !args.flags.quiet && console.log(kleur.grey(pad16plus('Mode', 0)) + kleur.white(pkg.mode));
+    if (!args.flags.quiet) console.log(kleur.grey(pad16plus('Mode', 0)) + kleur.white(pkg.mode));
     
     const packageName = path.basename(targetDir);
 
@@ -88,7 +88,7 @@ async function execute() {
                     type: 'select',
                     name: 'value',
                     message: option.title,
-                    choices: option.items.map(mapOption(option.mutateInnerObject ? state[option.field]! as Record<string, string> : state))
+                    choices: option.items.map(mapOption(option.mutateInnerObject ? state[option.field] as Record<string, string> : state))
                 }], { onCancel });
 
                 if (cancelled) {
@@ -145,8 +145,8 @@ function getScriptValue(pkgbld: OptionsValue) {
     const binary = pkgbld.pkgbldBinary as string;
     const extraArgs = pkgbld.extraParameters as string;
     const pkgBldCopy = { ...pkgbld };
-    delete pkgBldCopy['pkgbldBinary'];
-    delete pkgBldCopy['extraParameters'];
+    pkgBldCopy.pkgbldBinary = undefined;
+    pkgBldCopy.extraParameters = undefined;
     return `${binary} ${asCommandLineArgs(pkgBldCopy as Record<string, undefined | null | string | number | boolean>, cliFlagsDefaults)} ${extraArgs}`.trimEnd();
 }
 
@@ -178,7 +178,7 @@ function getPromptOption(option: Option, mutateObject: OptionsValue) {
 
 function mapOption(state: OptionsValue) {
     return (option: Option) => {
-        const fieldValue = state[option.field]!;
+        const fieldValue = state[option.field];
         return {
             title: pad16plus(option.title) + kleur.grey('items' in option ? getPrintString(option, (option.mutateInnerObject ? fieldValue as Record<string, string> : state as Record<string, string>)) : fieldValue as string ?? ''),
             value: option.field
@@ -196,10 +196,10 @@ function getPrintString(option: {
     }
     return option.items
         .filter(item => item.field in json && json[item.field] && (Array.isArray(json[item.field]) ? (json[item.field] as unknown as unknown[]).length > 0 : true))
-        .map(item => kleur.grey(item.title) + ' ' + (kleur.white(
+        .map(item => `${kleur.grey(item.title)} ${kleur.white(
             'items' in item ?
                 `[${getPrintString(item, (item.mutateInnerObject ? json[item.field] as OptionsValue :
-                    json))}]` : json[item.field] as string))
+                    json))}]` : json[item.field] as string)}`
         )
         .join(', ');
 }
@@ -215,7 +215,7 @@ function getOptionsValue(options: Option[]) {
                 Object.assign(result, value);
             }
         } else {
-            result[item.field] = item.initialValue!;
+            result[item.field] = item.initialValue;
         }
     }
     return result;
@@ -252,7 +252,7 @@ async function getGitOptions(targetDir: string, packageJson: PackageJson) {
                 items: [{
                     title: 'Homepage',
                     field: 'homepage',
-                    initialValue: url.replace('.git', `/blob/main${directory ? '/' + directory : ''}/README.md`)
+                    initialValue: url.replace('.git', `/blob/main${directory ? `/${directory}` : ''}/README.md`)
                 }, {
                     title: 'Repository',
                     field: 'repository',
@@ -277,7 +277,8 @@ async function getGitOptions(targetDir: string, packageJson: PackageJson) {
                 }]
             }];
         }
-    } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
         /* ignore */
     }
     return [];
@@ -298,7 +299,7 @@ function getPkgbldOptions(pkg: PackageJson) {
         } else if (!cmd.startsWith('pkgbld')) {
             const naiveArgs = cmd.split(' ');
             if (naiveArgs.length > 1 && naiveArgs[0] === 'node') {
-                binary = naiveArgs[0] + ' ' + naiveArgs[1];
+                binary = `${naiveArgs[0]} ${naiveArgs[1]}`;
             } else if (naiveArgs.length > 0) {
                 binary = naiveArgs[0] as string; // ?????
             }
@@ -491,7 +492,8 @@ async function readPackage(dir: string) {
             readme: readmeFile.toString(),
             mode: 'update' as const
         };
-    } catch (e) { /**/ }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) { /**/ }
 
     return {
         pkg: defaultPkg,

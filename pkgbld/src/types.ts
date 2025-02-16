@@ -14,7 +14,7 @@ export type Provider = {
     provide: ProvideFunction;
     import: (module: string, exportName?: string) => Promise<((...args: unknown[]) => Plugin)>;
     globalImport: (module: string, exportName?: string | string[]) => void;
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     globalSetup: (code: Function | string) => void;
 };
 

@@ -34,7 +34,7 @@ export async function createEjectProvider(preimportMap: Map<string, Promise<neve
         globalImport: (module: string, exportName?: string | string[]) => {
             imports.set(module, exportName ?? 'default');
         },
-        // eslint-disable-next-line @typescript-eslint/ban-types
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
         globalSetup: (code: Function | string) => {
             if (typeof code === 'function') {
                 setup.add(code.toString());

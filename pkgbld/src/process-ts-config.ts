@@ -28,15 +28,18 @@ export async function checkTsConfig(options: CliOptions, mainLogger: Logger, plu
     if (options.noTsConfig) {
         return;
     }
+    // biome-ignore lint/style/useSingleVarDeclarator: <explanation>
     let config: JsonObject | undefined, needWrite = false;
     try {
         [, config] = await getJson('tsconfig.json');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch(_) {/*ignore*/}
     try {
         [, config] = await getJson('jsconfig.json');
         if (config && typeof config === 'object' && !Array.isArray(config)) {
             config.allowJs = true;
         }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch(_) {/*ignore*/}
     if (!config) {
         config = defaultTsConfig;

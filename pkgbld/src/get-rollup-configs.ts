@@ -19,7 +19,9 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
     }
 
     for (const ePlugin of externalPlugins) {
-        ePlugin.providePlugins && factoryInProgress.push(ePlugin.providePlugins(provider, config, inputs, inputsExt));
+        if (ePlugin.providePlugins) {
+            factoryInProgress.push(ePlugin.providePlugins(provider, config, inputs, inputsExt));
+        }
     }
 
     await Promise.all(factoryInProgress);
@@ -75,7 +77,7 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
         for (const {format, input} of result) {
             if (input) {
                 if (mapFormatInputs.has(format)) {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    // biome-ignore lint/style/noNonNullAssertion: <explanation>
                     mapFormatInputs.get(format)!.add(input);
                 } else {
                     mapFormatInputs.set(format, new Set([input]));
@@ -143,7 +145,9 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
             break;
         }
         for (const ePlugin of externalPlugins) {
-            ePlugin.getExtraOutputSettings && Object.assign(result, ePlugin.getExtraOutputSettings(format, inputs));
+            if (ePlugin.getExtraOutputSettings) {
+                Object.assign(result, ePlugin.getExtraOutputSettings(format, inputs));
+            }
         }
         return result;
     }

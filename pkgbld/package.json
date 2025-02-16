@@ -34,10 +34,10 @@
     "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
   },
   "dependencies": {
-    "@niceties/logger": "^1.1.12",
-    "@niceties/draftlog-appender": "^1.3.2",
+    "@niceties/logger": "^1.1.13",
+    "@niceties/draftlog-appender": "^1.3.3",
     "lodash": "^4.17.21",
-    "rollup": "^4.12.0",
+    "rollup": "^4.34.7",
     "rollup-plugin-typescript2": "^0.36.0",
     "rollup-plugin-preprocess": "^0.0.4",
     "@rollup/plugin-commonjs": "^28.0.2",
@@ -50,13 +50,13 @@
     "@slimlib/refine-partition": "^1.0.3",
     "@slimlib/smart-mock": "^0.1.6",
     "is-builtin-module": "^3.2.1",
-    "terser": "^5.28.1",
+    "terser": "^5.39.0",
     "kleur": "^4.1.5",
-    "cleye": "^1.3.2",
-    "jsonata": "^2.0.4"
+    "cleye": "^1.3.4",
+    "jsonata": "^2.0.6"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.202",
+    "@types/lodash": "^4.17.15",
     "@total-typescript/ts-reset": "^0.5.1",
     "type-fest": "^4.20.1",
     "dts-bundle-generator": "^9.5.1",

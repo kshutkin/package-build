@@ -217,5 +217,5 @@ export function processPackageJson(pkg: PackageJson, needTreatment: (key: string
 }
 
 export function toFormattedJson<T extends object | null | number | string | boolean>(json: T) {
-    return JSON.stringify(json, null, 2) + '\n';
+    return `${JSON.stringify(json, null, 2)}\n`;
 }
