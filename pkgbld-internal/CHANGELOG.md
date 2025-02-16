@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.1
+
+### Patch Changes
+
+- 23056c6: update packages, fix lint errors
+
 ## 1.7.0
 
 ### Minor Changes
