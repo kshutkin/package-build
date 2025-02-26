@@ -127,8 +127,8 @@ importers:
         specifier: ^16.0.0
         version: 16.0.0(rollup@4.34.7)
       '@samchon/openapi':
-        specifier: 2.4.3
-        version: 2.4.3
+        specifier: 2.5.3
+        version: 2.5.3
       '@total-typescript/ts-reset':
         specifier: ^0.6.1
         version: 0.6.1
@@ -140,7 +140,7 @@ importers:
         version: 0.36.0(rollup@4.34.7)(typescript@5.7.3)
       typia:
         specifier: ^7.6.4
-        version: 7.6.4(@samchon/openapi@2.4.3)(typescript@5.7.3)
+        version: 7.6.4(@samchon/openapi@2.5.3)(typescript@5.7.3)
 
   pkgbld:
     dependencies:
@@ -709,8 +709,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@samchon/openapi@2.4.3':
-    resolution: {integrity: sha512-OltIIvgaOSJ7SkHVawtDjGaztkaffQ+E3rh2/XxXQ/KG/JM18h1aVo83UtPJnixyZ3lnBvnoYJF3bI2vGRHNUQ==}
+  '@samchon/openapi@2.5.3':
+    resolution: {integrity: sha512-gLcGqPGsr/V43yNrhC+5E8ZR8y1JdLZDgkC6ULg+B03uvmdS2C7qIXpIWUe19MUPvXt5SCpjhvOykomEspinaw==}
 
   '@slimlib/list@1.0.10':
     resolution: {integrity: sha512-RY+o8ywbIcatp6jMZ/HSQYcMZ/Ezv/rQzKY6Un0n37KHct00REXXdH14zrXvBb1PF/BT6SHVle9TcJDHTQBfbw==}
@@ -2403,7 +2403,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.34.7':
     optional: true
 
-  '@samchon/openapi@2.4.3': {}
+  '@samchon/openapi@2.5.3': {}
 
   '@slimlib/list@1.0.10': {}
 
@@ -3564,9 +3564,9 @@ snapshots:
 
   typescript@5.7.3: {}
 
-  typia@7.6.4(@samchon/openapi@2.4.3)(typescript@5.7.3):
+  typia@7.6.4(@samchon/openapi@2.5.3)(typescript@5.7.3):
     dependencies:
-      '@samchon/openapi': 2.4.3
+      '@samchon/openapi': 2.5.3
       commander: 10.0.1
       comment-json: 4.2.4
       inquirer: 8.2.6
