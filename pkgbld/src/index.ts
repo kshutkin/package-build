@@ -7,7 +7,7 @@ import { createSubpackages } from './create-subpackages';
 import { getCliOptions } from './get-cli-options';
 import { getJson } from './get-json';
 import { getRollupConfigs } from './get-rollup-configs';
-import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray, formatPackageJson } from './helpers';
+import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray, formatPackageJson, searchForWorkspaceRoot } from './helpers';
 import { mainLoggerText } from './messages';
 import { processPackage } from './process-pkg';
 import { writeJson } from './write-json';
@@ -19,6 +19,7 @@ import type { PkgbldPlugin } from './types';
 import { loadPlugins } from './load-plugins';
 import { prunePkg } from './prune';
 import type { PackageJson } from 'type-fest';
+import { dirname, join } from 'node:path';
 
 execute();
 
@@ -31,7 +32,12 @@ async function execute() {
         let pkgPath: string;
         // eslint-disable-next-line prefer-const
         [pkgPath, pkg] = await getJson('package.json') as [string, PackageJson];
-        const plugins = await loadPlugins(pkg);
+        const loadedPlugins = new Set<string>;
+        const plugins = await loadPlugins(pkg, loadedPlugins);
+        const [rootPackagePath, rootPkg] = await getJson(join(await searchForWorkspaceRoot(dirname(pkgPath)), 'package.json'));
+        if (rootPackagePath !== pkgPath) {
+            plugins.push(...await loadPlugins(rootPkg, loadedPlugins));
+        }
         mainLogger.update('');
         process.stdout.moveCursor?.(0, -1);
         const options = getCliOptions(plugins, pkg);

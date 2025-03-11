@@ -211,6 +211,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     if (typeof flatten === 'string' && 'directories' in pkg && pkg.directories != null
         && typeof pkg.directories === 'object' && 'bin' in pkg.directories
         && typeof pkg.directories.bin === 'string' && normalizePath(pkg.directories.bin) === normalizePath(flatten)) {
+        // biome-ignore lint/performance/noDelete: <explanation>
         delete pkg.directories.bin;
         if (Object.keys(pkg.directories).length === 0) {
             pkg.directories = undefined;

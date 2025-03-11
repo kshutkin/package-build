@@ -1,9 +1,9 @@
-import path from 'node:path';
+import path, { dirname, join } from 'node:path';
 import camelCase from 'lodash/camelCase.js';
 import type { OutputOptions } from 'rollup';
 import kleur from 'kleur';
 import { processPackageJson, type PackageJson as PackageJsonO } from 'options';
-import { access } from 'node:fs/promises';
+import { access, constants, readFile, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { PackageJson } from 'type-fest';
 
@@ -70,4 +70,71 @@ export async function isExists(file: string) {
         throw e;
     }
     return file;
+}
+
+// it is borrowed from vite logic, basically the same but simplified
+// without recursion and fully async
+export async function isReadable(file: string) {
+    try {
+        await stat(file);
+    } catch {
+        return false;
+    }
+    try {
+        await access(file, constants.R_OK);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function hasFile(root: string, file: string) {
+    const path = join(root, file);
+    return isExists(path);
+}
+
+async function hasWorkspacePackageJson(root: string) {
+    const path = join(root, 'package.json');
+    if (!await isReadable(path)) {
+        return false;
+    }
+    try {
+        const content = (JSON.parse(await readFile(path, 'utf-8')) || {}) as PackageJson;
+        return !!content.workspaces;
+    } catch {
+        return false;
+    }
+}
+
+export async function searchForPackageRoot(current: string) {
+    const root = current;
+    let dir = current;
+
+    while (dir) {
+        if (await hasFile(dir, 'package.json')) return dir;
+
+        const parentDir = dirname(dir);
+        if (parentDir === dir) break; // Reached the filesystem root
+
+        dir = parentDir;
+    }
+
+    return root;
+}
+
+export async function searchForWorkspaceRoot(current: string) {
+    const root = await searchForPackageRoot(current);
+    let dir = current;
+
+    while (dir) {
+        if (await hasFile(dir, 'pnpm-workspace.yaml')) return dir;
+        if (await hasWorkspacePackageJson(dir)) return dir;
+
+        const parentDir = dirname(dir);
+        if (parentDir === dir) break; // Reached the filesystem root
+
+        dir = parentDir;
+    }
+
+    return root;
 }
