@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.1
+
+### Patch Changes
+
+- e7be9d0: added missing dependency
+
 ## 1.8.0
 
 ### Minor Changes
