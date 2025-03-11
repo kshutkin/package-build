@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.35.0
+
+### Minor Changes
+
+- 2be33a6: added loading plugins from workspace root
+
 ## 1.34.1
 
 ### Patch Changes
