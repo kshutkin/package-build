@@ -23,4 +23,4 @@ on:
 jobs:
   pipeline:
     uses: kshutkin/pipeline/.github/workflows/main.yml@main
-    secrets: inherit    
+    secrets: inherit
