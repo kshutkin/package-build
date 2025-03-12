@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.35.1
+
+### Patch Changes
+
+- c6455d6: fix no build because of circular dependency in dynamic import in node >=23.8.0
+
 ## 1.35.0
 
 ### Minor Changes
