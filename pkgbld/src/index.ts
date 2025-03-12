@@ -109,12 +109,7 @@ function preimport() {
     ]) : new Map) as Map<string, Promise<never>>;
 }
 
-process.on('unhandledRejection', e => console.error(e));
-process.on('exit', code => {
-    if (code !== 0) {
-        console.error(`process exited with code ${code}`);
-    }
-});
+process.on('exit', () => {});
 
 export * from './types';
 export { PackageJson } from 'type-fest';
