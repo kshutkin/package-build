@@ -13,7 +13,7 @@ importers:
         version: 2.27.12
       '@eslint/eslintrc':
         specifier: ^3.2.0
-        version: 3.2.0
+        version: 3.3.1
       '@eslint/js':
         specifier: ^9.20.0
         version: 9.20.0
@@ -426,8 +426,8 @@ packages:
     resolution: {integrity: sha512-DWUB2pksgNEb6Bz2fggIy1wh6fGgZP4Xyy/Mt0QZPiloKKXerbqq9D3SBQTlCRYOrcRPu4vuz+CGjwdfqxnoWA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/eslintrc@3.2.0':
-    resolution: {integrity: sha512-grOjVNN8P3hjJn/eIETF1wwd12DdnwFDoyceUJLYYdkpbwq3nLi+4fqrTAONx7XDALqlL220wC/RHSC/QTI/0w==}
+  '@eslint/eslintrc@3.3.1':
+    resolution: {integrity: sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/js@9.20.0':
@@ -822,8 +822,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  acorn@8.14.0:
-    resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
+  acorn@8.14.1:
+    resolution: {integrity: sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -984,6 +984,15 @@ packages:
 
   debug@4.3.5:
     resolution: {integrity: sha512-pt0bNEmneDIvdL1Xsd9oDQ/wrQRkXDT4AUWlNZNPKvW5x/jyO9VFXkJUP07vQ2upmw5PlaITaPKc31jK13V+jg==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  debug@4.4.0:
+    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -1291,8 +1300,12 @@ packages:
     resolution: {integrity: sha512-5Fytz/IraMjqpwfd34ke28PTVMjZjJG2MPn5t7OE4eUCUNf8BAa7b5WUS9/Qvr6mwOQS7Mk6vdsMno5he+T8Xw==}
     engines: {node: '>= 4'}
 
-  import-fresh@3.3.0:
-    resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
+  ignore@5.3.2:
+    resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
+    engines: {node: '>= 4'}
+
+  import-fresh@3.3.1:
+    resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
     engines: {node: '>=6'}
 
   imurmurhash@0.1.4:
@@ -1510,6 +1523,9 @@ packages:
   ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
+  ms@2.1.3:
+    resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
   mute-stream@0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
 
@@ -1644,8 +1660,8 @@ packages:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
     engines: {node: '>= 6'}
 
-  punycode@2.3.0:
-    resolution: {integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==}
+  punycode@2.3.1:
+    resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
   queue-microtask@1.2.3:
@@ -2157,14 +2173,14 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
 
-  '@eslint/eslintrc@3.2.0':
+  '@eslint/eslintrc@3.3.1':
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.5
+      debug: 4.4.0
       espree: 10.3.0
       globals: 14.0.0
-      ignore: 5.3.1
-      import-fresh: 3.3.0
+      ignore: 5.3.2
+      import-fresh: 3.3.1
       js-yaml: 4.1.0
       minimatch: 3.1.2
       strip-json-comments: 3.1.1
@@ -2486,7 +2502,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.24.0(typescript@5.8.2)
       '@typescript-eslint/utils': 8.24.0(eslint@9.20.1)(typescript@5.8.2)
-      debug: 4.3.5
+      debug: 4.4.0
       eslint: 9.20.1
       ts-api-utils: 2.0.1(typescript@5.8.2)
       typescript: 5.8.2
@@ -2525,13 +2541,13 @@ snapshots:
       '@typescript-eslint/types': 8.24.0
       eslint-visitor-keys: 4.2.0
 
-  acorn-jsx@5.3.2(acorn@8.14.0):
+  acorn-jsx@5.3.2(acorn@8.14.1):
     dependencies:
-      acorn: 8.14.0
+      acorn: 8.14.1
 
   acorn@8.12.1: {}
 
-  acorn@8.14.0: {}
+  acorn@8.14.1: {}
 
   ajv@6.12.6:
     dependencies:
@@ -2684,6 +2700,10 @@ snapshots:
     dependencies:
       ms: 2.1.2
 
+  debug@4.4.0:
+    dependencies:
+      ms: 2.1.3
+
   deep-is@0.1.4: {}
 
   deepmerge@4.3.1: {}
@@ -2752,7 +2772,7 @@ snapshots:
       '@eslint-community/regexpp': 4.12.1
       '@eslint/config-array': 0.19.2
       '@eslint/core': 0.11.0
-      '@eslint/eslintrc': 3.2.0
+      '@eslint/eslintrc': 3.3.1
       '@eslint/js': 9.20.0
       '@eslint/plugin-kit': 0.2.5
       '@humanfs/node': 0.16.6
@@ -2787,8 +2807,8 @@ snapshots:
 
   espree@10.3.0:
     dependencies:
-      acorn: 8.14.0
-      acorn-jsx: 5.3.2(acorn@8.14.0)
+      acorn: 8.14.1
+      acorn-jsx: 5.3.2(acorn@8.14.1)
       eslint-visitor-keys: 4.2.0
 
   esprima@4.0.1: {}
@@ -2958,7 +2978,7 @@ snapshots:
       array-union: 2.1.0
       dir-glob: 3.0.1
       fast-glob: 3.3.2
-      ignore: 5.3.1
+      ignore: 5.3.2
       merge2: 1.4.1
       slash: 3.0.0
 
@@ -2994,7 +3014,9 @@ snapshots:
 
   ignore@5.3.1: {}
 
-  import-fresh@3.3.0:
+  ignore@5.3.2: {}
+
+  import-fresh@3.3.1:
     dependencies:
       parent-module: 1.0.1
       resolve-from: 4.0.0
@@ -3195,6 +3217,8 @@ snapshots:
 
   ms@2.1.2: {}
 
+  ms@2.1.3: {}
+
   mute-stream@0.0.8: {}
 
   natural-compare@1.4.0: {}
@@ -3316,7 +3340,7 @@ snapshots:
       kleur: 3.0.3
       sisteransi: 1.0.5
 
-  punycode@2.3.0: {}
+  punycode@2.3.1: {}
 
   queue-microtask@1.2.3: {}
 
@@ -3590,7 +3614,7 @@ snapshots:
 
   uri-js@4.4.1:
     dependencies:
-      punycode: 2.3.0
+      punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
 
