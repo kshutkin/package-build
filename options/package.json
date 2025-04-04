@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "typia": "^7.6.4",
-    "@samchon/openapi": "2.5.3",
+    "@samchon/openapi": "3.3.0",
     "@total-typescript/ts-reset": "^0.6.1",
     "rollup": "^4.34.7",
     "rollup-plugin-typescript2": "^0.36.0",
