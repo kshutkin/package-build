@@ -1,6 +1,6 @@
 # pkgbld
 
-*Build your libraries with ease*
+_Build your libraries with ease_
 
 Rollup-based build tool for building libraries based on package.json config and simple CLI options.
 
@@ -15,6 +15,7 @@ It is created to easily build libraries that contain multiple subpath exports (e
 ## Installation
 
 Using npm:
+
 ```
 npm install --save-dev pkgbld
 ```
@@ -210,7 +211,7 @@ Right now it only affects how `prune` command removes entries in the `scripts` f
 
 For `library` profile it retains: 'preinstall', 'install', 'postinstall', 'prepublish', 'preprepare', 'prepare', 'postprepare'.
 
-For `app` profile it retains in addition: 'prestart', 'start', 'poststart', 'prerestart', 'restart', 'postrestart', 'prestop', 'stop', 'poststop', 'pretest', 'test',        'posttest'.
+For `app` profile it retains in addition: 'prestart', 'start', 'poststart', 'prerestart', 'restart', 'postrestart', 'prestop', 'stop', 'poststop', 'pretest', 'test', 'posttest'.
 
 ### flatten
 
@@ -242,6 +243,18 @@ Optimizes files by removing all files that are not required for pack at the give
 
 You might want to disable this option in some edge cases.
 
+### no-subpackages
+
+```
+pkgbld --no-subpackages
+```
+
+Do not create subpackage directories with package.json files for non-index entry points.
+
+By default, pkgbld creates a directory for each non-index entry point (e.g., `second/package.json` for a `./second` export) to enable simpler imports. Use this flag to disable this behavior.
+
+Note: The `pkgbld-plugin-dts-buddy` plugin automatically sets this flag when loaded, as it provides alternative type resolution through the dts-buddy bundling approach.
+
 ### removeLegalComments
 
 ```
@@ -258,12 +271,26 @@ Plugins suppose to implement one or more of the following interface methods on a
 
 ```typescript
 interface PkgbldPlugin {
-    options(parsedArgs: {[key: string]: string | number}, options: ReturnType<typeof getCliOptions>): void;
-    processPackageJson(packageJson: PackageJson, inputs: string[], logger: Logger): void;
-    processTsConfig(config: Json): void;
-    providePlugins(provider: Provider, config: Record<string, string | string[] | boolean>, inputs: string[]): Promise<void>;
-    getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions>;
-    buildEnd(): Promise<void>;
+  options(
+    parsedArgs: { [key: string]: string | number },
+    options: ReturnType<typeof getCliOptions>
+  ): void;
+  processPackageJson(
+    packageJson: PackageJson,
+    inputs: string[],
+    logger: Logger
+  ): void;
+  processTsConfig(config: Json): void;
+  providePlugins(
+    provider: Provider,
+    config: Record<string, string | string[] | boolean>,
+    inputs: string[]
+  ): Promise<void>;
+  getExtraOutputSettings(
+    format: InternalModuleFormat,
+    inputs: string[]
+  ): Partial<OutputOptions>;
+  buildEnd(): Promise<void>;
 }
 ```
 

@@ -1,9 +1,10 @@
 import typia from 'typia';
+
 import { PackageJson } from './types';
 
 export { PackageJson };
 
-export function isPackageJson(value: unknown) : value is PackageJson {
+export function isPackageJson(value: unknown): value is PackageJson {
     return typia.is<PackageJson>(value);
 }
 
@@ -38,115 +39,121 @@ export const cliFlagsDefaults = {
     commonjsPattern: '[name].cjs',
     esmPattern: '[name].mjs',
     umdPattern: '[name].umd.js',
-    formatPackageJson: false
+    formatPackageJson: false,
+    noSubpackages: false,
 };
 
 export const cliFlags = {
     umd: {
         type: CommaSeparatedString,
         description: 'Package subpath exports in UMD format',
-        default: cliFlagsDefaults.umd
+        default: cliFlagsDefaults.umd,
     },
     compress: {
         type: CommaSeparatedString,
         description: 'Compress formats using terser',
-        default: cliFlagsDefaults.compress
+        default: cliFlagsDefaults.compress,
     },
     sourcemaps: {
         type: CommaSeparatedString,
         description: 'Emit sourcemaps for the specified formats',
-        default: cliFlagsDefaults.sourcemaps
+        default: cliFlagsDefaults.sourcemaps,
     },
     formats: {
         type: CommaSeparatedString,
         description: 'Formats to emit',
-        default: cliFlagsDefaults.formats
+        default: cliFlagsDefaults.formats,
     },
     preprocess: {
         type: CommaSeparatedString,
         description: 'Preprocess entry points / subpath exports',
-        default: cliFlagsDefaults.preprocess
+        default: cliFlagsDefaults.preprocess,
     },
     dest: {
         type: String,
         description: 'Output directory',
-        default: cliFlagsDefaults.dest
+        default: cliFlagsDefaults.dest,
     },
     src: {
         type: String,
         description: 'Source directory',
-        default: cliFlagsDefaults.src
+        default: cliFlagsDefaults.src,
     },
     bin: {
         type: CommaSeparatedString,
         description: 'Executable files',
-        default: cliFlagsDefaults.bin
+        default: cliFlagsDefaults.bin,
     },
     includeExternals: {
         type: CommaSeparatedStringOrBoolean,
-        description: 'Include all/specified externals into result bundle(s)',
-        default: cliFlagsDefaults.includeExternals
+        description: 'Include all/specified externals into the result bundle(s)',
+        default: cliFlagsDefaults.includeExternals,
     },
     eject: {
         type: Boolean,
         description: 'Eject config',
-        default: cliFlagsDefaults.eject
+        default: cliFlagsDefaults.eject,
     },
     noTsConfig: {
         type: Boolean,
         description: 'Do not create / update tsconfig.json',
-        default: cliFlagsDefaults.noTsConfig
+        default: cliFlagsDefaults.noTsConfig,
     },
     noUpdatePackageJson: {
         type: Boolean,
         description: 'Do not create / update package.json',
-        default: cliFlagsDefaults.noUpdatePackageJson
+        default: cliFlagsDefaults.noUpdatePackageJson,
     },
     commonjsPattern: {
         type: String,
         description: 'CommonJS output file name pattern',
-        default: cliFlagsDefaults.commonjsPattern
+        default: cliFlagsDefaults.commonjsPattern,
     },
     esmPattern: {
         type: String,
         description: 'ES output file name pattern',
-        default: cliFlagsDefaults.esmPattern
+        default: cliFlagsDefaults.esmPattern,
     },
     umdPattern: {
         type: String,
         description: 'UMD output file name pattern',
-        default: cliFlagsDefaults.umdPattern
+        default: cliFlagsDefaults.umdPattern,
     },
     formatPackageJson: {
         type: Boolean,
         description: 'Format package.json',
-        default: cliFlagsDefaults.formatPackageJson
+        default: cliFlagsDefaults.formatPackageJson,
     },
     noPack: {
         type: Boolean,
         description: 'Do not pack',
-        default: false
+        default: false,
     },
     noExports: {
         type: Boolean,
-        description: 'Do not add exports field in package.json',
-        default: false
+        description: 'Do not add exports field to package.json',
+        default: false,
     },
     noClean: {
         type: Boolean,
-        description: 'Do not clean output directory',
-        default: false
+        description: 'Do not clean the output directory',
+        default: false,
     },
     noBundle: {
         type: Boolean,
         description: 'Do not bundle',
-        default: false
+        default: false,
     },
     removeLegalComments: {
         type: Boolean,
         description: 'Remove legal comments',
-        default: false
-    }
+        default: false,
+    },
+    noSubpackages: {
+        type: Boolean,
+        description: 'Do not create subpackage directories with package.json files',
+        default: cliFlagsDefaults.noSubpackages,
+    },
 };
 
 export const packageJsonFieldsOrder = new Set([
@@ -195,7 +202,7 @@ export const packageJsonFieldsOrder = new Set([
     'optionalDependencies',
     'overrides',
     'publishConfig',
-    'workspaces'
+    'workspaces',
 ]);
 
 export function processPackageJson(pkg: PackageJson, needTreatment: (key: string) => boolean, treatKey: (key: string) => unknown) {

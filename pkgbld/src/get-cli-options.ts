@@ -82,7 +82,8 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         noExports: flags.noExports,
         noClean: flags.noClean,
         noBundle: flags.noBundle,
-        removeLegalComments: flags.removeLegalComments
+        removeLegalComments: flags.removeLegalComments,
+        noSubpackages: flags.noSubpackages
     };
 
     for (const plugin of plugins) {
@@ -112,6 +113,7 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         noExports: boolean,
         noClean: boolean,
         noBundle: boolean,
-        removeLegalComments: boolean
+        removeLegalComments: boolean,
+        noSubpackages: boolean
     };
 }

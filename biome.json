@@ -1,0 +1,62 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true
+        }
+    },
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": {
+                    "level": "on",
+                    "options": {
+                        "groups": [
+                            ":NODE:",
+                            ":BLANK_LINE:",
+                            { "type": false, "source": [":PACKAGE:", "!@slimlib/**", "!@niceties/**"] },
+                            ":BLANK_LINE:",
+                            { "type": false, "source": ["@slimlib/**", "@niceties/**"] },
+                            ":BLANK_LINE:",
+                            { "type": false, "source": ":PATH:" }
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "formatter": {
+        "enabled": true,
+        "formatWithErrors": false,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineEnding": "lf",
+        "lineWidth": 140
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single",
+            "jsxQuoteStyle": "single",
+            "quoteProperties": "asNeeded",
+            "trailingCommas": "es5",
+            "semicolons": "always",
+            "arrowParentheses": "asNeeded",
+            "bracketSpacing": true,
+            "bracketSameLine": false,
+            "attributePosition": "auto"
+        }
+    },
+    "json": {
+        "formatter": {
+            "enabled": true,
+            "indentWidth": 4,
+            "lineWidth": 140
+        }
+    },
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true
+    }
+}

@@ -71,13 +71,15 @@ async function execute() {
         } else {
             const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);
             mainLogger.start(updater());
-        
+
             await Promise.all(rollupConfigs.map(config => buildConfig(config, updater)));
 
             if (!options.noUpdatePackageJson) {
                 await writeJson(pkgPath, pkg);
             }
-            await createSubpackages(inputs, options);
+            if (!options.noSubpackages) {
+                await createSubpackages(inputs, options);
+            }
 
             await Promise.all(
                 plugins

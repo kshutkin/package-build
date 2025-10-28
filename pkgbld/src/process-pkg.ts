@@ -9,9 +9,9 @@ const sourceFileSuffixes = ['ts', 'tsx', 'js', 'jsx', 'cjs', 'mjs'] as const; //
 
 export async function processPackage(pkg: JsonObject, config: CliOptions, plugins: Partial<PkgbldPlugin>[], tsConfig?: JsonObject): Promise<[string[], Map<string, typeof sourceFileSuffixes[number]>]> {
     const typingsFilePattern = '[name].d.ts';
-    
+
     const indexId = 'index';
-    
+
     const typesVersionsLastFields = new Set(['*']);
 
     // check if declarations enabled
@@ -36,11 +36,11 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
         logger.finish('expecting name to be a string in package.json', LogLevel.error);
         process.exit(-1);
     }
-    
+
     if (!Array.isArray(pkg.files)) {
         pkg.files = [];
     }
-    
+
     if (!pkg.files.includes(config.dir)) {
         (pkg.files as string[]).push(config.dir);
     }
@@ -62,7 +62,7 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
         'types',
         'svelte',
         pkg.type === 'module' ? 'require' : 'import',
-        pkg.type === 'module' ? 'import' : 'require',                
+        pkg.type === 'module' ? 'import' : 'require',
         'default'
     ]);
 
@@ -73,7 +73,7 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
     if (isDeclarations) {
         pkg.types = `./${config.dir}/${patternToName(typingsFilePattern, 'index')}`;
     }
-    
+
     if (allowUmd && typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
         if (!config.umdInputs.includes(indexId)) {
@@ -88,11 +88,11 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
     if (allowEsm && !allowCjs) {
         pkg.main = `./${config.dir}/${patternToName(config.esPattern, indexId)}`;
     }
-    
+
     if (allowCjs && allowEsm && typeof pkg.module !== 'string') {
         pkg.module = `./${config.dir}/${patternToName(config.esPattern, indexId)}`;
     }
-    
+
     if (allowUmd && config.umdInputs.includes(indexId)) {
         pkg.unpkg = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
     }
@@ -101,7 +101,7 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
         if (typeof pkg.typesVersions !== 'object' && pkg.typesVersions !== null) {
             pkg.typesVersions = {};
         }
-        
+
         if (typeof (pkg.typesVersions as Record<string, JsonValue>)['*'] !== 'object' && (pkg.typesVersions as Record<string, JsonValue>)['*'] !== null) {
             (pkg.typesVersions as Record<string, JsonValue>)['*'] = {};
         }
@@ -154,13 +154,13 @@ export async function processPackage(pkg: JsonObject, config: CliOptions, plugin
 
             ((pkg.exports as Record<string, JsonValue>)[id] as Record<string, JsonValue>) = orderFields(exportsFields,(pkg.exports as Record<string, JsonValue>)[id] as Record<string, JsonValue>);
 
-        
-            if (basename !== indexId) {
+
+            if (basename !== indexId && !config.noSubpackages) {
                 if (!pkg.files.includes(basename)) {
                     (pkg.files as string[]).push(basename);
                 }
             }
-        
+
             await updateExtensions(basename);
         }
     } else {
