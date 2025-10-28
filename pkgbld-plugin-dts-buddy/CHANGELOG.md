@@ -1,5 +1,11 @@
 # pkgbld-plugin-dts-buddy
 
+## 0.2.0
+
+### Minor Changes
+
+- a1cfa46: added noSubpackages option
+
 ## 0.1.2
 
 ### Patch Changes

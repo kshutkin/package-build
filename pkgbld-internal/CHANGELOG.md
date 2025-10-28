@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0
+
+### Minor Changes
+
+- a1cfa46: added noSubpackages option
+
 ## 1.8.2
 
 ### Patch Changes
