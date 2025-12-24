@@ -1,25 +1,28 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./rollup-plugin-preprocess.d.ts" />
 import '@niceties/draftlog-appender';
+import { dirname, join } from 'node:path';
+
+import kleur from 'kleur';
+import { type RollupOptions, rollup } from 'rollup';
+
 import { createLogger, LogLevel } from '@niceties/logger';
-import { rollup, type RollupOptions } from 'rollup';
+
 import { createSubpackages } from './create-subpackages';
+import { createEjectProvider, ejectConfig } from './eject';
 import { getCliOptions } from './get-cli-options';
 import { getJson } from './get-json';
+import { createProvider } from './get-plugins';
 import { getRollupConfigs } from './get-rollup-configs';
-import { formatInput, formatOutput, getHelpers, getTimeDiff, toArray, formatPackageJson, searchForWorkspaceRoot } from './helpers';
+import { formatInput, formatOutput, formatPackageJson, getHelpers, getTimeDiff, searchForWorkspaceRoot, toArray } from './helpers';
+import { loadPlugins } from './load-plugins';
 import { mainLoggerText } from './messages';
 import { processPackage } from './process-pkg';
-import { writeJson } from './write-json';
-import kleur from 'kleur';
-import { createProvider } from './get-plugins';
-import { createEjectProvider, ejectConfig } from './eject';
 import { checkTsConfig } from './process-ts-config';
-import type { PkgbldPlugin } from './types';
-import { loadPlugins } from './load-plugins';
 import { prunePkg } from './prune';
+import { writeJson } from './write-json';
 import type { PackageJson } from 'type-fest';
-import { dirname, join } from 'node:path';
+import type { PkgbldPlugin } from './types';
 
 execute();
 
@@ -30,13 +33,12 @@ async function execute() {
     try {
         let pkg: PackageJson;
         let pkgPath: string;
-        // eslint-disable-next-line prefer-const
-        [pkgPath, pkg] = await getJson('package.json') as [string, PackageJson];
-        const loadedPlugins = new Set<string>;
+        [pkgPath, pkg] = (await getJson('package.json')) as [string, PackageJson];
+        const loadedPlugins = new Set<string>();
         const plugins = await loadPlugins(pkg, loadedPlugins);
         const [rootPackagePath, rootPkg] = await getJson(join(await searchForWorkspaceRoot(dirname(pkgPath)), 'package.json'));
         if (rootPackagePath !== pkgPath) {
-            plugins.push(...await loadPlugins(rootPkg, loadedPlugins));
+            plugins.push(...(await loadPlugins(rootPkg, loadedPlugins)));
         }
         mainLogger.update('');
         process.stdout.moveCursor?.(0, -1);
@@ -81,15 +83,11 @@ async function execute() {
                 await createSubpackages(inputs, options);
             }
 
-            await Promise.all(
-                plugins
-                    .filter(plugin => plugin.buildEnd)
-                    .map(plugin => (plugin as Required<PkgbldPlugin>).buildEnd())
-            );
+            await Promise.all(plugins.filter(plugin => plugin.buildEnd).map(plugin => (plugin as Required<PkgbldPlugin>).buildEnd()));
 
             mainLogger.finish(updater(true));
         }
-    } catch(e) {
+    } catch (e) {
         mainLogger.finish(String(e), LogLevel.error);
         process.exit(-1);
     }
@@ -104,14 +102,19 @@ async function execute() {
 }
 
 function preimport() {
-    return (process.env.PKGBLD_INTERNAL ? new Map([
-        ['@rollup-extras/plugin-binify', import('@rollup-extras/plugin-binify')],
-        ['@rollup-extras/plugin-clean', import('@rollup-extras/plugin-clean')],
-        ['@rollup-extras/plugin-externals', import('@rollup-extras/plugin-externals')]
-    ]) : new Map) as Map<string, Promise<never>>;
+    return (
+        process.env.PKGBLD_INTERNAL
+            ? new Map([
+                  ['@rollup-extras/plugin-binify', import('@rollup-extras/plugin-binify')],
+                  ['@rollup-extras/plugin-clean', import('@rollup-extras/plugin-clean')],
+                  ['@rollup-extras/plugin-externals', import('@rollup-extras/plugin-externals')],
+              ])
+            : new Map()
+    ) as Map<string, Promise<never>>;
 }
 
 process.on('exit', () => {});
 
-export * from './types';
 export { PackageJson } from 'type-fest';
+
+export * from './types';

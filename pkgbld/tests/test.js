@@ -1,9 +1,9 @@
-import cd from 'child_process';
-import { promisify, parseArgs } from 'util';
-import assert from 'assert';
+import cd from 'node:child_process';
+import { promisify, parseArgs } from 'node:util';
+import assert from 'node:assert';
 import test, { after, describe } from 'node:test';
-import fs from 'fs/promises';
-import process from 'process';
+import fs from 'node:fs/promises';
+import process from 'node:process';
 import { filesToString, stringToFiles } from 'cli-test-helper';
 import tests from './tests.json' with { type: 'json' };
 
@@ -38,8 +38,8 @@ if ('capture' in args) {
     let testCase = allTestCases.find(testCase => testCase.id === capture);
     if (!testCase) {
         testCase = { id: capture, name: '' };
-        tests['capture'] = tests['capture'] || [];
-        tests['capture'].push(testCase);
+        tests.capture = tests.capture || [];
+        tests.capture.push(testCase);
     }
     testCase.input = await captureFiles();
     await writeTestCases();
@@ -50,7 +50,7 @@ if ('export' in args) {
     const exportN = Number(args.export);
     const testCase = allTestCases.find(testCase => testCase.id === exportN);
     if (!testCase) {
-        console.error('Test case not found: ' + JSON.stringify(exportN));
+        console.error(`Test case not found: ${JSON.stringify(exportN)}`);
         process.exit(1);
     }
     await exportFiles(testCase);
@@ -61,7 +61,7 @@ if ('result' in args) {
     const exportN = Number(args.result);
     const testCase = allTestCases.find(testCase => testCase.id === exportN);
     if (!testCase) {
-        console.error('Test case not found: ' + JSON.stringify(exportN));
+        console.error(`Test case not found: ${JSON.stringify(exportN)}`);
         process.exit(1);
     }
     await exportFiles(testCase, true);
@@ -79,9 +79,9 @@ for (const [suiteName, suiteTestCases] of Object.entries(tests)) {
                 } catch (e) {
                     result = e;
                 }
-                
+
                 const actualOutput = await captureFiles();
-                
+
                 if (args.update) {
                     testCase.output = actualOutput;
                     testCase.exitCode = result?.code;
@@ -98,7 +98,7 @@ for (const [suiteName, suiteTestCases] of Object.entries(tests)) {
         }
     });
 }
-    
+
 after(async () => {
     await cleanDir();
     if (args.update) {
@@ -121,7 +121,7 @@ function cleanDir() {
 }
 
 /**
- * @param {String} str 
+ * @param {String} str
  * @returns {String}
  */
 function replaceTime(str) {

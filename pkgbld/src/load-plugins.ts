@@ -1,14 +1,20 @@
 import type { PackageJson } from 'type-fest';
-import type { PkgbldPluginFactory } from './types';
 
 export async function loadPlugins(pkg: PackageJson, loaded: Set<string>) {
     try {
         return await Promise.all(
-            [...new Set([...Object.keys(pkg.devDependencies || {}), ...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})])]
+            [
+                ...new Set([
+                    ...Object.keys(pkg.devDependencies || {}),
+                    ...Object.keys(pkg.dependencies || {}),
+                    ...Object.keys(pkg.peerDependencies || {}),
+                ]),
+            ]
                 .filter(packageName => packageName.startsWith('pkgbld-plugin-') && !loaded.has(packageName))
-                .map(packageName => {
+                .map(async packageName => {
                     loaded.add(packageName);
-                    return import(packageName).then((pluginFactory: PkgbldPluginFactory) => pluginFactory.create());
+                    const pluginFactory = await import(packageName);
+                    return await pluginFactory.create();
                 })
         );
     } catch (e) {

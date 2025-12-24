@@ -5,8 +5,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import clean from '@rollup-extras/plugin-clean';
 import externals from '@rollup-extras/plugin-externals';
 import json from '@rollup/plugin-json';
-import path from 'path';
-import process from 'process';
+import path from 'node:path';
+import process from 'node:process';
 
 const input = 'src/index.ts';
 

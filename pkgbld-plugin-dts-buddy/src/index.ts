@@ -1,13 +1,15 @@
-import type { CliOptions, Json, PackageJson, ParsedOptions } from 'pkgbld';
 import path from 'node:path';
+
 import { createBundle } from 'dts-buddy';
+
+import type { CliOptions, Json, PackageJson, ParsedOptions } from 'pkgbld';
 
 export function create() {
     let isDeclarationsEnabled = false;
     const config = {
         project: 'tsconfig.json',
         output: '',
-        modules: {} as Record<string, string>
+        modules: {} as Record<string, string>,
     };
 
     let dir: string;
@@ -52,7 +54,7 @@ export function create() {
         options,
         processPackageJson,
         processTsConfig,
-        buildEnd
+        buildEnd,
     };
 
     function getOutputName(input: string) {
@@ -64,10 +66,14 @@ export function create() {
 }
 
 function getIsDeclarationsEnabled(tsConfig: Json | null | undefined | string | number | boolean | Json[] | { [name: string]: Json }) {
-    const isDeclarations = typeof tsConfig === 'object'
-        && tsConfig != null && 'compilerOptions' in tsConfig
-        && typeof tsConfig.compilerOptions === 'object' && tsConfig.compilerOptions !== null
-        && 'declaration' in tsConfig.compilerOptions && tsConfig.compilerOptions.declaration === true;
+    const isDeclarations =
+        typeof tsConfig === 'object' &&
+        tsConfig != null &&
+        'compilerOptions' in tsConfig &&
+        typeof tsConfig.compilerOptions === 'object' &&
+        tsConfig.compilerOptions !== null &&
+        'declaration' in tsConfig.compilerOptions &&
+        tsConfig.compilerOptions.declaration === true;
 
     return isDeclarations;
 }

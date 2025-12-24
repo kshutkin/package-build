@@ -1,16 +1,18 @@
-import prompts, { type PromptObject } from 'prompts';
-import path from 'node:path';
 import fs from 'node:fs/promises';
-import userName from 'git-user-name';
-import gitConfig from 'parse-git-config';
-import { cli } from 'cleye';
-import kleur from 'kleur';
-import type { Option, PkgInfo, OptionsValue } from './types';
-import { parseArgsStringToArgv as toArgv } from 'string-argv';
-import getGitRoot from './get-git-root';
-import { cliFlags, processPackageJson, isPackageJson, toFormattedJson, type PackageJson, cliFlagsDefaults } from 'options';
-import isEqual from 'lodash/isEqual.js';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { cli } from 'cleye';
+import userName from 'git-user-name';
+import kleur from 'kleur';
+import isEqual from 'lodash/isEqual.js';
+import { cliFlags, cliFlagsDefaults, isPackageJson, type PackageJson, processPackageJson, toFormattedJson } from 'options';
+import gitConfig from 'parse-git-config';
+import prompts, { type PromptObject } from 'prompts';
+import { parseArgsStringToArgv as toArgv } from 'string-argv';
+
+import getGitRoot from './get-git-root';
+import type { Option, OptionsValue, PkgInfo } from './types';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,16 +27,14 @@ async function execute() {
     const args = cli({
         name: 'create-pkgbld',
         version,
-        parameters: [
-            '[package name]'
-        ],
+        parameters: ['[package name]'],
         flags: {
             quiet: {
                 type: Boolean,
                 description: 'Quiet mode',
-                default: false
-            }
-        }
+                default: false,
+            },
+        },
     });
 
     if (!args.flags.quiet) args.showVersion();
@@ -46,14 +46,14 @@ async function execute() {
     const pkg = await readPackage(targetDir);
 
     if (!args.flags.quiet) console.log(kleur.grey(pad16plus('Mode', 0)) + kleur.white(pkg.mode));
-    
+
     const packageName = path.basename(targetDir);
 
     let cancelled = false;
 
     const options = getBasicOptions(packageName, pkg);
 
-    options.push(...await getGitOptions(targetDir, pkg.pkg));
+    options.push(...(await getGitOptions(targetDir, pkg.pkg)));
 
     options.push(...getPkgbldOptions(pkg.pkg));
 
@@ -61,16 +61,19 @@ async function execute() {
 
     if (!args.flags.quiet) {
         for (;;) {
-            const topLevelAction = await prompts({
-                type: 'select',
-                name: 'value',
-                message: 'Select an option to change, Done to execute, Escape to cancel',
-                choices: [
-                    { title: kleur.green('Done'), description: `${pkg.mode === 'update' ? 'Update' : 'Create'} package`, value: done },
-                    ...options.map(mapOption(state))
-                ],
-                initial: 0
-            }, { onCancel });
+            const topLevelAction = await prompts(
+                {
+                    type: 'select',
+                    name: 'value',
+                    message: 'Select an option to change, Done to execute, Escape to cancel',
+                    choices: [
+                        { title: kleur.green('Done'), description: `${pkg.mode === 'update' ? 'Update' : 'Create'} package`, value: done },
+                        ...options.map(mapOption(state)),
+                    ],
+                    initial: 0,
+                },
+                { onCancel }
+            );
 
             if (cancelled) {
                 process.exit(-1);
@@ -84,12 +87,19 @@ async function execute() {
             let mutateObject = state;
 
             while ('items' in option) {
-                const nextLevelAction = await prompts([{
-                    type: 'select',
-                    name: 'value',
-                    message: option.title,
-                    choices: option.items.map(mapOption(option.mutateInnerObject ? state[option.field] as Record<string, string> : state))
-                }], { onCancel });
+                const nextLevelAction = await prompts(
+                    [
+                        {
+                            type: 'select',
+                            name: 'value',
+                            message: option.title,
+                            choices: option.items.map(
+                                mapOption(option.mutateInnerObject ? (state[option.field] as Record<string, string>) : state)
+                            ),
+                        },
+                    ],
+                    { onCancel }
+                );
 
                 if (cancelled) {
                     process.exit(-1);
@@ -121,7 +131,7 @@ async function execute() {
     pkg.readme ??= `# ${state.name}`;
 
     await writePackage(targetDir, pkg);
-    
+
     function onCancel() {
         cancelled = true;
     }
@@ -130,7 +140,7 @@ async function execute() {
 execute();
 
 function updatePackage(pkg: PkgInfo, options: OptionsValue) {
-    pkg.pkg = processPackageJson(pkg.pkg, (key: string) => (key in options || key in pkg.pkg), treatKey);
+    pkg.pkg = processPackageJson(pkg.pkg, (key: string) => key in options || key in pkg.pkg, treatKey);
 
     function treatKey(key: string) {
         if (key === 'scripts') {
@@ -153,24 +163,30 @@ function getScriptValue(pkgbld: OptionsValue) {
 function getPromptOption(option: Option, mutateObject: OptionsValue) {
     const value = mutateObject[option.field] as string | string[] | undefined;
     const type = option.type ?? 'text';
-    const promptOption: PromptObject<string>  = {
+    const promptOption: PromptObject<string> = {
         type,
         name: option.field,
         message: option.title,
-        initial: (Array.isArray(value) ? value.join(',') : value) ?? ''
+        initial: (Array.isArray(value) ? value.join(',') : value) ?? '',
     };
     if (type === 'multiselect') {
-        promptOption.choices = 'list' in option ? option.list.map(item => ({
-            title: item,
-            value: item,
-            selected: (value as string[]).includes(item)
-        })) : [];
+        promptOption.choices =
+            'list' in option
+                ? option.list.map(item => ({
+                      title: item,
+                      value: item,
+                      selected: (value as string[]).includes(item),
+                  }))
+                : [];
     }
     if (type === 'select') {
-        promptOption.choices = 'list' in option ? option.list.map(item => ({
-            title: item,
-            value: item
-        })) : [];
+        promptOption.choices =
+            'list' in option
+                ? option.list.map(item => ({
+                      title: item,
+                      value: item,
+                  }))
+                : [];
         promptOption.initial = promptOption.choices.findIndex(item => item.value === promptOption.initial);
     }
     return promptOption;
@@ -180,26 +196,46 @@ function mapOption(state: OptionsValue) {
     return (option: Option) => {
         const fieldValue = state[option.field];
         return {
-            title: pad16plus(option.title) + kleur.grey('items' in option ? getPrintString(option, (option.mutateInnerObject ? fieldValue as Record<string, string> : state as Record<string, string>)) : fieldValue as string ?? ''),
-            value: option.field
+            title:
+                pad16plus(option.title) +
+                kleur.grey(
+                    'items' in option
+                        ? getPrintString(
+                              option,
+                              option.mutateInnerObject ? (fieldValue as Record<string, string>) : (state as Record<string, string>)
+                          )
+                        : ((fieldValue as string) ?? '')
+                ),
+            value: option.field,
         };
     };
 }
 
-function getPrintString(option: {
-    items: Option[];
-    mutateInnerObject: boolean;
-    render?: (option: Option, value: OptionsValue) => string;
-}, json: OptionsValue): string /* ??? */ {
+function getPrintString(
+    option: {
+        items: Option[];
+        mutateInnerObject: boolean;
+        render?: (option: Option, value: OptionsValue) => string;
+    },
+    json: OptionsValue
+): string /* ??? */ {
     if (option.render) {
         return option.render(option as Option, json);
     }
     return option.items
-        .filter(item => item.field in json && json[item.field] && (Array.isArray(json[item.field]) ? (json[item.field] as unknown as unknown[]).length > 0 : true))
-        .map(item => `${kleur.grey(item.title)} ${kleur.white(
-            'items' in item ?
-                `[${getPrintString(item, (item.mutateInnerObject ? json[item.field] as OptionsValue :
-                    json))}]` : json[item.field] as string)}`
+        .filter(
+            item =>
+                item.field in json &&
+                json[item.field] &&
+                (Array.isArray(json[item.field]) ? (json[item.field] as unknown as unknown[]).length > 0 : true)
+        )
+        .map(
+            item =>
+                `${kleur.grey(item.title)} ${kleur.white(
+                    'items' in item
+                        ? `[${getPrintString(item, item.mutateInnerObject ? (json[item.field] as OptionsValue) : json)}]`
+                        : (json[item.field] as string)
+                )}`
         )
         .join(', ');
 }
@@ -236,48 +272,64 @@ async function getGitOptions(targetDir: string, packageJson: PackageJson) {
             const url: string = gitCfg['remote "origin"'].url;
             const root = await getGitRoot();
             const directory = path.relative(root, targetDir);
-            return [{
-                title: 'Git',
-                field: 'git',
-                mutateInnerObject: false,
-                render: (_option: Option, value: OptionsValue) => isEqual(removeEmpty({
-                    repository: value.repository,
-                    bugs: value.bugs,
-                    homepage: value.homepage
-                }), removeEmpty({
-                    repository: packageJson.repository,
-                    bugs: packageJson.bugs,
-                    homepage: packageJson.homepage
-                })) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
-                items: [{
-                    title: 'Homepage',
-                    field: 'homepage',
-                    initialValue: url.replace('.git', `/blob/main${directory ? `/${directory}` : ''}/README.md`)
-                }, {
-                    title: 'Repository',
-                    field: 'repository',
-                    items: [{
-                        title: 'Type',
-                        field: 'type',
-                        initialValue: 'git'
-                    }, {
-                        title: 'Url',
-                        field: 'url',
-                        initialValue: `git+${url}`
-                    }, {
-                        title: 'Directory',
-                        field: 'directory',
-                        initialValue: directory || undefined
-                    }],
-                    mutateInnerObject: true
-                }, {
-                    title: 'Bugs',
-                    field: 'bugs',
-                    initialValue: url.replace('.git', '/issues')
-                }]
-            }];
+            return [
+                {
+                    title: 'Git',
+                    field: 'git',
+                    mutateInnerObject: false,
+                    render: (_option: Option, value: OptionsValue) =>
+                        isEqual(
+                            removeEmpty({
+                                repository: value.repository,
+                                bugs: value.bugs,
+                                homepage: value.homepage,
+                            }),
+                            removeEmpty({
+                                repository: packageJson.repository,
+                                bugs: packageJson.bugs,
+                                homepage: packageJson.homepage,
+                            })
+                        )
+                            ? `[${kleur.green('Ok')}]`
+                            : `[${kleur.blue('Updated')}]`,
+                    items: [
+                        {
+                            title: 'Homepage',
+                            field: 'homepage',
+                            initialValue: url.replace('.git', `/blob/main${directory ? `/${directory}` : ''}/README.md`),
+                        },
+                        {
+                            title: 'Repository',
+                            field: 'repository',
+                            items: [
+                                {
+                                    title: 'Type',
+                                    field: 'type',
+                                    initialValue: 'git',
+                                },
+                                {
+                                    title: 'Url',
+                                    field: 'url',
+                                    initialValue: `git+${url}`,
+                                },
+                                {
+                                    title: 'Directory',
+                                    field: 'directory',
+                                    initialValue: directory || undefined,
+                                },
+                            ],
+                            mutateInnerObject: true,
+                        },
+                        {
+                            title: 'Bugs',
+                            field: 'bugs',
+                            initialValue: url.replace('.git', '/issues'),
+                        },
+                    ],
+                },
+            ];
         }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
         /* ignore */
     }
@@ -291,9 +343,8 @@ function getPkgbldOptions(pkg: PackageJson) {
     let binary = 'pkgbld';
 
     if (cmd) {
-        
         if (cmd.startsWith('pkgbld-internal')) {
-            binary =  'pkgbld-internal';
+            binary = 'pkgbld-internal';
         } else if (cmd.startsWith('node ../pkgbld/dist/index.js')) {
             binary = 'node ../pkgbld/dist/index.js';
         } else if (!cmd.startsWith('pkgbld')) {
@@ -305,101 +356,128 @@ function getPkgbldOptions(pkg: PackageJson) {
             }
         }
 
-        const parsedArgs = cli({
-            help: false,
-            flags: cliFlags
-        }, undefined, toArgv(cmd));
+        const parsedArgs = cli(
+            {
+                help: false,
+                flags: cliFlags,
+            },
+            undefined,
+            toArgv(cmd)
+        );
 
         args = parsedArgs.flags;
         args.extraParameters = asCommandLineArgs(parsedArgs.unknownFlags);
     }
 
-    return [{
-        title: 'pkgbld',
-        field: 'pkgbld',
-        mutateInnerObject: true,
-        render: (_option: Option, value: OptionsValue) => cmd === getScriptValue(value) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
-        items: [{
-            title: 'Destination folder',
-            field: 'dest',
-            initialValue: args.dest
-        }, {
-            title: 'Source folder',
-            field: 'src',
-            initialValue: args.src
-        }, {
-            title: 'UMD exports',
-            field: 'umd',
-            initialValue: args.umd,
-            type: 'list'
-        }, {
-            title: 'Compress formats',
-            field: 'compress',
-            initialValue: args.compress,
-            type: 'multiselect',
-            list: formats
-        }, {
-            title: 'Sorcemaps formats',
-            field: 'sourcemaps',
-            initialValue: args.sourcemaps,
-            type: 'multiselect',
-            list: formats
-        }, {
-            title: 'Formats',
-            field: 'formats',
-            initialValue: args.formats,
-            type: 'multiselect',
-            list: formats
-        }, {
-            title: 'Preprocess formats',
-            field: 'preprocess',
-            initialValue: args.preprocess,
-            type: 'multiselect',
-            list: formats
-        }, {
-            title: 'Binaries',
-            field: 'bin',
-            initialValue: args.bin,
-            type: 'list'
-        }, {
-            title: 'Include externals',
-            field: 'includeExternals',
-            type: 'toggle',
-            initialValue: args.includeExternals
-        }, {
-            title: 'Eject config',
-            field: 'eject',
-            type: 'toggle',
-            initialValue: args.eject
-        }, {
-            title: 'Do not create tsconfig',
-            field: 'noTsConfig',
-            type: 'toggle',
-            initialValue: args.noTsConfig
-        }, {
-            title: 'Do not update package.json',
-            field: 'noUpdatePackageJson',
-            type: 'toggle',
-            initialValue: args.noUpdatePackageJson
-        }, {
-            title: 'Extra parameters',
-            field: 'extraParameters',
-            type: 'text',
-            initialValue: args.extraParameters
-        }, {
-            title: 'Pkgbld Binary',
-            field: 'pkgbldBinary',
-            type: 'select',
-            list: pkgbldBinaries.includes(binary) ? pkgbldBinaries : [...pkgbldBinaries, binary],
-            initialValue: binary
-        }]
-    }];
+    return [
+        {
+            title: 'pkgbld',
+            field: 'pkgbld',
+            mutateInnerObject: true,
+            render: (_option: Option, value: OptionsValue) =>
+                cmd === getScriptValue(value) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
+            items: [
+                {
+                    title: 'Destination folder',
+                    field: 'dest',
+                    initialValue: args.dest,
+                },
+                {
+                    title: 'Source folder',
+                    field: 'src',
+                    initialValue: args.src,
+                },
+                {
+                    title: 'UMD exports',
+                    field: 'umd',
+                    initialValue: args.umd,
+                    type: 'list',
+                },
+                {
+                    title: 'Compress formats',
+                    field: 'compress',
+                    initialValue: args.compress,
+                    type: 'multiselect',
+                    list: formats,
+                },
+                {
+                    title: 'Sorcemaps formats',
+                    field: 'sourcemaps',
+                    initialValue: args.sourcemaps,
+                    type: 'multiselect',
+                    list: formats,
+                },
+                {
+                    title: 'Formats',
+                    field: 'formats',
+                    initialValue: args.formats,
+                    type: 'multiselect',
+                    list: formats,
+                },
+                {
+                    title: 'Preprocess formats',
+                    field: 'preprocess',
+                    initialValue: args.preprocess,
+                    type: 'multiselect',
+                    list: formats,
+                },
+                {
+                    title: 'Binaries',
+                    field: 'bin',
+                    initialValue: args.bin,
+                    type: 'list',
+                },
+                {
+                    title: 'Include externals',
+                    field: 'includeExternals',
+                    type: 'toggle',
+                    initialValue: args.includeExternals,
+                },
+                {
+                    title: 'Eject config',
+                    field: 'eject',
+                    type: 'toggle',
+                    initialValue: args.eject,
+                },
+                {
+                    title: 'Do not create tsconfig',
+                    field: 'noTsConfig',
+                    type: 'toggle',
+                    initialValue: args.noTsConfig,
+                },
+                {
+                    title: 'Do not update package.json',
+                    field: 'noUpdatePackageJson',
+                    type: 'toggle',
+                    initialValue: args.noUpdatePackageJson,
+                },
+                {
+                    title: 'Extra parameters',
+                    field: 'extraParameters',
+                    type: 'text',
+                    initialValue: args.extraParameters,
+                },
+                {
+                    title: 'Pkgbld Binary',
+                    field: 'pkgbldBinary',
+                    type: 'select',
+                    list: pkgbldBinaries.includes(binary) ? pkgbldBinaries : [...pkgbldBinaries, binary],
+                    initialValue: binary,
+                },
+            ],
+        },
+    ];
 }
 
-function asCommandLineArgs(parsedArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]>, defaultArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]> = {}) {
+function asCommandLineArgs(
+    parsedArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]>,
+    defaultArgs: Record<string, number | null | undefined | string | boolean | (string | boolean)[]> = {}
+) {
     return Object.entries(parsedArgs)
         .filter(([key, value]) => !isEqual(value, defaultArgs[key]))
-        .map(([key, value]) => `--${kebabize(key)}${typeof value === 'string' || Array.isArray(value) ? `=${asArray(value).join(',')}` : ''}`)
+        .map(
+            ([key, value]) => `--${kebabize(key)}${typeof value === 'string' || Array.isArray(value) ? `=${asArray(value).join(',')}` : ''}`
+        )
         .filter(Boolean)
         .join(' ');
 }
@@ -409,57 +487,72 @@ function asArray<T>(value: T | T[]) {
 }
 
 function getBasicOptions(packageName: string, pkg: PkgInfo) {
-    return [{
-        title: 'General',
-        field: 'general',
-        render: (_option: Option, value: OptionsValue) => isEqual(removeEmpty({
-            name: value.name,
-            version: value.version,
-            description: value.description,
-            license: value.license,
-            author: value.author,
-            readme: value.readme
-        }), removeEmpty({
-            name: pkg.pkg.name,
-            version: pkg.pkg.version,
-            description: pkg.pkg.description,
-            license: pkg.pkg.license,
-            author: pkg.pkg.author,
-            readme: pkg.pkg.readme
-        })) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
-        items: [{
-            title: 'Package Name',
-            field: 'name',
-            initialValue: chooseValue(pkg.pkg.name, packageName)
-        }, {
-            title: 'Version',
-            field: 'version',
-            initialValue: chooseValue(pkg.pkg.version, '0.0.1')
-        }, {
-            title: 'Description',
-            field: 'description',
-            initialValue: chooseValue(pkg.pkg.description, '')
-        }, {
-            title: 'License',
-            field: 'license',
-            initialValue: chooseValue(pkg.pkg.license, 'MIT')
-        }, {
-            title: 'Author',
-            field: 'author',
-            initialValue: chooseValue(toAuthorString(pkg.pkg.author), userName() ?? '')
-        }, {
-            title: 'Readme',
-            field: 'readme',
-            initialValue: chooseValue(pkg.pkg.readme, 'README.md')
-        }],
-        mutateInnerObject: false
-    }] as Option[];
+    return [
+        {
+            title: 'General',
+            field: 'general',
+            render: (_option: Option, value: OptionsValue) =>
+                isEqual(
+                    removeEmpty({
+                        name: value.name,
+                        version: value.version,
+                        description: value.description,
+                        license: value.license,
+                        author: value.author,
+                        readme: value.readme,
+                    }),
+                    removeEmpty({
+                        name: pkg.pkg.name,
+                        version: pkg.pkg.version,
+                        description: pkg.pkg.description,
+                        license: pkg.pkg.license,
+                        author: pkg.pkg.author,
+                        readme: pkg.pkg.readme,
+                    })
+                )
+                    ? `[${kleur.green('Ok')}]`
+                    : `[${kleur.blue('Updated')}]`,
+            items: [
+                {
+                    title: 'Package Name',
+                    field: 'name',
+                    initialValue: chooseValue(pkg.pkg.name, packageName),
+                },
+                {
+                    title: 'Version',
+                    field: 'version',
+                    initialValue: chooseValue(pkg.pkg.version, '0.0.1'),
+                },
+                {
+                    title: 'Description',
+                    field: 'description',
+                    initialValue: chooseValue(pkg.pkg.description, ''),
+                },
+                {
+                    title: 'License',
+                    field: 'license',
+                    initialValue: chooseValue(pkg.pkg.license, 'MIT'),
+                },
+                {
+                    title: 'Author',
+                    field: 'author',
+                    initialValue: chooseValue(toAuthorString(pkg.pkg.author), userName() ?? ''),
+                },
+                {
+                    title: 'Readme',
+                    field: 'readme',
+                    initialValue: chooseValue(pkg.pkg.readme, 'README.md'),
+                },
+            ],
+            mutateInnerObject: false,
+        },
+    ] as Option[];
 
     function chooseValue(pkgValue: string | undefined, defaultValue: string) {
         return pkg.mode === 'update' ? pkgValue : defaultValue;
     }
 
-    function toAuthorString(author: undefined | string | { name?: string, email?: string, url?: string }) {
+    function toAuthorString(author: undefined | string | { name?: string; email?: string; url?: string }) {
         if (typeof author === 'string' || !author) {
             return author;
         }
@@ -490,15 +583,17 @@ async function readPackage(dir: string) {
         return {
             pkg,
             readme: readmeFile.toString(),
-            mode: 'update' as const
+            mode: 'update' as const,
         };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) { /**/ }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
+        /**/
+    }
 
     return {
         pkg: defaultPkg,
         readme: '',
-        mode: 'create' as const
+        mode: 'create' as const,
     };
 }
 

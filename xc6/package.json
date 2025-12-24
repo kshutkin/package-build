@@ -1,40 +1,40 @@
 {
-  "version": "0.0.5",
-  "name": "xc6",
-  "description": "eXecute c(ommand) (xc6) is a command line tool to execute commands in a package.json script or a shell script.",
-  "license": "MIT",
-  "author": "Konstantin Shutkin",
-  "readme": "README.md",
-  "type": "module",
-  "bin": "index.js",
-  "engines": {
-    "node": ">=20"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kshutkin/package-build.git",
-    "directory": "xc6"
-  },
-  "bugs": "https://github.com/kshutkin/package-build/issues",
-  "homepage": "https://github.com/kshutkin/package-build/blob/main/xc6/README.md",
-  "files": [
-    "c6s"
-  ],
-  "scripts": {
-    "test": "c8 --src=. --all -r=html node test.js",
-    "lint": "eslint .",
-    "prepack": "pkgbld prune"
-  },
-  "devDependencies": {
-    "pkgbld": "workspace:*",
-    "cli-test-helper": "workspace:*",
-    "c8": "^10.1.3"
-  },
-  "keywords": [
-    "cli",
-    "remove",
-    "symlink",
-    "copy",
-    "move"
-  ]
+    "version": "0.0.5",
+    "name": "xc6",
+    "description": "eXecute c(ommand) (xc6) is a command line tool to execute commands in a package.json script or a shell script.",
+    "license": "MIT",
+    "author": "Konstantin Shutkin",
+    "readme": "README.md",
+    "type": "module",
+    "bin": "index.js",
+    "engines": {
+        "node": ">=20"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kshutkin/package-build.git",
+        "directory": "xc6"
+    },
+    "bugs": "https://github.com/kshutkin/package-build/issues",
+    "homepage": "https://github.com/kshutkin/package-build/blob/main/xc6/README.md",
+    "files": [
+        "c6s"
+    ],
+    "scripts": {
+        "test": "c8 --src=. --all -r=html node test.js",
+        "lint": "eslint .",
+        "prepack": "pkgbld prune"
+    },
+    "devDependencies": {
+        "pkgbld": "workspace:*",
+        "cli-test-helper": "workspace:*",
+        "c8": "catalog:"
+    },
+    "keywords": [
+        "cli",
+        "remove",
+        "symlink",
+        "copy",
+        "move"
+    ]
 }

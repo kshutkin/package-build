@@ -6,5 +6,5 @@ export const Priority = {
     commonjs: 4000,
     transpile: 6000,
     compress: 10000,
-    finalize: 20000
+    finalize: 20000,
 } as const;

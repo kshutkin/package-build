@@ -1,18 +1,26 @@
-import { plugins as pluginFactories } from './get-plugins';
 import refiner from '@slimlib/refine-partition';
+
+import { plugins as pluginFactories } from './get-plugins';
 import { areSetsEqual, toArray } from './helpers';
 import type { InternalModuleFormat, OutputOptions } from 'rollup';
 import type { getHelpers } from './helpers';
 import type { CliOptions, PkgbldPlugin, PkgbldRollupPlugin, Provider } from './types';
 
-export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRollupPlugin[]], inputs: string[], inputsExt: Map<string, string>, config: CliOptions, helpers: ReturnType<typeof getHelpers>, externalPlugins: Partial<PkgbldPlugin>[]) {
+export async function getRollupConfigs(
+    [provider, plugins]: [Provider, PkgbldRollupPlugin[]],
+    inputs: string[],
+    inputsExt: Map<string, string>,
+    config: CliOptions,
+    helpers: ReturnType<typeof getHelpers>,
+    externalPlugins: Partial<PkgbldPlugin>[]
+) {
     const factoryInProgress = [];
-    
+
     const fileNamePatterns = {
-        'es': config.esPattern,
-        'cjs': config.commonjsPattern,
-        'umd': config.umdPattern
-    } as {[key in InternalModuleFormat]: string};
+        es: config.esPattern,
+        cjs: config.commonjsPattern,
+        umd: config.umdPattern,
+    } as { [key in InternalModuleFormat]: string };
 
     for (const factory of pluginFactories) {
         factoryInProgress.push(factory(provider, config, inputs, inputsExt));
@@ -26,7 +34,7 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
 
     await Promise.all(factoryInProgress);
 
-    const expandInputs = new Set<string>;
+    const expandInputs = new Set<string>();
 
     for (const plugin of plugins) {
         if (plugin.format && plugin.inputs?.length && !plugin.outputPlugin) {
@@ -60,24 +68,24 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
     }
 
     const refined = refineNext();
-    const partitions: {formats: InternalModuleFormat[], inputs: string[]}[] = [];
-    
+    const partitions: { formats: InternalModuleFormat[]; inputs: string[] }[] = [];
+
     for (const partition of refined) {
-        const result: {format: InternalModuleFormat, input?: string}[] = [];
+        const result: { format: InternalModuleFormat; input?: string }[] = [];
         for (const format of partition) {
             if (format.includes('.')) {
-                const [,realFormat, input] = format.split(/(.*?)\.(.*)/gm);
+                const [, realFormat, input] = format.split(/(.*?)\.(.*)/gm);
                 result.push({ format: realFormat as InternalModuleFormat, input });
             } else {
                 result.push({ format } as { format: InternalModuleFormat });
             }
         }
-        const mapFormatInputs = new Map<InternalModuleFormat, Set<string>>;
-        const formatsWithoutInputs = new Set<InternalModuleFormat>;
-        for (const {format, input} of result) {
+        const mapFormatInputs = new Map<InternalModuleFormat, Set<string>>();
+        const formatsWithoutInputs = new Set<InternalModuleFormat>();
+        for (const { format, input } of result) {
             if (input) {
                 if (mapFormatInputs.has(format)) {
-                    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                    // biome-ignore lint/style/noNonNullAssertion: false positive
                     mapFormatInputs.get(format)!.add(input);
                 } else {
                     mapFormatInputs.set(format, new Set([input]));
@@ -88,7 +96,9 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
         }
         for (const format of formatsWithoutInputs) {
             if (mapFormatInputs.has(format)) {
-                throw new Error(`${format} is both used with inputs and without in plugins configuration and was not expanded / handled correctly. Please file an issue for pkgbld.`);
+                throw new Error(
+                    `${format} is both used with inputs and without in plugins configuration and was not expanded / handled correctly. Please file an issue for pkgbld.`
+                );
             }
             mapFormatInputs.set(format, new Set(inputs));
         }
@@ -101,13 +111,13 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
             }
             prevInputs = inputs;
         }
-        partitions.push({formats: [...mapFormatInputs.keys()], inputs: [...prevInputs as Set<string>]});
+        partitions.push({ formats: [...mapFormatInputs.keys()], inputs: [...(prevInputs as Set<string>)] });
     }
 
-    return partitions.map(({formats, inputs}) => {
+    return partitions.map(({ formats, inputs }) => {
         return {
             input: inputs,
-    
+
             output: formats.map(format => ({
                 format,
                 dir: config.dir,
@@ -117,32 +127,32 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
                 // this requires more work
                 // preserveModules: true,
                 // preserveModulesRoot: config.sourceDir,
-                ...getExtraOutputSettings(format, inputs)
+                ...getExtraOutputSettings(format, inputs),
             })),
-    
-            plugins: getPlugins(formats, inputs, false)
+
+            plugins: getPlugins(formats, inputs, false),
         };
     });
 
     function getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions> {
         let result = {};
         switch (format) {
-        case 'cjs':
-        case 'es':
-            result = { chunkFileNames: fileNamePatterns[format] };
-            break;
-        case 'umd':
-            if (inputs.length <= 0) {
+            case 'cjs':
+            case 'es':
+                result = { chunkFileNames: fileNamePatterns[format] };
                 break;
-            }
-            if (inputs.length > 1) {
-                throw new Error(`Cannot produce global name for multiple umd inputs in one output: ${inputs}`);
-            }
-            result = {
-                name: helpers.getGlobalName(inputs.join('_')),
-                globals: helpers.getExternalGlobalName,
-            };
-            break;
+            case 'umd':
+                if (inputs.length <= 0) {
+                    break;
+                }
+                if (inputs.length > 1) {
+                    throw new Error(`Cannot produce global name for multiple umd inputs in one output: ${inputs}`);
+                }
+                result = {
+                    name: helpers.getGlobalName(inputs.join('_')),
+                    globals: helpers.getExternalGlobalName,
+                };
+                break;
         }
         for (const ePlugin of externalPlugins) {
             if (ePlugin.getExtraOutputSettings) {
@@ -155,12 +165,14 @@ export async function getRollupConfigs([provider, plugins]: [Provider, PkgbldRol
     function getPlugins(formats: InternalModuleFormat[], inputs: string[], outputPlugin: boolean) {
         const filteredPlugins = [];
         for (const plugin of plugins) {
-            if ((!!plugin.outputPlugin) === outputPlugin) {
-                if ((!plugin.format || toArray(plugin.format).some(format => formats.includes(format)))
-                    && (!plugin.inputs || plugin.inputs.every(input => inputs.includes(input)))) {
+            if (!!plugin.outputPlugin === outputPlugin) {
+                if (
+                    (!plugin.format || toArray(plugin.format).some(format => formats.includes(format))) &&
+                    (!plugin.inputs || plugin.inputs.every(input => inputs.includes(input)))
+                ) {
                     filteredPlugins.push({
                         instance: plugin.plugin(),
-                        priority: plugin.priority
+                        priority: plugin.priority,
                     });
                 }
             }

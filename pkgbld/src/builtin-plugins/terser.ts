@@ -1,8 +1,8 @@
+import { Priority } from '../priorities';
 import type { InternalModuleFormat } from 'rollup';
 import type { CliOptions, Provider } from '../types';
-import { Priority } from '../priorities';
 
-export default async function(provider: Provider, config: CliOptions, inputs: string[], inputsExt: Map<string, string>) {
+export default async function (provider: Provider, config: CliOptions, _inputs: string[], inputsExt: Map<string, string>) {
     const filteredFormats = config.compressFormats.filter(format => config.formats.includes(format));
 
     if (filteredFormats.length > 0) {
@@ -11,11 +11,11 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
         const options = {
             mangle: {
                 properties: {
-                    regex: /_$/
-                }
-            }
+                    regex: /_$/,
+                },
+            },
         };
-        
+
         if (config.removeLegalComments) {
             (options as unknown as { output: { comments: boolean } }).output = {
                 comments: false,
@@ -28,11 +28,14 @@ export default async function(provider: Provider, config: CliOptions, inputs: st
                     provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true });
                 } else {
                     for (const currentInput of config.umdInputs) {
-                        provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true, inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`] });
+                        provider.provide(() => pluginTerser(options), Priority.compress, {
+                            format,
+                            outputPlugin: true,
+                            inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
+                        });
                     }
                 }
             }
-            
         }
     }
 }

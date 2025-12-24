@@ -1,26 +1,34 @@
-import { PackageJson } from 'options';
+import type { PackageJson } from 'options';
 
-export type Option = ({
-    title: string;
-    field: string;
-    type?: undefined | 'toggle' | 'list';
-} | {
-    title: string;
-    field: string;
-    type: 'multiselect';
-    list: string[];
-} | {
-    title: string;
-    field: string;
-    type: 'select';
-    list: string[];
-}) & ({
-    initialValue?: string;
-} | {
-    items: Option[];
-    mutateInnerObject: boolean;
-    render?: (option: Option, value: OptionsValue) => string;
-});
+export type Option = (
+    | {
+          title: string;
+          field: string;
+          type?: undefined | 'toggle' | 'list';
+      }
+    | {
+          title: string;
+          field: string;
+          type: 'multiselect';
+          list: string[];
+      }
+    | {
+          title: string;
+          field: string;
+          type: 'select';
+          list: string[];
+      }
+) &
+    (
+        | {
+              initialValue?: string;
+          }
+        | {
+              items: Option[];
+              mutateInnerObject: boolean;
+              render?: (option: Option, value: OptionsValue) => string;
+          }
+    );
 
 export type PkgInfo = {
     readme: string;

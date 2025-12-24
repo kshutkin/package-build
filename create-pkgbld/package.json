@@ -33,18 +33,18 @@
   "dependencies": {
     "string-argv": "0.3.2",
     "git-user-name": "2.0.0",
-    "cleye": "1.3.4",
+    "cleye": "catalog:",
     "parse-git-config": "3.0.0",
     "prompts": "2.4.2",
-    "kleur": "4.1.5",
-    "lodash": "4.17.21"
+    "kleur": "catalog:",
+    "lodash": "catalog:"
   },
   "devDependencies": {
     "@types/git-user-name": "2.0.3",
     "@types/parse-git-config": "3.0.4",
     "@types/prompts": "2.4.9",
-    "@types/lodash": "4.17.16",
-    "@total-typescript/ts-reset": "0.6.1",
+    "@types/lodash": "catalog:",
+    "@total-typescript/ts-reset": "catalog:",
     "pkgbld": "workspace:*",
     "options": "workspace:*"
   }

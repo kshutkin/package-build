@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+
 import type { CliOptions } from './types';
 
 export async function createSubpackages(inputs: string[], config: CliOptions) {
@@ -9,7 +10,7 @@ export async function createSubpackages(inputs: string[], config: CliOptions) {
             const pkg = {
                 type: 'module',
                 types: `../${config.dir}/${basename}.d.ts`,
-                main: `../${config.dir}/${basename}.mjs`
+                main: `../${config.dir}/${basename}.mjs`,
             };
 
             await fs.mkdir(basename, { recursive: true });

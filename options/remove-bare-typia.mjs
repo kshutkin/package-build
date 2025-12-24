@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
 const mjsFile = await readFile('./dist/index.mjs', 'utf8');
 

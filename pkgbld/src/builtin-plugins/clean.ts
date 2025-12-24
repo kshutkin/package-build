@@ -1,11 +1,11 @@
 import { Priority } from '../priorities';
 import type { CliOptions, Provider } from '../types';
 
-export default async function(provider: Provider, config: CliOptions) {
+export default async function (provider: Provider, config: CliOptions) {
     if (config.noClean) {
         return;
     }
-    
+
     const pluginClean = await provider.import('@rollup-extras/plugin-clean');
 
     const pluginInstance = pluginClean();

@@ -18,12 +18,12 @@
     "prepack": "pkgbld prune"
   },
   "dependencies": {
-    "dts-buddy": "^0.5.4"
+    "dts-buddy": "catalog:"
   },
   "devDependencies": {
     "pkgbld": "workspace:*",
-    "type-fest": "^4.34.1",
-    "rollup": "^4.34.7"
+    "type-fest": "catalog:",
+    "rollup": "catalog:"
   },
   "files": [
     "dist"

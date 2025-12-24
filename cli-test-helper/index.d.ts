@@ -7,8 +7,6 @@ declare module 'cli-test-helper' {
 	 * Converts files and directories in the file system to a string.
 	 * */
 	export function filesToString(baseDir: string, ignore?: string[]): Promise<string>;
-
-	export {};
 }
 
 //# sourceMappingURL=index.d.ts.map

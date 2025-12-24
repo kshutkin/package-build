@@ -1,20 +1,23 @@
-import type { Plugin, InternalModuleFormat, OutputOptions } from 'rollup';
-import type { getCliOptions } from './get-cli-options';
+import type { InternalModuleFormat, OutputOptions, Plugin } from 'rollup';
 import type { JsonObject, PackageJson } from 'type-fest';
+import type { getCliOptions } from './get-cli-options';
 
 export type Json = null | string | number | boolean | Json[] | { [name: string]: Json };
 
-export type ProvideFunction = (factory: () => Plugin, priority: number, options?: {
-    format?: InternalModuleFormat | InternalModuleFormat[],
-    inputs?: string[],
-    outputPlugin?: true
-}) => void;
+export type ProvideFunction = (
+    factory: () => Plugin,
+    priority: number,
+    options?: {
+        format?: InternalModuleFormat | InternalModuleFormat[];
+        inputs?: string[];
+        outputPlugin?: true;
+    }
+) => void;
 
 export type Provider = {
     provide: ProvideFunction;
-    import: (module: string, exportName?: string) => Promise<((...args: unknown[]) => Plugin)>;
+    import: (module: string, exportName?: string) => Promise<(...args: unknown[]) => Plugin>;
     globalImport: (module: string, exportName?: string | string[]) => void;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     globalSetup: (code: Function | string) => void;
 };
 

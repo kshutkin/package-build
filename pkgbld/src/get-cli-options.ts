@@ -1,7 +1,8 @@
 import { cli, command } from 'cleye';
-import type { PkgbldPlugin } from './types';
 import { cliFlags, cliFlagsDefaults as defaults } from 'options';
+
 import type { PackageJson } from 'type-fest';
+import type { PkgbldPlugin } from './types';
 
 function FlattenParam(value: string | false) {
     if (typeof value === 'boolean') {
@@ -26,26 +27,26 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
                     profile: {
                         type: String,
                         description: 'profile to use',
-                        default: 'library'
+                        default: 'library',
                     },
                     flatten: {
                         type: FlattenParam,
                         description: 'flatten package files',
-                        default: false
+                        default: false,
                     },
                     removeSourcemaps: {
                         type: Boolean,
                         description: 'remove sourcemaps',
-                        default: false
+                        default: false,
                     },
                     optimizeFiles: {
                         type: Boolean,
                         description: 'optimize files array',
-                        default: true
-                    }
-                }
-            })
-        ]
+                        default: true,
+                    },
+                },
+            }),
+        ],
     });
 
     if (cliOptions.command === 'prune') {
@@ -54,7 +55,7 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
             profile: cliOptions.flags.profile,
             flatten: cliOptions.flags.flatten,
             removeSourcemaps: cliOptions.flags.removeSourcemaps,
-            optimizeFiles: cliOptions.flags.optimizeFiles
+            optimizeFiles: cliOptions.flags.optimizeFiles,
         } as const;
     }
     const flags = cliOptions.flags;
@@ -83,7 +84,7 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
         noClean: flags.noClean,
         noBundle: flags.noBundle,
         removeLegalComments: flags.removeLegalComments,
-        noSubpackages: flags.noSubpackages
+        noSubpackages: flags.noSubpackages,
     };
 
     for (const plugin of plugins) {
@@ -91,29 +92,29 @@ export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson
     }
 
     return options as {
-        kind: 'build',
-        umdInputs: string[],
-        compressFormats: string[],
-        sourcemapFormats: string[],
-        formats: string[],
-        formatsOverridden: boolean,
-        preprocess: string[],
-        dir: string,
-        sourceDir: string,
-        bin?: string[],
-        includeExternals: boolean | string[],
-        eject: boolean,
-        noTsConfig: boolean,
-        noUpdatePackageJson: boolean,
-        commonjsPattern: string,
-        esPattern: string,
-        umdPattern: string,
-        formatPackageJson: boolean,
-        noPack: boolean,
-        noExports: boolean,
-        noClean: boolean,
-        noBundle: boolean,
-        removeLegalComments: boolean,
-        noSubpackages: boolean
+        kind: 'build';
+        umdInputs: string[];
+        compressFormats: string[];
+        sourcemapFormats: string[];
+        formats: string[];
+        formatsOverridden: boolean;
+        preprocess: string[];
+        dir: string;
+        sourceDir: string;
+        bin?: string[];
+        includeExternals: boolean | string[];
+        eject: boolean;
+        noTsConfig: boolean;
+        noUpdatePackageJson: boolean;
+        commonjsPattern: string;
+        esPattern: string;
+        umdPattern: string;
+        formatPackageJson: boolean;
+        noPack: boolean;
+        noExports: boolean;
+        noClean: boolean;
+        noBundle: boolean;
+        removeLegalComments: boolean;
+        noSubpackages: boolean;
     };
 }

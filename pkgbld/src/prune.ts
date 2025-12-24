@@ -1,14 +1,19 @@
+import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+import { isExists } from './helpers';
 import type { Logger } from '@niceties/logger';
 import type { JsonObject, JsonValue, PackageJson } from 'type-fest';
-import { mkdir, readdir, rename, rm, stat, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-import { isExists } from './helpers';
 
-export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profile: string, flatten: string | boolean, removeSourcemaps: boolean, optimizeFiles: boolean }, logger: Logger) {
+export async function prunePkg(
+    pkg: PackageJson,
+    options: { kind: 'prune'; profile: string; flatten: string | boolean; removeSourcemaps: boolean; optimizeFiles: boolean },
+    logger: Logger
+) {
     const scriptsToKeep = getScriptsData();
 
     const keys = scriptsToKeep[options.profile];
-    
+
     if (!keys) {
         throw new Error(`unknown profile ${options.profile}`);
     }
@@ -99,22 +104,28 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
                 if (allFilesInDir && dirname !== '.') {
                     if (!depthToFiles.has(depth - 1)) {
                         depthToFiles.set(depth - 1, [dirname]);
-                    }  else {
+                    } else {
                         (depthToFiles.get(depth - 1) as string[]).push(dirname);
                     }
                     const thisDepth = depthToFiles.get(depth) as string[];
-                    depthToFiles.set(depth, thisDepth.filter(file => filesInDir.every(fileInDir => path.join(dirname, fileInDir) !== file)));
+                    depthToFiles.set(
+                        depth,
+                        thisDepth.filter(file => filesInDir.every(fileInDir => path.join(dirname, fileInDir) !== file))
+                    );
                 }
             }
         }
 
         pkg.files = [...new Set(Array.from(depthToFiles.values()).flat())];
 
-        pkg.files = pkg.files.filter(file => {            
+        pkg.files = pkg.files.filter(file => {
             const fileNormalized = normalizePath(file);
             const dirname = path.dirname(fileNormalized);
             const basenameWithoutExtension = path.basename(fileNormalized, path.extname(fileNormalized)).toUpperCase();
-            return !filterFiles.includes(fileNormalized) && (dirname !== '' && dirname !== '.' || !specialFiles.includes(basenameWithoutExtension));
+            return (
+                !filterFiles.includes(fileNormalized) &&
+                ((dirname !== '' && dirname !== '.') || !specialFiles.includes(basenameWithoutExtension))
+            );
         });
 
         const ignoreDirs: string[] = [];
@@ -122,10 +133,12 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
         for (const fileOrDir of pkg.files) {
             if (await isDirectory(fileOrDir)) {
                 const allFiles = await walkDir(fileOrDir);
-                if (allFiles.every(file => {
-                    const fileNormalized = normalizePath(file);
-                    return filterFiles.includes(fileNormalized);
-                })) {
+                if (
+                    allFiles.every(file => {
+                        const fileNormalized = normalizePath(file);
+                        return filterFiles.includes(fileNormalized);
+                    })
+                ) {
                     ignoreDirs.push(fileOrDir);
                 }
             }
@@ -136,14 +149,14 @@ export async function prunePkg(pkg: PackageJson, options: { kind: 'prune', profi
         if (pkg.files.length === 0) {
             pkg.files = undefined;
         }
-    }    
+    }
 }
 
 async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger) {
     const { default: jsonata } = await import('jsonata');
-    
+
     // find out where is the dist folder
-    
+
     const expression = jsonata('[bin, bin.*, main, module, unpkg, umd, types, typings, exports[].*.*, typesVersions.*.*, directories.bin]');
     const allReferences = (await expression.evaluate(pkg)) as string[];
     let distDir: string | undefined;
@@ -152,17 +165,17 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     // later when we get dirname we can't flatten directories.bin completely
     // it is easy to fix by checking element is a directory but it is kind of good
     // to have it as a separate directory, but user still can flatten it by specifying the directory
-    
+
     if (flatten === true) {
         let commonSegments: string[] | undefined;
-        
+
         for (const entry of allReferences) {
             if (typeof entry !== 'string') {
                 continue;
             }
-            
+
             const dirname = path.dirname(entry);
-            
+
             const cleanedSegments = dirname.split('/').filter(path => path && path !== '.');
             if (!commonSegments) {
                 commonSegments = cleanedSegments;
@@ -178,40 +191,45 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
         distDir = commonSegments?.join('/');
     } else {
         distDir = normalizePath(flatten);
-    }    
-    
+    }
+
     if (!distDir) {
         throw new Error('could not find dist folder');
     }
-    
+
     logger.update(`flattening ${distDir}...`);
-    
+
     // check if dist can be flattened
-    
+
     const relativeDistDir = `./${distDir}`;
-    
+
     const existsPromises = [] as Promise<string | false>[];
-    
+
     const filesInDist = await walkDir(relativeDistDir);
-    
+
     for (const file of filesInDist) {
         // check file is not in root dir
         const relativePath = path.relative(relativeDistDir, file);
         existsPromises.push(isExists(relativePath));
     }
-    
+
     const exists = await Promise.all(existsPromises);
-    
+
     const filesAlreadyExist = exists.filter(Boolean);
-    
+
     if (filesAlreadyExist.length) {
         throw new Error(`dist folder cannot be flattened because files already exist: ${filesAlreadyExist.join(', ')}`);
     }
 
-    if (typeof flatten === 'string' && 'directories' in pkg && pkg.directories != null
-        && typeof pkg.directories === 'object' && 'bin' in pkg.directories
-        && typeof pkg.directories.bin === 'string' && normalizePath(pkg.directories.bin) === normalizePath(flatten)) {
-        // biome-ignore lint/performance/noDelete: <explanation>
+    if (
+        typeof flatten === 'string' &&
+        'directories' in pkg &&
+        pkg.directories != null &&
+        typeof pkg.directories === 'object' &&
+        'bin' in pkg.directories &&
+        typeof pkg.directories.bin === 'string' &&
+        normalizePath(pkg.directories.bin) === normalizePath(flatten)
+    ) {
         delete pkg.directories.bin;
         if (Object.keys(pkg.directories).length === 0) {
             pkg.directories = undefined;
@@ -236,20 +254,20 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     }
 
     await Promise.all(mkdirPromises);
-    
+
     // move files to root dir (rename)
     const renamePromises = [] as Promise<void>[];
     const newFiles = [] as string[];
-    
+
     for (const file of filesInDist) {
         // check file is not in root dir
         const relativePath = path.relative(relativeDistDir, file);
         newFiles.push(relativePath);
         renamePromises.push(rename(file, relativePath));
     }
-    
+
     await Promise.all(renamePromises);
-    
+
     let cleanedDir = relativeDistDir;
     while (await isEmptyDir(cleanedDir)) {
         await rm(cleanedDir, { recursive: true, force: true });
@@ -261,14 +279,14 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
     }
 
     const normalizedCleanDir = normalizePath(cleanedDir);
-    
+
     const allReferencesSet = new Set(allReferences);
-    
+
     // update package.json
     const stringToReplace = `${distDir}/`; // we append / to remove in from the middle of the string
-    const pkgClone = cloneAndUpdate(pkg, value => allReferencesSet.has(value) ? value.replace(stringToReplace, '') : value);
+    const pkgClone = cloneAndUpdate(pkg, value => (allReferencesSet.has(value) ? value.replace(stringToReplace, '') : value));
     Object.assign(pkg, pkgClone);
-    
+
     // update files
     let files = pkg.files;
     if (files) {
@@ -279,7 +297,7 @@ async function flatten(pkg: PackageJson, flatten: string | true, logger: Logger)
         files.push(...newFiles);
         pkg.files = [...files];
     }
-    
+
     // remove extra directories with package.json
     const exports = pkg.exports ? Object.keys(pkg.exports) : [];
     for (const key of exports) {
@@ -342,30 +360,25 @@ async function isDirectory(file: string) {
 async function walkDir(dir: string, ignoreDirs: string[] = []) {
     const entries = await readdir(dir, { withFileTypes: true });
     const files = [] as string[];
-    await Promise.all(entries.map(entry => {
-        const childPath = path.join(dir, entry.name);
-        if (entry.isDirectory() && !ignoreDirs.includes(entry.name)) {
-            return walkDir(childPath)
-                .then(childFiles => {
-                    files.push(...childFiles);
-                });
-        }
-        files.push(childPath);
-    }).filter(Boolean));
+    await Promise.all(
+        entries
+            .map(entry => {
+                const childPath = path.join(dir, entry.name);
+                if (entry.isDirectory() && !ignoreDirs.includes(entry.name)) {
+                    return walkDir(childPath).then(childFiles => {
+                        files.push(...childFiles);
+                    });
+                }
+                files.push(childPath);
+            })
+            .filter(Boolean)
+    );
     return files;
 }
 
 function getScriptsData() {
-    const libraryScripts = new Set([
-        'preinstall',
-        'install',
-        'postinstall',
-        'prepublish',
-        'preprepare',
-        'prepare',
-        'postprepare'
-    ]);
-    
+    const libraryScripts = new Set(['preinstall', 'install', 'postinstall', 'prepublish', 'preprepare', 'prepare', 'postprepare']);
+
     const appScripts = new Set([
         ...libraryScripts,
         'prestart',
@@ -379,11 +392,11 @@ function getScriptsData() {
         'poststop',
         'pretest',
         'test',
-        'posttest'
+        'posttest',
     ]);
-    
+
     return {
         library: libraryScripts,
-        app: appScripts
+        app: appScripts,
     } as Record<string, Set<string>>;
 }

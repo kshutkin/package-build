@@ -1,26 +1,21 @@
 {
-  "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kshutkin/package-build.git"
-  },
-  "scripts": {
-    "build": "pnpm --aggregate-output --reporter=append-only --stream -r build",
-    "lint": "pnpm --aggregate-output --reporter=append-only --stream --parallel -r lint",
-    "test": "pnpm --aggregate-output --reporter=append-only --stream --parallel -r test",
-    "ci:publish": "changeset publish",
-    "postinstall": "ts-patch install"
-  },
-  "devDependencies": {
-    "@changesets/cli": "^2.27.12",
-    "@types/node": "^22.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.24.0",
-    "@typescript-eslint/parser": "^8.24.0",
-    "eslint": "^9.20.1",
-    "ts-patch": "^3.3.0",
-    "typescript": "^5.7.3",
-    "@eslint/eslintrc": "^3.2.0",
-    "@eslint/js": "^9.20.0",
-    "globals": "^16.0.0"
-  }
+    "private": true,
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kshutkin/package-build.git"
+    },
+    "scripts": {
+        "build": "pnpm --aggregate-output --reporter=append-only --stream -r build",
+        "lint": "biome lint .",
+        "test": "pnpm --aggregate-output --reporter=append-only --stream --parallel -r test",
+        "ci:publish": "changeset publish",
+        "postinstall": "ts-patch install"
+    },
+    "devDependencies": {
+        "@changesets/cli": "^2.27.12",
+        "@types/node": "^22.0.0",
+        "@biomejs/biome": "2.3.8",
+        "ts-patch": "^3.3.0",
+        "typescript": "catalog:"
+    }
 }

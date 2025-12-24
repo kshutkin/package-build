@@ -1,17 +1,24 @@
-import path, { dirname, join } from 'node:path';
-import camelCase from 'lodash/camelCase.js';
-import type { OutputOptions } from 'rollup';
-import kleur from 'kleur';
-import { processPackageJson, type PackageJson as PackageJsonO } from 'options';
 import { access, constants, readFile, stat } from 'node:fs/promises';
+import path, { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import kleur from 'kleur';
+import camelCase from 'lodash/camelCase.js';
+import { type PackageJson as PackageJsonO, processPackageJson } from 'options';
+
+import type { OutputOptions } from 'rollup';
 import type { PackageJson } from 'type-fest';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function getHelpers(pkgName: string) {
     function getGlobalName(anInput: string) {
-        return camelCase(path.join(pkgName, path.basename(anInput, path.extname(anInput)) !== 'index' ? path.basename(anInput, path.extname(anInput)) : ''));
+        return camelCase(
+            path.join(
+                pkgName,
+                path.basename(anInput, path.extname(anInput)) !== 'index' ? path.basename(anInput, path.extname(anInput)) : ''
+            )
+        );
     }
 
     function getExternalGlobalName(id: string) {
@@ -23,7 +30,7 @@ export function getHelpers(pkgName: string) {
 
     return {
         getGlobalName,
-        getExternalGlobalName
+        getExternalGlobalName,
     };
 }
 
@@ -54,10 +61,14 @@ export function getTimeDiff(starting: number) {
     return diff >= 1000 ? `${(diff / 1000).toFixed(1)}s` : `${diff}ms`;
 }
 
-export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => a.size === b.size ? [...a].every(value => b.has(value)) : false;
+export const areSetsEqual = <T>(a: Set<T>, b: Set<T>) => (a.size === b.size ? [...a].every(value => b.has(value)) : false);
 
 export function formatPackageJson(pkg: PackageJson) {
-    return processPackageJson(pkg as PackageJsonO, key => key in pkg, key => (pkg as Record<string, unknown>)[key]) as PackageJson;
+    return processPackageJson(
+        pkg as PackageJsonO,
+        key => key in pkg,
+        key => (pkg as Record<string, unknown>)[key]
+    ) as PackageJson;
 }
 
 export async function isExists(file: string) {
@@ -95,7 +106,7 @@ function hasFile(root: string, file: string) {
 
 async function hasWorkspacePackageJson(root: string) {
     const path = join(root, 'package.json');
-    if (!await isReadable(path)) {
+    if (!(await isReadable(path))) {
         return false;
     }
     try {

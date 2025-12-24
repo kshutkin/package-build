@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+
 import type { JsonObject } from 'type-fest';
 
 export async function getJson(fileName: string): Promise<[string, JsonObject]> {

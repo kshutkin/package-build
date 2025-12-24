@@ -1,11 +1,13 @@
 import path from 'node:path';
-import type { Logger } from '@niceties/logger';
-import { writeJson } from './write-json';
-import type { CliOptions, PkgbldPlugin } from './types';
-import { getJson } from './get-json';
+
 import cloneDeep from 'lodash/cloneDeep.js';
 import isEqual from 'lodash/isEqual.js';
+
+import { getJson } from './get-json';
+import { writeJson } from './write-json';
+import type { Logger } from '@niceties/logger';
 import type { JsonObject } from 'type-fest';
+import type { CliOptions, PkgbldPlugin } from './types';
 
 const defaultTsConfig = {
     include: ['src', 'types'],
@@ -20,27 +22,29 @@ const defaultTsConfig = {
         sourceMap: true,
         noUncheckedIndexedAccess: true,
         declaration: true,
-        moduleResolution: 'node'
-    }
+        moduleResolution: 'node',
+    },
 };
 
 export async function checkTsConfig(options: CliOptions, mainLogger: Logger, plugins: Partial<PkgbldPlugin>[]) {
     if (options.noTsConfig) {
         return;
     }
-    // biome-ignore lint/style/useSingleVarDeclarator: <explanation>
-    let config: JsonObject | undefined, needWrite = false;
+    let config: JsonObject | undefined,
+        needWrite = false;
     try {
         [, config] = await getJson('tsconfig.json');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch(_) {/*ignore*/}
+    } catch {
+        /*ignore*/
+    }
     try {
         [, config] = await getJson('jsconfig.json');
         if (config && typeof config === 'object' && !Array.isArray(config)) {
             config.allowJs = true;
         }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch(_) {/*ignore*/}
+    } catch {
+        /*ignore*/
+    }
     if (!config) {
         config = defaultTsConfig;
         needWrite = true;
