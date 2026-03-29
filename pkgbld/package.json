@@ -6,9 +6,10 @@
     "bin": "./index.js",
     "type": "module",
     "main": "./dist/index.mjs",
-    "types": "./dist/index.d.ts",
+    "types": "./types/index.d.ts",
     "files": [
-        "dist"
+        "dist",
+        "types"
     ],
     "engines": {
         "node": ">=20"
@@ -28,7 +29,7 @@
         "rollup"
     ],
     "scripts": {
-        "build": "rollup -c && dts-bundle-generator -o dist/index.d.ts src/index.ts",
+        "build": "rollup -c && dts-buddy",
         "lint": "eslint ./src",
         "prepack": "node ./index.js prune --removeSourcemaps",
         "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
@@ -57,9 +58,8 @@
     },
     "devDependencies": {
         "@types/lodash": "catalog:",
-        "@total-typescript/ts-reset": "catalog:",
         "type-fest": "catalog:",
-        "dts-bundle-generator": "^9.5.1",
+        "dts-buddy": "catalog:",
         "options": "workspace:*",
         "c8": "catalog:",
         "cli-test-helper": "workspace:*"

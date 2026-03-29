@@ -2,23 +2,24 @@
     "private": true,
     "version": "0.3.0",
     "name": "options",
-    "main": "./dist/index.mjs",
-    "module": "./dist/index.mjs",
-    "types": "./dist/index.d.ts",
+    "type": "module",
+    "main": "./src/index.js",
+    "types": "./types/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./types/index.d.ts",
+            "default": "./src/index.js"
+        },
+        "./package.json": "./package.json"
+    },
     "files": [
-        "dist"
+        "src",
+        "types"
     ],
     "scripts": {
-        "build": "rollup -c && node ./remove-bare-typia.mjs"
+        "build": "dts-buddy"
     },
     "devDependencies": {
-        "typia": "12.1.0-dev.20260325",
-        "@total-typescript/ts-reset": "catalog:",
-        "rollup": "catalog:",
-        "rollup-plugin-typescript2": "catalog:",
-        "@rollup/plugin-node-resolve": "catalog:",
-        "@rollup/plugin-commonjs": "catalog:",
-        "@rollup-extras/plugin-clean": "catalog:",
-        "@rollup-extras/plugin-externals": "catalog:"
+        "dts-buddy": "catalog:"
     }
 }

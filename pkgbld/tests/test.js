@@ -1,35 +1,39 @@
-import cd from 'node:child_process';
-import { promisify, parseArgs } from 'node:util';
 import assert from 'node:assert';
-import test, { after, describe } from 'node:test';
+import cd from 'node:child_process';
 import fs from 'node:fs/promises';
 import process from 'node:process';
+import test, { after, describe } from 'node:test';
+import { parseArgs, promisify } from 'node:util';
+
 import { filesToString, stringToFiles } from 'cli-test-helper';
+
 import tests from './tests.json' with { type: 'json' };
 
 const exec = promisify(cd.exec);
 
 const dir = './tests/tmp';
 
-const args = parseArgs({ options: {
-    update: {
-        type: 'boolean',
-        short: 'u',
-        default: false,
+const args = parseArgs({
+    options: {
+        update: {
+            type: 'boolean',
+            short: 'u',
+            default: false,
+        },
+        capture: {
+            type: 'string',
+            short: 'c',
+        },
+        export: {
+            type: 'string',
+            short: 'e',
+        },
+        result: {
+            type: 'string',
+            short: 'r',
+        },
     },
-    capture: {
-        type: 'string',
-        short: 'c'
-    },
-    export: {
-        type: 'string',
-        short: 'e'
-    },
-    result: {
-        type: 'string',
-        short: 'r'
-    }
-}}).values;
+}).values;
 
 const allTestCases = Object.entries(tests).flatMap(entry => entry[1]);
 
@@ -75,7 +79,7 @@ for (const [suiteName, suiteTestCases] of Object.entries(tests)) {
                 await exportFiles(testCase);
                 let result;
                 try {
-                    result = await exec(`cd ${dir}; node ../../index.js ${testCase.args}`);
+                    result = await exec(`cd ${dir}; node ../../index.js${testCase.args != null ? ` ${testCase.args}` : ''}`);
                 } catch (e) {
                     result = e;
                 }

@@ -1,33 +1,40 @@
 {
-  "version": "0.1.2",
-  "name": "pkgbld-plugin-dts-buddy",
-  "description": "Plugin to generate d.ts files for your project using dts-buddy",
-  "license": "MIT",
-  "author": "Konstantin Shutkin",
-  "readme": "README.md",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kshutkin/package-build.git",
-    "directory": "pkgbld-plugin-dts-buddy"
-  },
-  "bugs": "https://github.com/kshutkin/package-build/issues",
-  "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld-plugin-dts-buddy/README.md",
-  "scripts": {
-    "build": "pkgbld --formats=es --no-exports",
-    "lint": "eslint ./src",
-    "prepack": "pkgbld prune"
-  },
-  "dependencies": {
-    "dts-buddy": "catalog:"
-  },
-  "devDependencies": {
-    "pkgbld": "workspace:*",
-    "type-fest": "catalog:",
-    "rollup": "catalog:"
-  },
-  "files": [
-    "dist"
-  ],
-  "type": "module",
-  "main": "./dist/index.mjs"
+    "version": "0.1.2",
+    "name": "pkgbld-plugin-dts-buddy",
+    "description": "Plugin to generate d.ts files for your project using dts-buddy",
+    "license": "MIT",
+    "author": "Konstantin Shutkin",
+    "readme": "README.md",
+    "type": "module",
+    "main": "./src/index.js",
+    "types": "./types/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./types/index.d.ts",
+            "default": "./src/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kshutkin/package-build.git",
+        "directory": "pkgbld-plugin-dts-buddy"
+    },
+    "bugs": "https://github.com/kshutkin/package-build/issues",
+    "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld-plugin-dts-buddy/README.md",
+    "files": [
+        "src",
+        "types"
+    ],
+    "scripts": {
+        "build": "dts-buddy"
+    },
+    "dependencies": {
+        "dts-buddy": "catalog:"
+    },
+    "devDependencies": {
+        "pkgbld": "workspace:*",
+        "type-fest": "catalog:",
+        "rollup": "catalog:"
+    }
 }

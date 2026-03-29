@@ -1,29 +1,23 @@
 // @ts-check
-import typescript from 'rollup-plugin-typescript2';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import clean from '@rollup-extras/plugin-clean';
-import externals from '@rollup-extras/plugin-externals';
-import json from '@rollup/plugin-json';
+
 import path from 'node:path';
 import process from 'node:process';
 
-const input = 'src/index.ts';
+import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
+import clean from '@rollup-extras/plugin-clean';
+import externals from '@rollup-extras/plugin-externals';
+
+const input = 'src/index.js';
 
 const dest = 'dist';
 
-const plugins = [
-    clean(),
-    externals({ external }),
-    resolve(),
-    commonjs(),
-    json(),
-    typescript()
-];
+const plugins = [clean(), externals({ external }), resolve(), commonjs(), json()];
 
 /**
  * @type {import('rollup').RollupOptions}
-  */
+ */
 export default {
     input,
 
@@ -31,10 +25,10 @@ export default {
         sourcemap: true,
         format: 'esm',
         dir: dest,
-        entryFileNames: '[name].mjs'
+        entryFileNames: '[name].mjs',
     },
 
-    plugins: plugins
+    plugins: plugins,
 };
 
 function external(id, external, importer) {

@@ -4,10 +4,11 @@
     "license": "MIT",
     "author": "Konstantin Shutkin",
     "bin": "./index.js",
-    "main": "./dist/index.mjs",
+    "main": "./src/index.js",
     "type": "module",
     "files": [
-        "dist"
+        "src",
+        "index.js"
     ],
     "engines": {
         "node": ">=20"
@@ -26,9 +27,7 @@
         "init"
     ],
     "scripts": {
-        "build": "pkgbld --include-externals=options --formats=es --no-exports",
-        "lint": "eslint ./src",
-        "prepack": "pkgbld prune"
+        "build": "echo 'no build needed'"
     },
     "dependencies": {
         "string-argv": "0.3.2",
@@ -37,15 +36,13 @@
         "parse-git-config": "3.0.0",
         "prompts": "2.4.2",
         "@niceties/ansi": "catalog:",
-        "lodash": "catalog:"
+        "lodash": "catalog:",
+        "options": "workspace:*"
     },
     "devDependencies": {
         "@types/git-user-name": "2.0.3",
         "@types/parse-git-config": "3.0.4",
         "@types/prompts": "2.4.9",
-        "@types/lodash": "catalog:",
-        "@total-typescript/ts-reset": "catalog:",
-        "pkgbld": "workspace:*",
-        "options": "workspace:*"
+        "@types/lodash": "catalog:"
     }
 }

@@ -60,5 +60,5 @@ export default {
         chunkFileNames: '[name].[hash].mjs',
     },
 
-    plugins: [preprocess.default({ include: ['src/index.ts'], context: { esm: true } }), ...plugins],
+    plugins: [preprocess.default({ include: ['src/index.js'], context: { esm: true } }), ...plugins],
 };
