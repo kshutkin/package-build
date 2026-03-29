@@ -1,22 +1,18 @@
 {
-  "include": [
-    "src",
-    "types"
-  ],
-  "compilerOptions": {
-    "lib": [
-      "dom",
-      "esnext"
-    ],
-    "target": "esnext",
-    "module": "esnext",
-    "esModuleInterop": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "declaration": true,
-    "moduleResolution": "node",
-    "plugins": [{ 
-      "transform": "typia/lib/transform"
-    }]
-  }
+    "include": ["src", "types"],
+    "compilerOptions": {
+        "lib": ["dom", "esnext"],
+        "target": "esnext",
+        "module": "node16",
+        "esModuleInterop": true,
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "declaration": true,
+        "moduleResolution": "node16",
+        "plugins": [
+            {
+                "transform": "typia/lib/transform"
+            }
+        ]
+    }
 }

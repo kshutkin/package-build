@@ -2,9 +2,10 @@ import { access, constants, readFile, stat } from 'node:fs/promises';
 import path, { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import kleur from 'kleur';
 import camelCase from 'lodash/camelCase.js';
 import { type PackageJson as PackageJsonO, processPackageJson } from 'options';
+
+import { cyan, magenta } from '@niceties/ansi';
 
 import type { OutputOptions } from 'rollup';
 import type { PackageJson } from 'type-fest';
@@ -45,7 +46,7 @@ export function toArray<T>(object: T | T[] | undefined) {
 }
 
 export function formatInput(input: string[] | string): string {
-    return (Array.isArray(input) ? input : [input ?? '']).map(item => kleur.magenta(path.basename(item, path.extname(item)))).join(', ');
+    return (Array.isArray(input) ? input : [input ?? '']).map(item => magenta(path.basename(item, path.extname(item)))).join(', ');
 }
 
 export function formatOutput(output: OutputOptions | OutputOptions[] | undefined, field: 'dir' | 'format'): string {
@@ -53,7 +54,7 @@ export function formatOutput(output: OutputOptions | OutputOptions[] | undefined
     if (output == null) {
         return '';
     }
-    return (Array.isArray(output) ? output : [output ?? '']).map(item => kleur.cyan(item[field] as string)).join(', ');
+    return (Array.isArray(output) ? output : [output ?? '']).map(item => cyan(item[field] as string)).join(', ');
 }
 
 export function getTimeDiff(starting: number) {

@@ -2,14 +2,20 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cli } from 'cleye';
 import userName from 'git-user-name';
-import kleur from 'kleur';
 import isEqual from 'lodash/isEqual.js';
 import { cliFlags, cliFlagsDefaults, isPackageJson, type PackageJson, processPackageJson, toFormattedJson } from 'options';
 import gitConfig from 'parse-git-config';
 import prompts, { type PromptObject } from 'prompts';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
+
+import { blue, gray, green, white } from '@niceties/ansi';
+import { parseArgsPlus } from '@niceties/node-parseargs-plus';
+import { camelCase } from '@niceties/node-parseargs-plus/camel-case';
+import { customValue } from '@niceties/node-parseargs-plus/custom-value';
+import { help } from '@niceties/node-parseargs-plus/help';
+import { optionalValue } from '@niceties/node-parseargs-plus/optional-value';
+import { parameters } from '@niceties/node-parseargs-plus/parameters';
 
 import getGitRoot from './get-git-root';
 import type { Option, OptionsValue, PkgInfo } from './types';
@@ -24,28 +30,31 @@ const pkgbldBinaries = ['pkgbld', 'pkgbld-internal', 'node ../pkgbld/dist/index.
 async function execute() {
     const version = await reportVersion();
 
-    const args = cli({
-        name: 'create-pkgbld',
-        version,
-        parameters: ['[package name]'],
-        flags: {
-            quiet: {
-                type: Boolean,
-                description: 'Quiet mode',
-                default: false,
+    const args = parseArgsPlus(
+        {
+            name: 'create-pkgbld',
+            version,
+            parameters: ['[package name]'],
+            options: {
+                quiet: {
+                    type: 'boolean' as const,
+                    description: 'Quiet mode',
+                    default: false,
+                },
             },
         },
-    });
+        [help, parameters]
+    );
 
-    if (!args.flags.quiet) args.showVersion();
+    if (!args.values.quiet) console.log(`create-pkgbld v${version}\n`);
 
-    const targetDir = path.join(process.cwd(), args._.packageName ?? '.');
+    const targetDir = path.join(process.cwd(), args.parameters.packageName ?? '.');
 
-    if (!args.flags.quiet) console.log(kleur.grey(pad16plus('Target Directory', 0)) + kleur.white(targetDir));
+    if (!args.values.quiet) console.log(gray(pad16plus('Target Directory', 0)) + white(targetDir));
 
     const pkg = await readPackage(targetDir);
 
-    if (!args.flags.quiet) console.log(kleur.grey(pad16plus('Mode', 0)) + kleur.white(pkg.mode));
+    if (!args.values.quiet) console.log(gray(pad16plus('Mode', 0)) + white(pkg.mode));
 
     const packageName = path.basename(targetDir);
 
@@ -59,7 +68,7 @@ async function execute() {
 
     const state = getOptionsValue(options);
 
-    if (!args.flags.quiet) {
+    if (!args.values.quiet) {
         for (;;) {
             const topLevelAction = await prompts(
                 {
@@ -67,7 +76,7 @@ async function execute() {
                     name: 'value',
                     message: 'Select an option to change, Done to execute, Escape to cancel',
                     choices: [
-                        { title: kleur.green('Done'), description: `${pkg.mode === 'update' ? 'Update' : 'Create'} package`, value: done },
+                        { title: green('Done'), description: `${pkg.mode === 'update' ? 'Update' : 'Create'} package`, value: done },
                         ...options.map(mapOption(state)),
                     ],
                     initial: 0,
@@ -198,7 +207,7 @@ function mapOption(state: OptionsValue) {
         return {
             title:
                 pad16plus(option.title) +
-                kleur.grey(
+                gray(
                     'items' in option
                         ? getPrintString(
                               option,
@@ -231,7 +240,7 @@ function getPrintString(
         )
         .map(
             item =>
-                `${kleur.grey(item.title)} ${kleur.white(
+                `${gray(item.title)} ${white(
                     'items' in item
                         ? `[${getPrintString(item, item.mutateInnerObject ? (json[item.field] as OptionsValue) : json)}]`
                         : (json[item.field] as string)
@@ -290,8 +299,8 @@ async function getGitOptions(targetDir: string, packageJson: PackageJson) {
                                 homepage: packageJson.homepage,
                             })
                         )
-                            ? `[${kleur.green('Ok')}]`
-                            : `[${kleur.blue('Updated')}]`,
+                            ? `[${green('Ok')}]`
+                            : `[${blue('Updated')}]`,
                     items: [
                         {
                             title: 'Homepage',
@@ -356,17 +365,31 @@ function getPkgbldOptions(pkg: PackageJson) {
             }
         }
 
-        const parsedArgs = cli(
+        const binaryWords = binary.split(/\s+/).length;
+        const argv = toArgv(cmd).slice(binaryWords);
+
+        const parsedArgs = parseArgsPlus(
             {
-                help: false,
-                flags: cliFlags,
+                options: cliFlags,
+                strict: false,
+                args: argv,
             },
-            undefined,
-            toArgv(cmd)
+            [camelCase, customValue, optionalValue]
         );
 
-        args = parsedArgs.flags;
-        args.extraParameters = asCommandLineArgs(parsedArgs.unknownFlags);
+        const knownKeys = new Set(Object.keys(cliFlags));
+        const unknownFlags: Record<string, number | null | undefined | string | boolean | (string | boolean)[]> = {};
+        for (const [key, value] of Object.entries(parsedArgs.values)) {
+            if (knownKeys.has(key)) {
+                if (value !== undefined) {
+                    (args as Record<string, unknown>)[key] = value;
+                }
+            } else {
+                unknownFlags[key] = value as string | boolean;
+            }
+        }
+        args = { ...cliFlagsDefaults, ...args };
+        args.extraParameters = asCommandLineArgs(unknownFlags);
     }
 
     return [
@@ -374,8 +397,7 @@ function getPkgbldOptions(pkg: PackageJson) {
             title: 'pkgbld',
             field: 'pkgbld',
             mutateInnerObject: true,
-            render: (_option: Option, value: OptionsValue) =>
-                cmd === getScriptValue(value) ? `[${kleur.green('Ok')}]` : `[${kleur.blue('Updated')}]`,
+            render: (_option: Option, value: OptionsValue) => (cmd === getScriptValue(value) ? `[${green('Ok')}]` : `[${blue('Updated')}]`),
             items: [
                 {
                     title: 'Destination folder',
@@ -510,8 +532,8 @@ function getBasicOptions(packageName: string, pkg: PkgInfo) {
                         readme: pkg.pkg.readme,
                     })
                 )
-                    ? `[${kleur.green('Ok')}]`
-                    : `[${kleur.blue('Updated')}]`,
+                    ? `[${green('Ok')}]`
+                    : `[${blue('Updated')}]`,
             items: [
                 {
                     title: 'Package Name',

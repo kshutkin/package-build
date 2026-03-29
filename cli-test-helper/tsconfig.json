@@ -3,7 +3,7 @@
     "compilerOptions": {
         "lib": ["esnext"],
         "target": "esnext",
-        "module": "esnext",
+        "module": "node16",
         "esModuleInterop": true,
         "allowJs": true,
         "checkJs": true,
@@ -12,6 +12,6 @@
         "strict": true,
         "noUncheckedIndexedAccess": true,
         "declaration": true,
-        "moduleResolution": "node"
+        "moduleResolution": "node16"
     }
 }

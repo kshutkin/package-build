@@ -1,13 +1,16 @@
-import { cli, command } from 'cleye';
 import { cliFlags, cliFlagsDefaults as defaults } from 'options';
+
+import { parseArgsPlus } from '@niceties/node-parseargs-plus';
+import { camelCase } from '@niceties/node-parseargs-plus/camel-case';
+import { commands } from '@niceties/node-parseargs-plus/commands';
+import { customValue } from '@niceties/node-parseargs-plus/custom-value';
+import { help } from '@niceties/node-parseargs-plus/help';
+import { optionalValue } from '@niceties/node-parseargs-plus/optional-value';
 
 import type { PackageJson } from 'type-fest';
 import type { PkgbldPlugin } from './types';
 
-function FlattenParam(value: string | false) {
-    if (typeof value === 'boolean') {
-        return value; // false
-    }
+function FlattenParam(value: string) {
     if (value === '') {
         return true; // means auto
     }
@@ -15,63 +18,65 @@ function FlattenParam(value: string | false) {
 }
 
 export function getCliOptions(plugins: Partial<PkgbldPlugin>[], pkg: PackageJson) {
-    const cliOptions = cli({
-        name: 'pkgbld',
-        version: pkg.version ?? '<unknown>',
-        flags: cliFlags,
-        commands: [
-            command({
-                name: 'prune',
-                description: 'prune devDependencies and redundant scripts from package.json',
-                flags: {
-                    profile: {
-                        type: String,
-                        description: 'profile to use',
-                        default: 'library',
-                    },
-                    flatten: {
-                        type: FlattenParam,
-                        description: 'flatten package files',
-                        default: false,
-                    },
-                    removeSourcemaps: {
-                        type: Boolean,
-                        description: 'remove sourcemaps',
-                        default: false,
-                    },
-                    optimizeFiles: {
-                        type: Boolean,
-                        description: 'optimize files array',
-                        default: true,
+    const cliOptions = parseArgsPlus(
+        {
+            name: 'pkgbld',
+            version: pkg.version ?? '<unknown>',
+            options: cliFlags,
+            commands: {
+                prune: {
+                    description: 'prune devDependencies and redundant scripts from package.json',
+                    options: {
+                        profile: {
+                            type: 'string' as const,
+                            description: 'profile to use',
+                            default: 'library',
+                        },
+                        flatten: {
+                            type: FlattenParam,
+                            description: 'flatten package files',
+                            optionalValue: true,
+                        },
+                        removeSourcemaps: {
+                            type: 'boolean' as const,
+                            description: 'remove sourcemaps',
+                            default: false,
+                        },
+                        optimizeFiles: {
+                            type: 'boolean' as const,
+                            description: 'optimize files array',
+                            default: true,
+                        },
                     },
                 },
-            }),
-        ],
-    });
+            },
+        },
+        [help, commands, camelCase, customValue, optionalValue]
+    );
 
     if (cliOptions.command === 'prune') {
         return {
             kind: 'prune',
-            profile: cliOptions.flags.profile,
-            flatten: cliOptions.flags.flatten,
-            removeSourcemaps: cliOptions.flags.removeSourcemaps,
-            optimizeFiles: cliOptions.flags.optimizeFiles,
+            profile: cliOptions.values.profile,
+            flatten: cliOptions.values.flatten ?? false,
+            removeSourcemaps: cliOptions.values.removeSourcemaps,
+            optimizeFiles: cliOptions.values.optimizeFiles,
         } as const;
     }
-    const flags = cliOptions.flags;
+    const flags = cliOptions.values;
 
     const options = {
         kind: 'build' as const,
-        umdInputs: flags.umd,
-        compressFormats: flags.compress,
-        sourcemapFormats: flags.sourcemaps,
-        formats: flags.formats,
-        formatsOverridden: flags.formats !== defaults.formats,
-        preprocess: flags.preprocess,
+        umdInputs: flags.umd ?? defaults.umd,
+        compressFormats: flags.compress ?? defaults.compress,
+        sourcemapFormats: flags.sourcemaps ?? defaults.sourcemaps,
+        formats: flags.formats ?? defaults.formats,
+        formatsOverridden: flags.formats != null,
+        preprocess: flags.preprocess ?? defaults.preprocess,
         dir: flags.dest,
         sourceDir: flags.src,
         bin: flags.bin,
-        includeExternals: flags.includeExternals,
+        includeExternals: flags.includeExternals ?? defaults.includeExternals,
         eject: flags.eject,
         noTsConfig: flags.noTsConfig,
         noUpdatePackageJson: flags.noUpdatePackageJson,

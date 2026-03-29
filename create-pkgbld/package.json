@@ -1,51 +1,51 @@
 {
-  "version": "1.8.2",
-  "name": "create-pkgbld",
-  "license": "MIT",
-  "author": "Konstantin Shutkin",
-  "bin": "./index.js",
-  "main": "./dist/index.mjs",
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=20"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kshutkin/package-build.git",
-    "directory": "create-pkgbld"
-  },
-  "bugs": "https://github.com/kshutkin/package-build/issues",
-  "homepage": "https://github.com/kshutkin/package-build/blob/main/create-pkgbld/README.md",
-  "readme": "README.md",
-  "keywords": [
-    "pkgbld",
-    "create",
-    "init"
-  ],
-  "scripts": {
-    "build": "pkgbld --include-externals=options --formats=es --no-exports",
-    "lint": "eslint ./src",
-    "prepack": "pkgbld prune"
-  },
-  "dependencies": {
-    "string-argv": "0.3.2",
-    "git-user-name": "2.0.0",
-    "cleye": "catalog:",
-    "parse-git-config": "3.0.0",
-    "prompts": "2.4.2",
-    "kleur": "catalog:",
-    "lodash": "catalog:"
-  },
-  "devDependencies": {
-    "@types/git-user-name": "2.0.3",
-    "@types/parse-git-config": "3.0.4",
-    "@types/prompts": "2.4.9",
-    "@types/lodash": "catalog:",
-    "@total-typescript/ts-reset": "catalog:",
-    "pkgbld": "workspace:*",
-    "options": "workspace:*"
-  }
+    "version": "1.8.2",
+    "name": "create-pkgbld",
+    "license": "MIT",
+    "author": "Konstantin Shutkin",
+    "bin": "./index.js",
+    "main": "./dist/index.mjs",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "engines": {
+        "node": ">=20"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kshutkin/package-build.git",
+        "directory": "create-pkgbld"
+    },
+    "bugs": "https://github.com/kshutkin/package-build/issues",
+    "homepage": "https://github.com/kshutkin/package-build/blob/main/create-pkgbld/README.md",
+    "readme": "README.md",
+    "keywords": [
+        "pkgbld",
+        "create",
+        "init"
+    ],
+    "scripts": {
+        "build": "pkgbld --include-externals=options --formats=es --no-exports",
+        "lint": "eslint ./src",
+        "prepack": "pkgbld prune"
+    },
+    "dependencies": {
+        "string-argv": "0.3.2",
+        "git-user-name": "2.0.0",
+        "@niceties/node-parseargs-plus": "catalog:",
+        "parse-git-config": "3.0.0",
+        "prompts": "2.4.2",
+        "@niceties/ansi": "catalog:",
+        "lodash": "catalog:"
+    },
+    "devDependencies": {
+        "@types/git-user-name": "2.0.3",
+        "@types/parse-git-config": "3.0.4",
+        "@types/prompts": "2.4.9",
+        "@types/lodash": "catalog:",
+        "@total-typescript/ts-reset": "catalog:",
+        "pkgbld": "workspace:*",
+        "options": "workspace:*"
+    }
 }

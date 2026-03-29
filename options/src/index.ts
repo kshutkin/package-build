@@ -9,15 +9,12 @@ export function isPackageJson(value: unknown): value is PackageJson {
 }
 
 function CommaSeparatedString(value: string) {
+    if (value === '') return [];
     return value.split(',').map((arg: string) => arg.trim());
 }
 
-function CommaSeparatedStringOrBoolean(value: string | boolean) {
-    if (typeof value === 'boolean') {
-        return value;
-    }
-    // TODO check how we get array here
-    if (Array.isArray(value) && value.length === 0) {
+function CommaSeparatedStringOrBoolean(value: string) {
+    if (value === '') {
         return true;
     }
     return CommaSeparatedString(value);
@@ -47,110 +44,104 @@ export const cliFlags = {
     umd: {
         type: CommaSeparatedString,
         description: 'Package subpath exports in UMD format',
-        default: cliFlagsDefaults.umd,
     },
     compress: {
         type: CommaSeparatedString,
         description: 'Compress formats using terser',
-        default: cliFlagsDefaults.compress,
     },
     sourcemaps: {
         type: CommaSeparatedString,
         description: 'Emit sourcemaps for the specified formats',
-        default: cliFlagsDefaults.sourcemaps,
     },
     formats: {
         type: CommaSeparatedString,
         description: 'Formats to emit',
-        default: cliFlagsDefaults.formats,
     },
     preprocess: {
         type: CommaSeparatedString,
         description: 'Preprocess entry points / subpath exports',
-        default: cliFlagsDefaults.preprocess,
     },
     dest: {
-        type: String,
+        type: 'string' as const,
         description: 'Output directory',
         default: cliFlagsDefaults.dest,
     },
     src: {
-        type: String,
+        type: 'string' as const,
         description: 'Source directory',
         default: cliFlagsDefaults.src,
     },
     bin: {
         type: CommaSeparatedString,
         description: 'Executable files',
-        default: cliFlagsDefaults.bin,
     },
     includeExternals: {
         type: CommaSeparatedStringOrBoolean,
         description: 'Include all/specified externals into the result bundle(s)',
-        default: cliFlagsDefaults.includeExternals,
+        optionalValue: true,
     },
     eject: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Eject config',
         default: cliFlagsDefaults.eject,
     },
     noTsConfig: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Do not create / update tsconfig.json',
         default: cliFlagsDefaults.noTsConfig,
     },
     noUpdatePackageJson: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Do not create / update package.json',
         default: cliFlagsDefaults.noUpdatePackageJson,
     },
     commonjsPattern: {
-        type: String,
+        type: 'string' as const,
         description: 'CommonJS output file name pattern',
         default: cliFlagsDefaults.commonjsPattern,
     },
     esmPattern: {
-        type: String,
+        type: 'string' as const,
         description: 'ES output file name pattern',
         default: cliFlagsDefaults.esmPattern,
     },
     umdPattern: {
-        type: String,
+        type: 'string' as const,
         description: 'UMD output file name pattern',
         default: cliFlagsDefaults.umdPattern,
     },
     formatPackageJson: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Format package.json',
         default: cliFlagsDefaults.formatPackageJson,
     },
     noPack: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Do not pack',
         default: false,
     },
     noExports: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Do not add exports field to package.json',
         default: false,
     },
     noClean: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Do not clean the output directory',
         default: false,
     },
     noBundle: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Do not bundle',
         default: false,
     },
     removeLegalComments: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Remove legal comments',
         default: false,
     },
     noSubpackages: {
-        type: Boolean,
+        type: 'boolean' as const,
         description: 'Do not create subpackage directories with package.json files',
         default: cliFlagsDefaults.noSubpackages,
     },

@@ -51,8 +51,8 @@
         "@slimlib/smart-mock": "^0.1.6",
         "is-builtin-module": "catalog:",
         "terser": "^5.39.0",
-        "kleur": "catalog:",
-        "cleye": "catalog:",
+        "@niceties/ansi": "catalog:",
+        "@niceties/node-parseargs-plus": "catalog:",
         "jsonata": "catalog:"
     },
     "devDependencies": {

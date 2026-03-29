@@ -3,9 +3,9 @@
 import '@niceties/draftlog-appender';
 import { dirname, join } from 'node:path';
 
-import kleur from 'kleur';
 import { type RollupOptions, rollup } from 'rollup';
 
+import { green } from '@niceties/ansi';
 import { createLogger, LogLevel } from '@niceties/logger';
 
 import { createSubpackages } from './create-subpackages';
@@ -96,7 +96,7 @@ async function execute() {
         const bundle = await rollup(config);
         await Promise.all(toArray(config.output).map(config => bundle.write(config)));
         await bundle.close();
-        mainLogger(`${kleur.green('✓')} ${formatInput(config.input as string | string[])} [${formatOutput(config.output, 'format')}]`);
+        mainLogger(`${green('✓')} ${formatInput(config.input as string | string[])} [${formatOutput(config.output, 'format')}]`);
         mainLogger.update(updater());
     }
 }

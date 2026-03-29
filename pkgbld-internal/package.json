@@ -35,17 +35,17 @@
         "@rollup/plugin-node-resolve": "catalog:",
         "@rollup/plugin-json": "catalog:",
         "is-builtin-module": "catalog:",
-        "kleur": "catalog:",
+        "@niceties/ansi": "catalog:",
         "draftlog": "^1.0.13",
         "pkg-dir": "^5.0.0",
-        "cleye": "catalog:",
+        "@niceties/node-parseargs-plus": "catalog:",
         "jsonata": "catalog:",
         "@niceties/logger": "catalog:",
         "@niceties/draftlog-appender": "catalog:",
         "@slimlib/refine-partition": "catalog:"
     },
     "peerDependencies": {
-        "typescript": ">=5.3.3"
+        "typescript": ">=6.0.2"
     },
     "devDependencies": {
         "@rollup-extras/plugin-binify": "catalog:",

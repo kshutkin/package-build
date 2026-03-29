@@ -6,12 +6,18 @@ settings:
 
 catalogs:
   default:
+    '@niceties/ansi':
+      specifier: ^1.1.2
+      version: 1.1.2
     '@niceties/draftlog-appender':
-      specifier: ^2.0.0
-      version: 2.1.0
+      specifier: ^2.1.1
+      version: 2.1.1
     '@niceties/logger':
-      specifier: ^2.1.0
-      version: 2.1.0
+      specifier: ^2.1.1
+      version: 2.1.1
+    '@niceties/node-parseargs-plus':
+      specifier: ^0.5.1
+      version: 0.5.1
     '@rollup-extras/plugin-binify':
       specifier: ^2.0.0
       version: 2.0.0
@@ -45,9 +51,6 @@ catalogs:
     c8:
       specifier: ^10.1.3
       version: 10.1.3
-    cleye:
-      specifier: ^1.3.4
-      version: 1.3.4
     dts-buddy:
       specifier: ^0.6.2
       version: 0.6.2
@@ -57,9 +60,6 @@ catalogs:
     jsonata:
       specifier: ^2.0.6
       version: 2.0.6
-    kleur:
-      specifier: ^4.1.5
-      version: 4.1.5
     lodash:
       specifier: ^4.17.21
       version: 4.17.21
@@ -76,8 +76,8 @@ catalogs:
       specifier: ^4.34.1
       version: 4.34.1
     typescript:
-      specifier: '>=5.3.3'
-      version: 5.8.2
+      specifier: '>=6.0.2'
+      version: 6.0.2
 
 importers:
 
@@ -97,7 +97,7 @@ importers:
         version: 3.3.0
       typescript:
         specifier: 'catalog:'
-        version: 5.8.2
+        version: 6.0.2
 
   cli-test-helper:
     devDependencies:
@@ -106,25 +106,25 @@ importers:
         version: 10.1.3
       dts-buddy:
         specifier: 'catalog:'
-        version: 0.6.2(typescript@5.8.2)
+        version: 0.6.2(typescript@6.0.2)
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
       typescript:
         specifier: 'catalog:'
-        version: 5.8.2
+        version: 6.0.2
 
   create-pkgbld:
     dependencies:
-      cleye:
+      '@niceties/ansi':
         specifier: 'catalog:'
-        version: 1.3.4
+        version: 1.1.2
+      '@niceties/node-parseargs-plus':
+        specifier: 'catalog:'
+        version: 0.5.1
       git-user-name:
         specifier: 2.0.0
         version: 2.0.0
-      kleur:
-        specifier: 'catalog:'
-        version: 4.1.5
       lodash:
         specifier: 'catalog:'
         version: 4.17.21
@@ -194,19 +194,25 @@ importers:
         version: 4.34.7
       rollup-plugin-typescript2:
         specifier: 'catalog:'
-        version: 0.36.0(rollup@4.34.7)(typescript@5.8.2)
+        version: 0.36.0(rollup@4.34.7)(typescript@6.0.2)
       typia:
-        specifier: ^10.1.0
-        version: 10.1.0(typescript@5.8.2)
+        specifier: 12.1.0-dev.20260325
+        version: 12.1.0-dev.20260325(typescript@6.0.2)
 
   pkgbld:
     dependencies:
+      '@niceties/ansi':
+        specifier: 'catalog:'
+        version: 1.1.2
       '@niceties/draftlog-appender':
         specifier: 'catalog:'
-        version: 2.1.0(@niceties/logger@2.1.0)
+        version: 2.1.1(@niceties/logger@2.1.1)
       '@niceties/logger':
         specifier: 'catalog:'
-        version: 2.1.0
+        version: 2.1.1
+      '@niceties/node-parseargs-plus':
+        specifier: 'catalog:'
+        version: 0.5.1
       '@rollup-extras/plugin-binify':
         specifier: 'catalog:'
         version: 2.0.0(rollup@4.34.7)
@@ -234,18 +240,12 @@ importers:
       '@slimlib/smart-mock':
         specifier: ^0.1.6
         version: 0.1.6
-      cleye:
-        specifier: 'catalog:'
-        version: 1.3.4
       is-builtin-module:
         specifier: 'catalog:'
         version: 3.2.1
       jsonata:
         specifier: 'catalog:'
         version: 2.0.6
-      kleur:
-        specifier: 'catalog:'
-        version: 4.1.5
       lodash:
         specifier: 'catalog:'
         version: 4.17.21
@@ -257,13 +257,13 @@ importers:
         version: 0.0.4
       rollup-plugin-typescript2:
         specifier: 'catalog:'
-        version: 0.36.0(rollup@4.34.7)(typescript@5.8.2)
+        version: 0.36.0(rollup@4.34.7)(typescript@6.0.2)
       terser:
         specifier: ^5.39.0
         version: 5.39.0
       typescript:
         specifier: 'catalog:'
-        version: 5.8.2
+        version: 6.0.2
     devDependencies:
       '@total-typescript/ts-reset':
         specifier: 'catalog:'
@@ -289,12 +289,18 @@ importers:
 
   pkgbld-internal:
     dependencies:
+      '@niceties/ansi':
+        specifier: 'catalog:'
+        version: 1.1.2
       '@niceties/draftlog-appender':
         specifier: 'catalog:'
-        version: 2.1.0(@niceties/logger@2.1.0)
+        version: 2.1.1(@niceties/logger@2.1.1)
       '@niceties/logger':
         specifier: 'catalog:'
-        version: 2.1.0
+        version: 2.1.1
+      '@niceties/node-parseargs-plus':
+        specifier: 'catalog:'
+        version: 0.5.1
       '@rollup/plugin-commonjs':
         specifier: 'catalog:'
         version: 28.0.2(rollup@4.34.7)
@@ -310,9 +316,6 @@ importers:
       '@slimlib/refine-partition':
         specifier: 'catalog:'
         version: 2.0.2
-      cleye:
-        specifier: 'catalog:'
-        version: 1.3.4
       draftlog:
         specifier: ^1.0.13
         version: 1.0.13
@@ -322,9 +325,6 @@ importers:
       jsonata:
         specifier: 'catalog:'
         version: 2.0.6
-      kleur:
-        specifier: 'catalog:'
-        version: 4.1.5
       lodash:
         specifier: 'catalog:'
         version: 4.17.21
@@ -339,10 +339,10 @@ importers:
         version: 0.0.4
       rollup-plugin-typescript2:
         specifier: 'catalog:'
-        version: 0.36.0(rollup@4.34.7)(typescript@5.8.2)
+        version: 0.36.0(rollup@4.34.7)(typescript@6.0.2)
       typescript:
-        specifier: '>=5.3.3'
-        version: 5.8.2
+        specifier: '>=6.0.2'
+        version: 6.0.2
     devDependencies:
       '@rollup-extras/plugin-binify':
         specifier: 'catalog:'
@@ -364,7 +364,7 @@ importers:
     dependencies:
       dts-buddy:
         specifier: 'catalog:'
-        version: 0.6.2(typescript@5.8.2)
+        version: 0.6.2(typescript@6.0.2)
     devDependencies:
       pkgbld:
         specifier: workspace:*
@@ -549,19 +549,31 @@ packages:
     resolution: {integrity: sha512-4nQvmZqQxfBFGZbF15EKGOUbmsAMEPSsmv3RupWP7YvBKBky51+y4QmqEhJ3fAqpriIQW4x5krAOQppbPEgKfw==}
     engines: {node: '>=15'}
 
-  '@niceties/draftlog-appender@2.1.0':
-    resolution: {integrity: sha512-Ij0BajmLEgKx/m9j6cBkggctra5AhSixM/0qjpF1E47ihB87kRvGPWmKNw2kZ+6wEo1SDf6QHOveG86h/Bh9jg==}
+  '@niceties/ansi@1.1.2':
+    resolution: {integrity: sha512-4SZgmseZqfGAIrcXmfVes+Uj51KMUQNZ3X31faRB8g2tyebDzW+zlkeg1qmhilrgJOi3nm6EOMlkfJVrgiBzZg==}
+    engines: {node: '>=15'}
+
+  '@niceties/draftlog-appender@2.1.1':
+    resolution: {integrity: sha512-VmOtJrvo/LCQ0WNUoCkeIVIr+NlWfSCYeBL7lNnyHf3qETRva3eAhHsZhpnt0XWvby/K09aWk9k2AO+4UFzHLw==}
     engines: {node: '>=15'}
     peerDependencies:
-      '@niceties/logger': ^2.1.0
+      '@niceties/logger': ^2.1.1
 
-  '@niceties/draftlog@1.0.0':
-    resolution: {integrity: sha512-3hdOdIoczeaxjNj2X8fc2lK3XT8omi8LPEEGadrSb7I9vnYuau6aP1fk+78TwRAZvQWxHkCLxe+RmDD2p6RTEA==}
+  '@niceties/draftlog@1.0.1':
+    resolution: {integrity: sha512-JOtaWqTCTjB3DVErWgwwVNO+mnbNRCP4QoVm+0/Z/2S9d5CslX0mupfk/9/4pSw+9Pl3bGjgiOyUnXkBW0qbLQ==}
     engines: {node: '>=15'}
 
   '@niceties/logger@2.1.0':
     resolution: {integrity: sha512-yZY0M4hG7LwYc+2/1nm2FTzZG99m4fxnDSyKjENOW8PoPKw1G382VB0AQVH5h1+huFIXYGEUyuvGXpoY4CFHZA==}
     engines: {node: '>=15'}
+
+  '@niceties/logger@2.1.1':
+    resolution: {integrity: sha512-taqDVn4TRCh3j5QJQNlWKE9MSHxGh7nr9zE8SkdHMvsijp6Vx6qd3XYSV7bF7nnYYC/JYjJILxfqDeEUeEjtfQ==}
+    engines: {node: '>=15'}
+
+  '@niceties/node-parseargs-plus@0.5.1':
+    resolution: {integrity: sha512-D4r9IJSxFxCB/60TJT4J5OI8+G8P9LLxPv2OaS3FNmM4bffCsJFvvX1uF4wXzf3QuqorsukBE8MbilHiVAVhJg==}
+    engines: {node: '>=18.3.0'}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -778,9 +790,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@samchon/openapi@5.1.0':
-    resolution: {integrity: sha512-PudEhIB/YO+NJPv712+6U7H5qVGJ314QfOnabRxLWoR/A3Hw/wHuHq1Yeb1sdi1Xlx3dUWvGTKXuzE2qEfWR0w==}
-
   '@slimlib/list@2.0.2':
     resolution: {integrity: sha512-F+jyYrHMqDEeWfq94LW1FVKGIH+DmhK+lnOFnPAxqqRhPr+csyWwIR56Nb/eIWg3lkN5jNMgz1i7UNj2IbI7PA==}
 
@@ -827,6 +836,18 @@ packages:
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
+
+  '@typia/core@12.1.0-dev.20260325':
+    resolution: {integrity: sha512-1VuDjSBZLZX9o9IVBmuqoQkj2nFhH4HzuvyJ3Ep7kiGtqFn3mKWyqTNeJ4WZ+PBsU06uxilCWW0VUL8tNGTatw==}
+
+  '@typia/interface@12.1.0-dev.20260325':
+    resolution: {integrity: sha512-oQGBLSKKc6MIxHGbP+aoaUIpCuNDFsfaJslJtzsnB79G2D8bF8q0GHFG3WYc/qCo2KG966JyzFIEjrCXlTAyPw==}
+
+  '@typia/transform@12.1.0-dev.20260325':
+    resolution: {integrity: sha512-u+M4NMXNLvKTTEjZ/2I7z079v+KQzx7Gkb9FEDtlVjzYyFe+QaLEi5OcX24fdLvPlToXzmGsW6f7e92iXQ5XWQ==}
+
+  '@typia/utils@12.1.0-dev.20260325':
+    resolution: {integrity: sha512-0iVdGKV5Ms3sth/ZR6T5JXhHisfx1/68xJ2ItkoKsPsCQRh3dEJZbjHg8STKsEuRqcobAeAKPAjj+qeeSxgPGw==}
 
   acorn@8.12.1:
     resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
@@ -925,9 +946,6 @@ packages:
   ci-info@3.9.0:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
-
-  cleye@1.3.4:
-    resolution: {integrity: sha512-Rd6M8ecBDtdYdPR22h6gG37lPqqJ3hSOaplaGwuGYey9xKmEElOvTgupqfyLSlISshroRpVhYjDtW3vwNUNBaQ==}
 
   cli-cursor@3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
@@ -1686,9 +1704,6 @@ packages:
     resolution: {integrity: sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==}
     engines: {node: '>=8'}
 
-  terminal-columns@1.4.1:
-    resolution: {integrity: sha512-IKVL/itiMy947XWVv4IHV7a0KQXvKjj4ptbi7Ew9MPMcOLzkiQeyx3Gyvh62hKrfJ0RZc4M1nbhzjNM39Kyujw==}
-
   terser@5.39.0:
     resolution: {integrity: sha512-LBAhFyLho16harJoWMg/nZsQYgTrg5jXOn2nCYjRUcZZEdE3qa2zb8QEDRUGVZBW4rlazf2fxkg8tztybTaqWw==}
     engines: {node: '>=10'}
@@ -1734,19 +1749,16 @@ packages:
     resolution: {integrity: sha512-6kSc32kT0rbwxD6QL1CYe8IqdzN/J/ILMrNK+HMQCKH3insCDRY/3ITb0vcBss0a3t72fzh2YSzj8ko1HgwT3g==}
     engines: {node: '>=16'}
 
-  type-flag@3.0.0:
-    resolution: {integrity: sha512-3YaYwMseXCAhBB14RXW5cRQfJQlEknS6i4C8fCfeUdS3ihG9EdccdR9kt3vP73ZdeTGmPb4bZtkDn5XMIn1DLA==}
-
-  typescript@5.8.2:
-    resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
+  typescript@6.0.2:
+    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@10.1.0:
-    resolution: {integrity: sha512-lKeDr+hv9hJgZbQhXtGZ2CUtGNaG6zN9Bz+t9fPIaaFcAbYbZstoo7887eqkCfg+C19QfNGRyGtLwiALvovczA==}
+  typia@12.1.0-dev.20260325:
+    resolution: {integrity: sha512-p9faVRK5zzt+9IeGtfNz5O39lYwXVwJQlfzwZUQaIvEIrQjaZsuKvsNH9s5vJLXI+aAg1Z7teGhrGXFvM47p4g==}
     hasBin: true
     peerDependencies:
-      typescript: '>=4.8.0 <5.10.0'
+      typescript: '>=4.8.0 <7.0.0'
 
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
@@ -2046,19 +2058,29 @@ snapshots:
 
   '@niceties/ansi@1.1.1': {}
 
-  '@niceties/draftlog-appender@2.1.0(@niceties/logger@2.1.0)':
+  '@niceties/ansi@1.1.2': {}
+
+  '@niceties/draftlog-appender@2.1.1(@niceties/logger@2.1.1)':
     dependencies:
-      '@niceties/draftlog': 1.0.0
-      '@niceties/logger': 2.1.0
+      '@niceties/draftlog': 1.0.1
+      '@niceties/logger': 2.1.1
       '@slimlib/list': 2.0.2
 
-  '@niceties/draftlog@1.0.0':
+  '@niceties/draftlog@1.0.1':
     dependencies:
       string-width: 8.2.0
 
   '@niceties/logger@2.1.0':
     dependencies:
       '@niceties/ansi': 1.1.1
+
+  '@niceties/logger@2.1.1':
+    dependencies:
+      '@niceties/ansi': 1.1.2
+
+  '@niceties/node-parseargs-plus@0.5.1':
+    dependencies:
+      '@niceties/ansi': 1.1.2
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -2077,7 +2099,7 @@ snapshots:
 
   '@rollup-extras/plugin-binify@2.0.0(rollup@4.34.7)':
     dependencies:
-      '@niceties/logger': 2.1.0
+      '@niceties/logger': 2.1.1
       '@rollup-extras/utils': 2.0.0(rollup@4.34.7)
     optionalDependencies:
       rollup: 4.34.7
@@ -2217,8 +2239,6 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.34.7':
     optional: true
 
-  '@samchon/openapi@5.1.0': {}
-
   '@slimlib/list@2.0.2': {}
 
   '@slimlib/refine-partition@2.0.2': {}
@@ -2253,6 +2273,23 @@ snapshots:
       kleur: 3.0.3
 
   '@types/resolve@1.20.2': {}
+
+  '@typia/core@12.1.0-dev.20260325':
+    dependencies:
+      '@typia/interface': 12.1.0-dev.20260325
+      '@typia/utils': 12.1.0-dev.20260325
+
+  '@typia/interface@12.1.0-dev.20260325': {}
+
+  '@typia/transform@12.1.0-dev.20260325':
+    dependencies:
+      '@typia/core': 12.1.0-dev.20260325
+      '@typia/interface': 12.1.0-dev.20260325
+      '@typia/utils': 12.1.0-dev.20260325
+
+  '@typia/utils@12.1.0-dev.20260325':
+    dependencies:
+      '@typia/interface': 12.1.0-dev.20260325
 
   acorn@8.12.1: {}
 
@@ -2338,11 +2375,6 @@ snapshots:
 
   ci-info@3.9.0: {}
 
-  cleye@1.3.4:
-    dependencies:
-      terminal-columns: 1.4.1
-      type-flag: 3.0.0
-
   cli-cursor@3.1.0:
     dependencies:
       restore-cursor: 3.1.0
@@ -2405,7 +2437,7 @@ snapshots:
 
   drange@1.1.1: {}
 
-  dts-buddy@0.6.2(typescript@5.8.2):
+  dts-buddy@0.6.2(typescript@6.0.2):
     dependencies:
       '@jridgewell/source-map': 0.3.6
       '@jridgewell/sourcemap-codec': 1.4.15
@@ -2414,12 +2446,12 @@ snapshots:
       magic-string: 0.30.10
       sade: 1.8.1
       tinyglobby: 0.2.15
-      ts-api-utils: 1.3.0(typescript@5.8.2)
-      typescript: 5.8.2
+      ts-api-utils: 1.3.0(typescript@6.0.2)
+      typescript: 6.0.2
 
   dts-bundle-generator@9.5.1:
     dependencies:
-      typescript: 5.8.2
+      typescript: 6.0.2
       yargs: 17.7.2
 
   eastasianwidth@0.2.0: {}
@@ -2926,7 +2958,7 @@ snapshots:
       preprocess: 3.2.0
       rollup-pluginutils: 2.8.2
 
-  rollup-plugin-typescript2@0.36.0(rollup@4.34.7)(typescript@5.8.2):
+  rollup-plugin-typescript2@0.36.0(rollup@4.34.7)(typescript@6.0.2):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       find-cache-dir: 3.3.2
@@ -2934,7 +2966,7 @@ snapshots:
       rollup: 4.34.7
       semver: 7.6.3
       tslib: 2.6.3
-      typescript: 5.8.2
+      typescript: 6.0.2
 
   rollup-pluginutils@2.8.2:
     dependencies:
@@ -3066,8 +3098,6 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terminal-columns@1.4.1: {}
-
   terser@5.39.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
@@ -3096,9 +3126,9 @@ snapshots:
     dependencies:
       is-number: 7.0.0
 
-  ts-api-utils@1.3.0(typescript@5.8.2):
+  ts-api-utils@1.3.0(typescript@6.0.2):
     dependencies:
-      typescript: 5.8.2
+      typescript: 6.0.2
 
   ts-patch@3.3.0:
     dependencies:
@@ -3115,20 +3145,21 @@ snapshots:
 
   type-fest@4.34.1: {}
 
-  type-flag@3.0.0: {}
+  typescript@6.0.2: {}
 
-  typescript@5.8.2: {}
-
-  typia@10.1.0(typescript@5.8.2):
+  typia@12.1.0-dev.20260325(typescript@6.0.2):
     dependencies:
-      '@samchon/openapi': 5.1.0
       '@standard-schema/spec': 1.0.0
+      '@typia/core': 12.1.0-dev.20260325
+      '@typia/interface': 12.1.0-dev.20260325
+      '@typia/transform': 12.1.0-dev.20260325
+      '@typia/utils': 12.1.0-dev.20260325
       commander: 10.0.1
       comment-json: 4.2.4
       inquirer: 8.2.6
       package-manager-detector: 0.2.9
       randexp: 0.5.3
-      typescript: 5.8.2
+      typescript: 6.0.2
 
   undici-types@6.20.0: {}
 

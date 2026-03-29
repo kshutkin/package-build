@@ -3,11 +3,11 @@
     "compilerOptions": {
         "lib": ["esnext"],
         "target": "esnext",
-        "module": "esnext",
+        "module": "node16",
         "esModuleInterop": true,
         "strict": true,
         "noUncheckedIndexedAccess": true,
         "declaration": false,
-        "moduleResolution": "node"
+        "moduleResolution": "node16"
     }
 }
