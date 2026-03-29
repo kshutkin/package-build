@@ -12,6 +12,7 @@
         "strict": true,
         "noUncheckedIndexedAccess": true,
         "declaration": true,
-        "moduleResolution": "bundler"
+        "moduleResolution": "bundler",
+        "types": ["node"]
     }
 }

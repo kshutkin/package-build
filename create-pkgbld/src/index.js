@@ -265,7 +265,7 @@ function getPrintString(option, json) {
             item =>
                 item.field in json &&
                 json[item.field] &&
-                (Array.isArray(json[item.field]) ? /** @type {unknown[]} */ (json[item.field]).length > 0 : true)
+                (Array.isArray(json[item.field]) ? /** @type {unknown[]} */ (/** @type {unknown} */ (json[item.field])).length > 0 : true)
         )
         .map(
             item =>

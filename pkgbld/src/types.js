@@ -6,7 +6,9 @@
  * @typedef {import('type-fest').PackageJson} PackageJson
  */
 
-/** @typedef {null | string | number | boolean | Json[] | { [name: string]: Json }} Json */
+/** @typedef {null | string | number | boolean | JsonArray | JsonRecord} Json */
+/** @typedef {Json[]} JsonArray */
+/** @typedef {{ [name: string]: Json }} JsonRecord */
 
 /**
  * @typedef {(

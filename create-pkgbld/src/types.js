@@ -5,7 +5,7 @@
  *   | {
  *       title: string;
  *       field: string;
- *       type?: undefined | 'toggle' | 'list';
+ *       type?: undefined | 'toggle' | 'list' | 'text';
  *     }
  *   | {
  *       title: string;
@@ -21,7 +21,7 @@
  *     }
  * ) & (
  *   | {
- *       initialValue?: string;
+ *       initialValue?: string | string[] | boolean;
  *     }
  *   | {
  *       items: Option[];
@@ -41,7 +41,7 @@
 
 /**
  * @typedef {{
- *   [key: string]: undefined | null | number | boolean | string | OptionsValue;
+ *   [key: string]: undefined | null | number | boolean | string | string[] | OptionsValue;
  * }} OptionsValue
  */
 

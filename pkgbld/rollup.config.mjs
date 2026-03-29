@@ -31,6 +31,11 @@ export default {
     plugins: plugins,
 };
 
+/**
+ * @param {string} id
+ * @param {boolean} external
+ * @param {string | undefined} importer
+ */
 function external(id, external, importer) {
     const internals = ['options'];
     if (!external) return false;
