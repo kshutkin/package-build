@@ -20,6 +20,7 @@ export function getCliOptions(plugins, pkg) {
             name: 'pkgbld',
             version: pkg.version ?? '<unknown>',
             options: cliFlags,
+            allowNegative: true,
         },
         [help, camelCase, customValue]
     );
@@ -39,18 +40,18 @@ export function getCliOptions(plugins, pkg) {
         bin: flags.bin,
         includeExternals: flags.includeExternals ?? defaults.includeExternals,
         eject: flags.eject,
-        noTsConfig: flags.noTsConfig,
-        noUpdatePackageJson: flags.noUpdatePackageJson,
+        noTsConfig: !flags.tsConfig,
+        noUpdatePackageJson: !flags.updatePackageJson,
         commonjsPattern: flags.commonjsPattern,
         esPattern: flags.esmPattern,
         umdPattern: flags.umdPattern,
         formatPackageJson: flags.formatPackageJson,
-        noPack: flags.noPack,
-        noExports: flags.noExports,
-        noClean: flags.noClean,
-        noBundle: flags.noBundle,
+        noPack: !flags.pack,
+        noExports: !flags.exports,
+        noClean: !flags.clean,
+        noBundle: !flags.bundle,
         removeLegalComments: flags.removeLegalComments,
-        noSubpackages: flags.noSubpackages,
+        noSubpackages: !flags.subpackages,
     };
 
     for (const plugin of plugins) {

@@ -415,6 +415,7 @@ function getPkgbldOptions(pkg) {
             {
                 options: cliFlags,
                 strict: false,
+                allowNegative: true,
                 args: argv,
             },
             [camelCase, customValue, optionalValue]
@@ -507,16 +508,16 @@ function getPkgbldOptions(pkg) {
                     initialValue: args.eject,
                 },
                 {
-                    title: 'Do not create tsconfig',
-                    field: 'noTsConfig',
+                    title: 'Create tsconfig',
+                    field: 'tsConfig',
                     type: 'toggle',
-                    initialValue: args.noTsConfig,
+                    initialValue: args.tsConfig,
                 },
                 {
-                    title: 'Do not update package.json',
-                    field: 'noUpdatePackageJson',
+                    title: 'Update package.json',
+                    field: 'updatePackageJson',
                     type: 'toggle',
-                    initialValue: args.noUpdatePackageJson,
+                    initialValue: args.updatePackageJson,
                 },
                 {
                     title: 'Extra parameters',
@@ -544,9 +545,15 @@ function getPkgbldOptions(pkg) {
 function asCommandLineArgs(parsedArgs, defaultArgs = {}) {
     return Object.entries(parsedArgs)
         .filter(([key, value]) => !isEqual(value, defaultArgs[key]))
-        .map(
-            ([key, value]) => `--${kebabize(key)}${typeof value === 'string' || Array.isArray(value) ? `=${asArray(value).join(',')}` : ''}`
-        )
+        .map(([key, value]) => {
+            if (typeof value === 'boolean') {
+                return value ? `--${kebabize(key)}` : `--no-${kebabize(key)}`;
+            }
+            if (typeof value === 'string' || Array.isArray(value)) {
+                return `--${kebabize(key)}=${asArray(value).join(',')}`;
+            }
+            return `--${kebabize(key)}`;
+        })
         .filter(Boolean)
         .join(' ');
 }

@@ -60,13 +60,13 @@ export const cliFlagsDefaults = {
     bin: /** @type {string[] | undefined} */ (undefined),
     includeExternals: /** @type {boolean | string[]} */ (false),
     eject: false,
-    noTsConfig: false,
-    noUpdatePackageJson: false,
+    tsConfig: true,
+    updatePackageJson: true,
     commonjsPattern: '[name].cjs',
     esmPattern: '[name].mjs',
     umdPattern: '[name].umd.js',
     formatPackageJson: false,
-    noSubpackages: false,
+    subpackages: true,
 };
 
 export const cliFlags = {
@@ -114,15 +114,15 @@ export const cliFlags = {
         description: 'Eject config',
         default: cliFlagsDefaults.eject,
     },
-    noTsConfig: {
+    tsConfig: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Do not create / update tsconfig.json',
-        default: cliFlagsDefaults.noTsConfig,
+        description: 'Create / update tsconfig.json',
+        default: cliFlagsDefaults.tsConfig,
     },
-    noUpdatePackageJson: {
+    updatePackageJson: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Do not create / update package.json',
-        default: cliFlagsDefaults.noUpdatePackageJson,
+        description: 'Create / update package.json',
+        default: cliFlagsDefaults.updatePackageJson,
     },
     commonjsPattern: {
         type: /** @type {'string'} */ ('string'),
@@ -144,35 +144,35 @@ export const cliFlags = {
         description: 'Format package.json',
         default: cliFlagsDefaults.formatPackageJson,
     },
-    noPack: {
+    pack: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Do not pack',
-        default: false,
+        description: 'Pack',
+        default: true,
     },
-    noExports: {
+    exports: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Do not add exports field to package.json',
-        default: false,
+        description: 'Add exports field to package.json',
+        default: true,
     },
-    noClean: {
+    clean: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Do not clean the output directory',
-        default: false,
+        description: 'Clean the output directory',
+        default: true,
     },
-    noBundle: {
+    bundle: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Do not bundle',
-        default: false,
+        description: 'Bundle',
+        default: true,
     },
     removeLegalComments: {
         type: /** @type {'boolean'} */ ('boolean'),
         description: 'Remove legal comments',
         default: false,
     },
-    noSubpackages: {
+    subpackages: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Do not create subpackage directories with package.json files',
-        default: cliFlagsDefaults.noSubpackages,
+        description: 'Create subpackage directories with package.json files',
+        default: cliFlagsDefaults.subpackages,
     },
 };
 
