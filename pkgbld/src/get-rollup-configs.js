@@ -97,8 +97,7 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
         for (const { format, input } of result) {
             if (input) {
                 if (mapFormatInputs.has(format)) {
-                    // biome-ignore lint/style/noNonNullAssertion: false positive
-                    mapFormatInputs.get(format).add(input);
+                    /** @type {Set<string>} */ (mapFormatInputs.get(format)).add(input);
                 } else {
                     mapFormatInputs.set(format, new Set([input]));
                 }

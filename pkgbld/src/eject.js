@@ -52,7 +52,7 @@ export async function createEjectProvider(preimportMap) {
             globalImport: (/** @type {string} */ module, /** @type {string | string[]=} */ exportName) => {
                 imports.set(module, exportName ?? 'default');
             },
-            globalSetup: (/** @type {(() => void) | string} */ code) => {
+            globalSetup: (/** @type {((...args: any[]) => any) | string} */ code) => {
                 if (typeof code === 'function') {
                     setup.add(code.toString());
                 }
