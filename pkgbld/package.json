@@ -31,7 +31,7 @@
     "scripts": {
         "build": "rollup -c && dts-buddy",
         "lint": "eslint ./src",
-        "prepack": "node ./index.js prune --removeSourcemaps",
+        "prepack": "pkgprn --remove-sourcemaps",
         "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
     },
     "dependencies": {
@@ -53,13 +53,13 @@
         "is-builtin-module": "catalog:",
         "terser": "^5.39.0",
         "@niceties/ansi": "catalog:",
-        "@niceties/node-parseargs-plus": "catalog:",
-        "jsonata": "catalog:"
+        "@niceties/node-parseargs-plus": "catalog:"
     },
     "devDependencies": {
         "@types/lodash": "catalog:",
         "type-fest": "catalog:",
         "dts-buddy": "catalog:",
+        "pkgprn": "^0.8.0",
         "options": "workspace:*",
         "c8": "catalog:",
         "cli-test-helper": "workspace:*"

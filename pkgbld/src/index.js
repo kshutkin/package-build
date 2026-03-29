@@ -18,7 +18,6 @@ import { loadPlugins } from './load-plugins.js';
 import { mainLoggerText } from './messages.js';
 import { processPackage } from './process-pkg.js';
 import { checkTsConfig } from './process-ts-config.js';
-import { prunePkg } from './prune.js';
 import { writeJson } from './write-json.js';
 
 /**
@@ -49,11 +48,6 @@ async function execute() {
         mainLogger.update('');
         process.stdout.moveCursor?.(0, -1);
         const options = getCliOptions(plugins, pkg);
-        if (options.kind === 'prune') {
-            await prunePkg(pkg, options, mainLogger);
-            await writeJson(pkgPath, pkg);
-            process.exit(0);
-        }
         process.stdout.moveCursor?.(0, 1);
         mainLogger.update('preparing...');
         const tsConfig = await checkTsConfig(options, mainLogger, plugins);
