@@ -10,7 +10,7 @@ import { Priority } from '../priorities.js';
  * @param {CliOptions} config
  */
 export default async function (provider, config) {
-    if (config.noClean) {
+    if (!config.clean) {
         return;
     }
 

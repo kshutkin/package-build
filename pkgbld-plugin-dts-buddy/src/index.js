@@ -32,7 +32,7 @@ export function create() {
         if (options.kind === 'build') {
             dir = options.dir;
             config.output = path.join(dir, 'index.d.ts');
-            options.noSubpackages = true;
+            options.subpackages = false;
         }
     }
 

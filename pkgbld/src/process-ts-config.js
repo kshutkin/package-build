@@ -44,7 +44,7 @@ function createDefaultTsConfig(sourceDir) {
  * @returns {Promise<JsonObject | undefined>}
  */
 export async function checkTsConfig(options, mainLogger, plugins) {
-    if (options.noTsConfig) {
+    if (!options.tsConfig) {
         return;
     }
     /** @type {JsonObject | undefined} */

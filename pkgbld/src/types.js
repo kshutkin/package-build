@@ -42,7 +42,7 @@
  */
 
 /**
- * @typedef {NonNullable<Extract<ReturnType<typeof import('./get-cli-options.js').getCliOptions>, { kind: 'build' }>>} CliOptions
+ * @typedef {NonNullable<ReturnType<typeof import('./get-cli-options.js').getCliOptions>>} CliOptions
  */
 
 /** @typedef {Record<string, string | number | string[] | number[] | boolean | undefined>} ParsedOptions */

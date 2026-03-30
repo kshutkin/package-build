@@ -71,7 +71,7 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
         pkg.scripts = {};
     }
 
-    if (!config.noPack && !('prepack' in /** @type {Record<string, JsonObject>} */ (pkg.scripts))) {
+    if (config.pack && !('prepack' in /** @type {Record<string, JsonObject>} */ (pkg.scripts))) {
         /** @type {Record<string, JsonValue>} */ (pkg.scripts).prepack = 'pkgprn';
     }
 
@@ -131,7 +131,7 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
         }
     }
 
-    if (!config.noExports) {
+    if (config.exports) {
         if (typeof pkg.exports !== 'object' && pkg.exports !== null) {
             pkg.exports = {};
         }
@@ -193,7 +193,7 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
                 /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])
             );
 
-            if (basename !== indexId && !config.noSubpackages) {
+            if (basename !== indexId && config.subpackages) {
                 if (!pkg.files.includes(basename)) {
                     /** @type {string[]} */ (pkg.files).push(basename);
                 }

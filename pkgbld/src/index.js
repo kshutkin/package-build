@@ -60,14 +60,14 @@ async function execute() {
         const provider = options.eject ? await createEjectProvider(preimportMap) : createProvider(preimportMap);
         const rollupConfigs = await getRollupConfigs(provider, inputs, inputsExt, options, helpers, plugins);
 
-        if (options.noBundle) {
+        if (!options.bundle) {
             rollupConfigs.length = 0;
         }
 
         if (options.eject) {
             await ejectConfig(rollupConfigs, pkgPath, options, inputs, inputsExt, helpers, pkg);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
-            if (!options.noUpdatePackageJson) {
+            if (options.updatePackageJson) {
                 await writeJson(pkgPath, pkg);
             }
         } else {
@@ -76,10 +76,10 @@ async function execute() {
 
             await Promise.all(rollupConfigs.map(config => buildConfig(config, updater)));
 
-            if (!options.noUpdatePackageJson) {
+            if (options.updatePackageJson) {
                 await writeJson(pkgPath, pkg);
             }
-            if (!options.noSubpackages) {
+            if (options.subpackages) {
                 await createSubpackages(inputs, options);
             }
 

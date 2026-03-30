@@ -28,7 +28,6 @@ export function getCliOptions(plugins, pkg) {
     const flags = cliOptions.values;
 
     const options = {
-        kind: /** @type {'build'} */ ('build'),
         umdInputs: flags.umd ?? defaults.umd,
         compressFormats: flags.compress ?? defaults.compress,
         sourcemapFormats: flags.sourcemaps ?? defaults.sourcemaps,
@@ -40,25 +39,25 @@ export function getCliOptions(plugins, pkg) {
         bin: flags.bin,
         includeExternals: flags.includeExternals ?? defaults.includeExternals,
         eject: flags.eject,
-        noTsConfig: !flags.tsConfig,
-        noUpdatePackageJson: !flags.updatePackageJson,
+        tsConfig: flags.tsConfig,
+        updatePackageJson: flags.updatePackageJson,
         commonjsPattern: flags.commonjsPattern,
         esPattern: flags.esmPattern,
         umdPattern: flags.umdPattern,
         formatPackageJson: flags.formatPackageJson,
-        noPack: !flags.pack,
-        noExports: !flags.exports,
-        noClean: !flags.clean,
-        noBundle: !flags.bundle,
+        pack: flags.pack,
+        exports: flags.exports,
+        clean: flags.clean,
+        bundle: flags.bundle,
         removeLegalComments: flags.removeLegalComments,
-        noSubpackages: !flags.subpackages,
+        subpackages: flags.subpackages,
     };
 
     for (const plugin of plugins) {
         plugin.options?.(flags, options);
     }
 
-    return /** @type {{kind: 'build', umdInputs: string[], compressFormats: string[], sourcemapFormats: string[], formats: string[], formatsOverridden: boolean, preprocess: string[], dir: string, sourceDir: string, bin?: string[], includeExternals: boolean | string[], eject: boolean, noTsConfig: boolean, noUpdatePackageJson: boolean, commonjsPattern: string, esPattern: string, umdPattern: string, formatPackageJson: boolean, noPack: boolean, noExports: boolean, noClean: boolean, noBundle: boolean, removeLegalComments: boolean, noSubpackages: boolean}} */ (
+    return /** @type {{umdInputs: string[], compressFormats: string[], sourcemapFormats: string[], formats: string[], formatsOverridden: boolean, preprocess: string[], dir: string, sourceDir: string, bin?: string[], includeExternals: boolean | string[], eject: boolean, tsConfig: boolean, updatePackageJson: boolean, commonjsPattern: string, esPattern: string, umdPattern: string, formatPackageJson: boolean, pack: boolean, exports: boolean, clean: boolean, bundle: boolean, removeLegalComments: boolean, subpackages: boolean}} */ (
         options
     );
 }
