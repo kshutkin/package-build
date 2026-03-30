@@ -71,23 +71,23 @@ export const cliFlagsDefaults = {
 
 export const cliFlags = {
     umd: {
-        type: CommaSeparatedString,
+        type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),
         description: 'Package subpath exports in UMD format',
     },
     compress: {
-        type: CommaSeparatedString,
+        type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),
         description: 'Compress formats using terser',
     },
     sourcemaps: {
-        type: CommaSeparatedString,
+        type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),
         description: 'Emit sourcemaps for the specified formats',
     },
     formats: {
-        type: CommaSeparatedString,
+        type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),
         description: 'Formats to emit',
     },
     preprocess: {
-        type: CommaSeparatedString,
+        type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),
         description: 'Preprocess entry points / subpath exports',
     },
     dest: {
@@ -101,11 +101,11 @@ export const cliFlags = {
         default: cliFlagsDefaults.src,
     },
     bin: {
-        type: CommaSeparatedString,
+        type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),
         description: 'Executable files',
     },
     includeExternals: {
-        type: CommaSeparatedStringOrBoolean,
+        type: /** @type {(value: string) => true | string[]} */ (CommaSeparatedStringOrBoolean),
         description: 'Include all/specified externals into the result bundle(s)',
         optionalValue: true,
     },

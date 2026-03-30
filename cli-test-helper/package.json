@@ -12,7 +12,7 @@
     "scripts": {
         "build": "tsc && dts-buddy index.d.ts -m cli-test-helper:index.js",
         "test": "c8 --src=. --all -r=html node test.js",
-        "prepack": "pkgbld prune"
+        "prepack": "pkgprn"
     },
     "author": "Konstantin Shutkin",
     "license": "MIT",
@@ -20,6 +20,7 @@
         "c8": "catalog:",
         "dts-buddy": "catalog:",
         "pkgbld": "workspace:*",
+        "pkgprn": "^0.8.0",
         "typescript": "catalog:"
     },
     "repository": {

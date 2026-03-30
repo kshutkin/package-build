@@ -72,12 +72,7 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
     }
 
     if (!config.noPack && !('prepack' in /** @type {Record<string, JsonObject>} */ (pkg.scripts))) {
-        const binary =
-            typeof (/** @type {Record<string, string>} */ (pkg.scripts).build) === 'string' &&
-            /** @type {Record<string, string>} */ (pkg.scripts).build?.startsWith('pkgbld-internal')
-                ? 'pkgbld-internal'
-                : 'pkgbld';
-        /** @type {Record<string, JsonValue>} */ (pkg.scripts).prepack = `${binary} prune`;
+        /** @type {Record<string, JsonValue>} */ (pkg.scripts).prepack = 'pkgprn';
     }
 
     if (allowEsm && !allowCjs && typeof pkg.type !== 'string') {

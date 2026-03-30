@@ -17,7 +17,7 @@
         "types"
     ],
     "scripts": {
-        "build": "dts-buddy"
+        "build": "dts-buddy types/index.d.ts -m options:src/index.js"
     },
     "devDependencies": {
         "dts-buddy": "catalog:"
