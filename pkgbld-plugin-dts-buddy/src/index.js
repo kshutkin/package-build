@@ -22,8 +22,6 @@ export function create() {
     /** @type {string} */
     let pkgName;
 
-    const jsExtensions = ['js', 'jsx', 'cjs', 'mjs'];
-
     /**
      * @param {ParsedOptions} _parsedArgs
      * @param {CliOptions} options
@@ -41,12 +39,7 @@ export function create() {
     function processPackageJson(packageJson, inputs) {
         pkgName = packageJson.name ?? '';
         for (const input of inputs) {
-            const extension = path.extname(input);
-            if (jsExtensions.includes(extension.slice(1))) {
-                config.modules[getOutputName(input)] = input;
-            } else {
-                config.modules[getOutputName(input)] = path.join(dir, `${path.basename(input, extension)}.d.ts`);
-            }
+            config.modules[getOutputName(input)] = input;
         }
         if (typeof packageJson.typings === 'string') {
             packageJson.typings = undefined;
