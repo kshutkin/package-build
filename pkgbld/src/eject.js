@@ -22,10 +22,9 @@ let generate;
 let generateGlobals;
 
 /**
- * @param {Map<string, Promise<never>>} preimportMap
  * @returns {Promise<[Provider, PkgbldRollupPlugin[]]>}
  */
-export async function createEjectProvider(preimportMap) {
+export async function createEjectProvider() {
     const createMockProvider = (await import('@slimlib/smart-mock')).default;
     const provider = createMockProvider();
     const createMock = provider.createMock;
@@ -43,7 +42,7 @@ export async function createEjectProvider(preimportMap) {
                 plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
             },
             import: async (/** @type {string} */ name, /** @type {string=} */ exportName) => {
-                const result = preimportMap.has(name) ? await preimportMap.get(name) : await import(name);
+                const result = await import(name);
                 const exports = result[exportName ?? 'default'];
                 const mangledName = camelCase(name);
                 imports.set(name, mangledName);

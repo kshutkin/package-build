@@ -55,8 +55,7 @@ async function execute() {
             pkg = formatPackageJson(pkg);
         }
         const helpers = getHelpers(/** @type {{ name: string }} */ (pkg).name);
-        const preimportMap = preimport();
-        const provider = options.eject ? await createEjectProvider(preimportMap) : createProvider(preimportMap);
+        const provider = options.eject ? await createEjectProvider() : createProvider();
         const rollupConfigs = await getRollupConfigs(provider, inputs, inputsExt, options, helpers, plugins);
 
         if (!options.bundle) {
@@ -102,16 +101,6 @@ async function execute() {
         );
         mainLogger.update(updater());
     }
-}
-
-function preimport() {
-    return process.env.PKGBLD_INTERNAL
-        ? new Map([
-              ['@rollup-extras/plugin-binify', import('@rollup-extras/plugin-binify')],
-              ['@rollup-extras/plugin-clean', import('@rollup-extras/plugin-clean')],
-              ['@rollup-extras/plugin-externals', import('@rollup-extras/plugin-externals')],
-          ])
-        : new Map();
 }
 
 process.on('exit', () => {});

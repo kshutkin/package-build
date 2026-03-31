@@ -17,10 +17,9 @@ export const plugins = [clean, commonjs, externals, preprocess, resolve, terser,
 const noop = () => undefined;
 
 /**
- * @param {Map<string, Promise<never>>} preimportMap
  * @returns {[Provider, PkgbldRollupPlugin[]]}
  */
-export function createProvider(preimportMap) {
+export function createProvider() {
     /** @type {PkgbldRollupPlugin[]} */
     const plugins = [];
     return [
@@ -33,7 +32,7 @@ export function createProvider(preimportMap) {
                 plugins.push({ priority, plugin, format: options?.format, inputs: options?.inputs, outputPlugin: options?.outputPlugin });
             },
             import: async (/** @type {string} */ name, /** @type {string=} */ exportName) => {
-                const result = preimportMap.has(name) ? await preimportMap.get(name) : await import(name);
+                const result = await import(name);
                 return result[exportName ?? 'default'];
             },
             globalImport: noop,
