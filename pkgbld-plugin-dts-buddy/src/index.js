@@ -29,11 +29,9 @@ export function create() {
      * @param {CliOptions} options
      */
     function options(_parsedArgs, options) {
-        if (options.kind === 'build') {
-            dir = options.dir;
-            config.output = path.join(dir, 'index.d.ts');
-            options.subpackages = false;
-        }
+        dir = options.dir;
+        config.output = path.join(dir, 'index.d.ts');
+        options.tsConfig = true;
     }
 
     /**
@@ -48,6 +46,21 @@ export function create() {
                 config.modules[getOutputName(input)] = input;
             } else {
                 config.modules[getOutputName(input)] = path.join(dir, `${path.basename(input, extension)}.d.ts`);
+            }
+        }
+        if (typeof packageJson.typings === 'string') {
+            packageJson.typings = undefined;
+        }
+        packageJson.types = `./${dir}/index.d.ts`;
+        if (packageJson.exports && typeof packageJson.exports === 'object' && !Array.isArray(packageJson.exports)) {
+            for (const id in packageJson.exports) {
+                if (id === './package.json') continue;
+                const entry = packageJson.exports[id];
+                if (typeof entry === 'object' && entry !== null && !Array.isArray(entry)) {
+                    const basename = id === '.' ? 'index' : path.join(path.dirname(id), path.basename(id));
+                    const typesPath = `./${dir}/${basename}.d.ts`;
+                    packageJson.exports[id] = { types: typesPath, ...entry };
+                }
             }
         }
         return config;

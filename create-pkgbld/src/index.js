@@ -32,7 +32,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const done = Symbol('done');
 
 const formats = ['amd', 'cjs', 'es', 'iife', 'system', 'umd'];
-const pkgbldBinaries = ['pkgbld', 'pkgbld-internal', 'node ../pkgbld/dist/index.js'];
+const pkgbldBinaries = ['pkgbld', 'node ../pkgbld/dist/index.js'];
 
 async function execute() {
     const version = await reportVersion();
@@ -395,9 +395,7 @@ function getPkgbldOptions(pkg) {
     let binary = 'pkgbld';
 
     if (cmd) {
-        if (cmd.startsWith('pkgbld-internal')) {
-            binary = 'pkgbld-internal';
-        } else if (cmd.startsWith('node ../pkgbld/dist/index.js')) {
+        if (cmd.startsWith('node ../pkgbld/dist/index.js')) {
             binary = 'node ../pkgbld/dist/index.js';
         } else if (!cmd.startsWith('pkgbld')) {
             const naiveArgs = cmd.split(' ');

@@ -50,14 +50,13 @@ export function getCliOptions(plugins, pkg) {
         clean: flags.clean,
         bundle: flags.bundle,
         removeLegalComments: flags.removeLegalComments,
-        subpackages: flags.subpackages,
     };
 
     for (const plugin of plugins) {
         plugin.options?.(flags, options);
     }
 
-    return /** @type {{umdInputs: string[], compressFormats: string[], sourcemapFormats: string[], formats: string[], formatsOverridden: boolean, preprocess: string[], dir: string, sourceDir: string, bin?: string[], includeExternals: boolean | string[], eject: boolean, tsConfig: boolean, updatePackageJson: boolean, commonjsPattern: string, esPattern: string, umdPattern: string, formatPackageJson: boolean, pack: boolean, exports: boolean, clean: boolean, bundle: boolean, removeLegalComments: boolean, subpackages: boolean}} */ (
+    return /** @type {{umdInputs: string[], compressFormats: string[], sourcemapFormats: string[], formats: string[], formatsOverridden: boolean, preprocess: string[], dir: string, sourceDir: string, bin?: string[], includeExternals: boolean | string[], eject: boolean, tsConfig: boolean, updatePackageJson: boolean, commonjsPattern: string, esPattern: string, umdPattern: string, formatPackageJson: boolean, pack: boolean, exports: boolean, clean: boolean, bundle: boolean, removeLegalComments: boolean}} */ (
         options
     );
 }

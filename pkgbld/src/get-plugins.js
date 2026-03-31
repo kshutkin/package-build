@@ -6,14 +6,13 @@ import json from './builtin-plugins/json.js';
 import preprocess from './builtin-plugins/preprocess.js';
 import resolve from './builtin-plugins/resolve.js';
 import terser from './builtin-plugins/terser.js';
-import typescript from './builtin-plugins/typescript.js';
 
 /**
  * @typedef {import('./types.js').PkgbldRollupPlugin} PkgbldRollupPlugin
  * @typedef {import('./types.js').Provider} Provider
  */
 
-export const plugins = [clean, commonjs, externals, preprocess, resolve, terser, typescript, binify, json];
+export const plugins = [clean, commonjs, externals, preprocess, resolve, terser, binify, json];
 
 const noop = () => undefined;
 

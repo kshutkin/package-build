@@ -60,13 +60,12 @@ export const cliFlagsDefaults = {
     bin: /** @type {string[] | undefined} */ (undefined),
     includeExternals: /** @type {boolean | string[]} */ (false),
     eject: false,
-    tsConfig: true,
+    tsConfig: false,
     updatePackageJson: true,
     commonjsPattern: '[name].cjs',
     esmPattern: '[name].mjs',
     umdPattern: '[name].umd.js',
     formatPackageJson: false,
-    subpackages: true,
 };
 
 export const cliFlags = {
@@ -168,11 +167,6 @@ export const cliFlags = {
         type: /** @type {'boolean'} */ ('boolean'),
         description: 'Remove legal comments',
         default: false,
-    },
-    subpackages: {
-        type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Create subpackage directories with package.json files',
-        default: cliFlagsDefaults.subpackages,
     },
 };
 

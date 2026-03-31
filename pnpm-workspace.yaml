@@ -1,18 +1,17 @@
 packages:
   - "pkgbld"
   - "create-pkgbld"
-  - "pkgbld-internal"
   - "options"
   - "xc6"
   - "cli-test-helper"
   - "pkgbld-plugin-dts-buddy"
+  - "pkgbld-plugin-swc"
   - "integration-tests/*"
 
 catalog:
   "dts-buddy": "^0.7.0"
   "typescript": ">=6.0.2"
   rollup: ^4.34.7
-  rollup-plugin-typescript2: ^0.36.0
   rollup-plugin-preprocess: ^0.0.4
   "@rollup/plugin-commonjs": ^28.0.2
   "@rollup/plugin-node-resolve": ^16.0.0

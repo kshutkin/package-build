@@ -20,25 +20,10 @@ const sourceFileSuffixes = /** @type {const} */ (['ts', 'tsx', 'js', 'jsx', 'cjs
  * @param {JsonObject} pkg
  * @param {CliOptions} config
  * @param {Partial<PkgbldPlugin>[]} plugins
- * @param {JsonObject} [tsConfig]
  * @returns {Promise<[string[], Map<string, (typeof sourceFileSuffixes)[number]>]>}
  */
-export async function processPackage(pkg, config, plugins, tsConfig) {
-    const typingsFilePattern = '[name].d.ts';
-
+export async function processPackage(pkg, config, plugins) {
     const indexId = 'index';
-
-    /** @type {Set<string>} */
-    const typesVersionsLastFields = new Set(['*']);
-
-    const isDeclarations =
-        typeof tsConfig === 'object' &&
-        tsConfig != null &&
-        'compilerOptions' in tsConfig &&
-        typeof tsConfig.compilerOptions === 'object' &&
-        tsConfig.compilerOptions !== null &&
-        'declaration' in tsConfig.compilerOptions &&
-        tsConfig.compilerOptions.declaration === true;
 
     /** @type {string[]} */
     const inputs = [];
@@ -80,20 +65,11 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
     }
 
     const exportsFields = new Set([
-        'types',
         'svelte',
         pkg.type === 'module' ? 'require' : 'import',
         pkg.type === 'module' ? 'import' : 'require',
         'default',
     ]);
-
-    if (typeof pkg.typings === 'string') {
-        /** @type {Record<string, unknown>} */ (pkg).typings = undefined;
-    }
-
-    if (isDeclarations) {
-        pkg.types = `./${config.dir}/${patternToName(typingsFilePattern, 'index')}`;
-    }
 
     if (allowUmd && typeof pkg.umd === 'string') {
         pkg.umd = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
@@ -116,19 +92,6 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
 
     if (allowUmd && config.umdInputs.includes(indexId)) {
         pkg.unpkg = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
-    }
-
-    if (isDeclarations) {
-        if (typeof pkg.typesVersions !== 'object' && pkg.typesVersions !== null) {
-            pkg.typesVersions = {};
-        }
-
-        if (
-            typeof (/** @type {Record<string, JsonValue>} */ (pkg.typesVersions)['*']) !== 'object' &&
-            /** @type {Record<string, JsonValue>} */ (pkg.typesVersions)['*'] !== null
-        ) {
-            /** @type {Record<string, JsonValue>} */ (pkg.typesVersions)['*'] = {};
-        }
     }
 
     if (config.exports) {
@@ -166,15 +129,6 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
                 /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = {};
             }
 
-            if (isDeclarations) {
-                /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.typesVersions)['*'])[id] = [
-                    `${config.dir}/${patternToName(typingsFilePattern, basename)}`,
-                ];
-
-                /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id]).types =
-                    `./${config.dir}/${patternToName(typingsFilePattern, basename)}`;
-            }
-
             const cjsFieldName = pkg.type === 'module' ? 'require' : 'default';
             const esmFieldName = pkg.type === 'module' ? 'default' : 'import';
 
@@ -193,29 +147,10 @@ export async function processPackage(pkg, config, plugins, tsConfig) {
                 /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])
             );
 
-            if (basename !== indexId && config.subpackages) {
-                if (!pkg.files.includes(basename)) {
-                    /** @type {string[]} */ (pkg.files).push(basename);
-                }
-            }
-
             await updateExtensions(basename);
         }
     } else {
         await updateExtensions(indexId);
-    }
-
-    if (isDeclarations) {
-        /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.typesVersions)['*'])['*'] = [
-            `${config.dir}/${patternToName(typingsFilePattern, indexId)}`,
-            `${config.dir}/*`,
-        ];
-
-        /** @type {Record<string, JsonValue>} */ (pkg.typesVersions)['*'] = orderFields(
-            emptySet,
-            /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.typesVersions)['*']),
-            typesVersionsLastFields
-        );
     }
 
     if (allowUmd && config.umdInputs.length > 0 && !config.formats.includes('umd')) {

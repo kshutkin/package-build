@@ -46,7 +46,6 @@
         "@niceties/draftlog-appender": "catalog:",
         "lodash": "catalog:",
         "rollup": "catalog:",
-        "rollup-plugin-typescript2": "catalog:",
         "rollup-plugin-preprocess": "catalog:",
         "@rollup/plugin-commonjs": "catalog:",
         "@rollup/plugin-terser": "catalog:",
@@ -70,8 +69,5 @@
         "options": "workspace:*",
         "c8": "catalog:",
         "cli-test-helper": "workspace:*"
-    },
-    "peerDependencies": {
-        "typescript": "catalog:"
     }
 }

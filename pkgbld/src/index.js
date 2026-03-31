@@ -7,7 +7,6 @@ import { rollup } from 'rollup';
 import { green } from '@niceties/ansi';
 import { createLogger, LogLevel } from '@niceties/logger';
 
-import { createSubpackages } from './create-subpackages.js';
 import { createEjectProvider, ejectConfig } from './eject.js';
 import { getCliOptions } from './get-cli-options.js';
 import { getJson } from './get-json.js';
@@ -50,8 +49,8 @@ async function execute() {
         const options = getCliOptions(plugins, pkg);
         process.stdout.moveCursor?.(0, 1);
         mainLogger.update('preparing...');
-        const tsConfig = await checkTsConfig(options, mainLogger, plugins);
-        const [inputs, inputsExt] = await processPackage(pkg, options, plugins, tsConfig);
+        await checkTsConfig(options, mainLogger, plugins);
+        const [inputs, inputsExt] = await processPackage(pkg, options, plugins);
         if (options.formatPackageJson) {
             pkg = formatPackageJson(pkg);
         }
@@ -79,10 +78,6 @@ async function execute() {
             if (options.updatePackageJson) {
                 await writeJson(pkgPath, pkg);
             }
-            if (options.subpackages) {
-                await createSubpackages(inputs, options);
-            }
-
             await Promise.all(
                 plugins.filter(plugin => plugin.buildEnd).map(plugin => /** @type {Required<PkgbldPlugin>} */ (plugin).buildEnd())
             );
