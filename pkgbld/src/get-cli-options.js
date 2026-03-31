@@ -1,9 +1,9 @@
-import { cliFlags, cliFlagsDefaults as defaults } from 'options';
-
 import { parseArgsPlus } from '@niceties/node-parseargs-plus';
 import { camelCase } from '@niceties/node-parseargs-plus/camel-case';
 import { customValue } from '@niceties/node-parseargs-plus/custom-value';
 import { help } from '@niceties/node-parseargs-plus/help';
+
+import { cliFlags, cliFlagsDefaults as defaults } from './options/index.js';
 
 /**
  * @typedef {import('type-fest').PackageJson} PackageJson

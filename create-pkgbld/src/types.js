@@ -1,4 +1,4 @@
-/** @typedef {import('options').PackageJson} PackageJson */
+/** @typedef {import('pkgbld/options').PackageJson} PackageJson */
 
 /**
  * @typedef {(

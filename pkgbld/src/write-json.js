@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 
-import { toFormattedJson } from 'options';
+import { toFormattedJson } from './options/index.js';
 
 /**
  * @typedef {import('type-fest').JsonObject} JsonObject

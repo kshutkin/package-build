@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 import userName from 'git-user-name';
 import isEqual from 'lodash/isEqual.js';
-import { cliFlags, cliFlagsDefaults, isPackageJson, processPackageJson, toFormattedJson } from 'options';
 import gitConfig from 'parse-git-config';
+import { cliFlags, cliFlagsDefaults, isPackageJson, processPackageJson, toFormattedJson } from 'pkgbld/options';
 import prompts from 'prompts';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
 
@@ -20,7 +20,7 @@ import { parameters } from '@niceties/node-parseargs-plus/parameters';
 import getGitRoot from './get-git-root.js';
 
 /**
- * @typedef {import('options').PackageJson} PackageJson
+ * @typedef {import('pkgbld/options').PackageJson} PackageJson
  * @typedef {import('prompts').PromptObject} PromptObject
  * @typedef {import('./types.js').Option} Option
  * @typedef {import('./types.js').OptionsValue} OptionsValue

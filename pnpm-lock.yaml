@@ -122,12 +122,12 @@ importers:
       lodash:
         specifier: 'catalog:'
         version: 4.17.21
-      options:
-        specifier: workspace:*
-        version: link:../options
       parse-git-config:
         specifier: 3.0.0
         version: 3.0.0
+      pkgbld:
+        specifier: workspace:*
+        version: link:../pkgbld
       prompts:
         specifier: 2.4.2
         version: 2.4.2
@@ -177,12 +177,6 @@ importers:
       pkgprn:
         specifier: ^0.8.0
         version: 0.8.0
-
-  options:
-    devDependencies:
-      dts-buddy:
-        specifier: 'catalog:'
-        version: 0.7.0(typescript@6.0.2)
 
   pkgbld:
     dependencies:
@@ -253,9 +247,6 @@ importers:
       dts-buddy:
         specifier: 'catalog:'
         version: 0.7.0(typescript@6.0.2)
-      options:
-        specifier: workspace:*
-        version: link:../options
       pkgprn:
         specifier: ^0.8.0
         version: 0.8.0

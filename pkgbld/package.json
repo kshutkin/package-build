@@ -5,17 +5,21 @@
     "author": "Konstantin Shutkin",
     "bin": "./index.js",
     "type": "module",
-    "main": "./dist/index.mjs",
+    "main": "./src/index.js",
     "types": "./types/index.d.ts",
     "exports": {
         ".": {
             "types": "./types/index.d.ts",
-            "default": "./dist/index.mjs"
+            "default": "./src/index.js"
+        },
+        "./options": {
+            "types": "./types/index.d.ts",
+            "default": "./src/options/index.js"
         },
         "./package.json": "./package.json"
     },
     "files": [
-        "dist",
+        "src",
         "types"
     ],
     "engines": {
@@ -36,7 +40,7 @@
         "rollup"
     ],
     "scripts": {
-        "build": "rollup -c && dts-buddy types/index.d.ts -m pkgbld:src/index.js",
+        "build": "dts-buddy types/index.d.ts -m pkgbld:src/index.js -m pkgbld/options:src/options/index.js",
         "lint": "eslint ./src",
         "prepack": "pkgprn --remove-sourcemaps",
         "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
@@ -66,7 +70,6 @@
         "type-fest": "catalog:",
         "dts-buddy": "catalog:",
         "pkgprn": "^0.8.0",
-        "options": "workspace:*",
         "c8": "catalog:",
         "cli-test-helper": "workspace:*"
     }

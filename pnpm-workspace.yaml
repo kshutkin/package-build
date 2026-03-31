@@ -1,7 +1,6 @@
 packages:
   - "pkgbld"
   - "create-pkgbld"
-  - "options"
   - "xc6"
   - "cli-test-helper"
   - "pkgbld-plugin-dts-buddy"

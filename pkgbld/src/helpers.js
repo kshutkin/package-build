@@ -3,14 +3,15 @@ import path, { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import camelCase from 'lodash/camelCase.js';
-import { processPackageJson } from 'options';
 
 import { cyan, magenta } from '@niceties/ansi';
+
+import { processPackageJson } from './options/index.js';
 
 /**
  * @typedef {import('rollup').OutputOptions} OutputOptions
  * @typedef {import('type-fest').PackageJson} PackageJson
- * @typedef {import('options').PackageJson} PackageJsonO
+ * @typedef {import('./options/index.js').PackageJson} PackageJsonO
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
