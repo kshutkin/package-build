@@ -4,8 +4,8 @@
             "id": 0,
             "name": "basic",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -25,9 +25,9 @@
             "name": "umd",
             "input": "package.json\n|{\n|  \"name\": \"test\"\n|}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--umd=index",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs, umd]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, umd]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;"
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;"
         }
     ],
     "pkgsz": [
@@ -45,8 +45,8 @@
             "name": "remove legal comments",
             "args": "--remove-legal-comments --compress=es,cjs",
             "input": "package.json\n|{\n|    \"exports\": {\n|        \".\": {\n|            \"import\": \"./dist/index.mjs\"\n|        }\n|    }\n|}\nsrc\n  index.ts\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|export const test = 0;",
-            "output": "dist\n  index.cjs\n|\"use strict\";exports.test=0;\n|\n  index.mjs\n|const o=0;export{o as test};\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const o=0;export{o as test};\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -54,8 +54,8 @@
             "name": "legal comments",
             "args": "--compress=es,cjs",
             "input": "package.json\n|{\n|    \"exports\": {\n|        \".\": {\n|            \"import\": \"./dist/index.mjs\"\n|        }\n|    }\n|}\nsrc\n  index.ts\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|export const test = 0;",
-            "output": "dist\n  index.cjs\n|\"use strict\";\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|exports.test=0;\n|\n  index.mjs\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|const o=0;export{o as test};\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|const o=0;export{o as test};\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|//! Copyright (c) 2024 Konstantin Shutkin MIT License\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -64,8 +64,8 @@
             "id": 32,
             "name": "multiple exports",
             "input": "package.json\n|{\n|    \"exports\": {\n|        \".\": {\n|            \"import\": \"./dist/index.mjs\"\n|        },\n|        \"./second\": {\n|            \"import\": \"./dist/second.mjs\"\n|        }\n|    }\n|}\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  second.cjs\n|'use strict';\n|\n|const second = 1;\n|\n|exports.second = second;\n|\n  second.mjs\n|const second = 1;\n|\n|export { second };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./second\": {\n|      \"import\": \"./dist/second.mjs\",\n|      \"default\": \"./dist/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index, second [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  second.mjs\n|const second = 1;\n|\n|export { second };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./second\": {\n|      \"import\": \"./dist/second.mjs\",\n|      \"default\": \"./dist/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index, second [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -74,8 +74,8 @@
             "id": 31,
             "name": "",
             "input": "package.json\n|{\n|    \"exports\": {\n|        \".\": {\n|            \"import\": \"./dist/index.mjs\"\n|        },\n|        \"./folder/second\": {            \n|            \"import\": \"./dist/folder/second.mjs\"\n|        }\n|    }\n|}\nsrc\n  folder\n    second.ts\n|export const t = 0;\n  index.ts\n|export const test = 0;",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  second.cjs\n|'use strict';\n|\n|const t = 0;\n|\n|exports.t = t;\n|\n  second.mjs\n|const t = 0;\n|\n|export { t };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./folder/second\": {\n|      \"import\": \"./dist/folder/second.mjs\",\n|      \"default\": \"./dist/folder/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  folder\n    second.ts\n|export const t = 0;\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index, second [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  second.mjs\n|const t = 0;\n|\n|export { t };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./folder/second\": {\n|      \"import\": \"./dist/folder/second.mjs\",\n|      \"default\": \"./dist/folder/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  folder\n    second.ts\n|export const t = 0;\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index, second [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -114,8 +114,8 @@
             "name": "no exports field",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--no-exports",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -123,8 +123,8 @@
             "name": "format package json",
             "input": "package.json\n|{\"scripts\":{\"test\":\"echo test\"},\"name\":\"my-pkg\",\"version\":\"1.0.0\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--format-package-json",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"version\": \"1.0.0\",\n|  \"name\": \"my-pkg\",\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"test\": \"echo test\",\n|    \"prepack\": \"pkgprn\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"version\": \"1.0.0\",\n|  \"name\": \"my-pkg\",\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"test\": \"echo test\",\n|    \"prepack\": \"pkgprn\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -132,8 +132,8 @@
             "name": "non-root string export value converted to object",
             "input": "package.json\n|{\"exports\":{\".\":{\"import\":\"./dist/index.mjs\"},\"./second\":\"./dist/second.mjs\"}}\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  second.cjs\n|'use strict';\n|\n|const second = 1;\n|\n|exports.second = second;\n|\n  second.mjs\n|const second = 1;\n|\n|export { second };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./second\": {\n|      \"import\": \"./dist/second.mjs\",\n|      \"default\": \"./dist/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index, second [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  second.mjs\n|const second = 1;\n|\n|export { second };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./second\": {\n|      \"import\": \"./dist/second.mjs\",\n|      \"default\": \"./dist/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index, second [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -141,8 +141,8 @@
             "name": "exports with extra custom fields",
             "input": "package.json\n|{\"exports\":{\".\":{\"import\":\"./dist/index.mjs\",\"myCustomField\":\"./custom.js\"}}}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\",\n|      \"myCustomField\": \"./custom.js\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\",\n|      \"myCustomField\": \"./custom.js\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -152,8 +152,8 @@
             "name": "no update package json",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--no-update-package-json",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -161,8 +161,8 @@
             "name": "no pack",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--no-pack",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {},\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {},\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -188,8 +188,8 @@
             "name": "sourcemaps for es and cjs",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--sourcemaps=es,cjs",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|//# sourceMappingURL=index.cjs.map\n|\n  index.cjs.map\n|{\"version\":3,\"file\":\"index.cjs\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[\"test\"],\"mappings\":\";;AAAO,MAAMA,OAAO;;;;\"}\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|//# sourceMappingURL=index.mjs.map\n|\n  index.mjs.map\n|{\"version\":3,\"file\":\"index.mjs\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[\"test\"],\"mappings\":\"AAAO,MAAMA,OAAO;;;;\"}\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|//# sourceMappingURL=index.mjs.map\n|\n  index.mjs.map\n|{\"version\":3,\"file\":\"index.mjs\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[\"test\"],\"mappings\":\"AAAO,MAAMA,OAAO;;;;\"}\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -197,8 +197,8 @@
             "name": "no clean",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--no-clean",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -208,8 +208,8 @@
             "name": "bin from cli flag",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--bin=./dist/index.cjs",
-            "output": "dist\n  index.cjs\n|#!/usr/bin/env node\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"bin\": \"./dist/index.cjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"bin\": \"./dist/index.cjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -217,8 +217,8 @@
             "name": "bin auto-detect string from package.json",
             "input": "package.json\n|{\"bin\":\"./dist/index.cjs\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|#!/usr/bin/env node\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"bin\": \"./dist/index.cjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"bin\": \"./dist/index.cjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -226,8 +226,8 @@
             "name": "bin auto-detect object from package.json",
             "input": "package.json\n|{\"name\":\"my-cmd\",\"bin\":{\"my-cmd\":\"./dist/index.cjs\"}}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|#!/usr/bin/env node\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"name\": \"my-cmd\",\n|  \"bin\": {\n|    \"my-cmd\": \"./dist/index.cjs\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"name\": \"my-cmd\",\n|  \"bin\": {\n|    \"my-cmd\": \"./dist/index.cjs\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -235,8 +235,8 @@
             "name": "bin object with directories.bin",
             "input": "package.json\n|{\"name\":\"my-cmd\",\"bin\":{\"my-cmd\":\"./dist/index.cjs\"},\"directories\":{\"bin\":\"dist\"}}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|#!/usr/bin/env node\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"name\": \"my-cmd\",\n|  \"bin\": {\n|    \"my-cmd\": \"./dist/index.cjs\"\n|  },\n|  \"directories\": {\n|    \"bin\": \"dist\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"name\": \"my-cmd\",\n|  \"bin\": {\n|    \"my-cmd\": \"./dist/index.cjs\"\n|  },\n|  \"directories\": {\n|    \"bin\": \"dist\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -244,8 +244,8 @@
             "name": "bin empty string from cli resets bin",
             "input": "package.json\n|{\"bin\":\"./dist/index.cjs\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--bin=",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"bin\": \"./dist/index.cjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"bin\": \"./dist/index.cjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -255,8 +255,8 @@
             "name": "include all externals",
             "input": "package.json\n|{\"dependencies\":{\"is-builtin-module\":\"*\"}}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--include-externals=",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"dependencies\": {\n|    \"is-builtin-module\": \"*\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"dependencies\": {\n|    \"is-builtin-module\": \"*\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -264,8 +264,8 @@
             "name": "include specific externals",
             "input": "package.json\n|{\"dependencies\":{\"is-builtin-module\":\"*\"}}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--include-externals=is-builtin-module",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"dependencies\": {\n|    \"is-builtin-module\": \"*\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"dependencies\": {\n|    \"is-builtin-module\": \"*\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -275,8 +275,8 @@
             "name": "create tsconfig when none exists",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--ts-config",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\ntsconfig.json\n|{\n|  \"include\": [\n|    \"src\",\n|    \"types\"\n|  ],\n|  \"compilerOptions\": {\n|    \"lib\": [\n|      \"dom\",\n|      \"esnext\"\n|    ],\n|    \"target\": \"esnext\",\n|    \"module\": \"esnext\",\n|    \"esModuleInterop\": true,\n|    \"allowJs\": true,\n|    \"skipLibCheck\": true,\n|    \"strict\": true,\n|    \"sourceMap\": true,\n|    \"noUncheckedIndexedAccess\": true,\n|    \"declaration\": true,\n|    \"moduleResolution\": \"bundler\",\n|    \"rootDir\": \"./src\"\n|  }\n|}\n|",
-            "stdout": "preparing..\n\npreparing...\nℹ no tsconfig.json or jsconfig.json and --no-ts-config not specified, writing tsconfig...\nℹ done\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\ntsconfig.json\n|{\n|  \"include\": [\n|    \"src\",\n|    \"types\"\n|  ],\n|  \"compilerOptions\": {\n|    \"lib\": [\n|      \"dom\",\n|      \"esnext\"\n|    ],\n|    \"target\": \"esnext\",\n|    \"module\": \"esnext\",\n|    \"esModuleInterop\": true,\n|    \"allowJs\": true,\n|    \"skipLibCheck\": true,\n|    \"strict\": true,\n|    \"sourceMap\": true,\n|    \"noUncheckedIndexedAccess\": true,\n|    \"declaration\": true,\n|    \"moduleResolution\": \"bundler\",\n|    \"rootDir\": \"./src\"\n|  }\n|}\n|",
+            "stdout": "preparing..\n\npreparing...\nℹ no tsconfig.json or jsconfig.json and --no-ts-config not specified, writing tsconfig...\nℹ done\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -284,8 +284,8 @@
             "name": "existing tsconfig",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;\ntsconfig.json\n|{\"compilerOptions\":{\"strict\":true}}",
             "args": "--ts-config",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\ntsconfig.json\n|{\"compilerOptions\":{\"strict\":true}}",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\ntsconfig.json\n|{\"compilerOptions\":{\"strict\":true}}",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -293,8 +293,8 @@
             "name": "existing jsconfig",
             "input": "jsconfig.json\n|{\"compilerOptions\":{\"strict\":true}}\npackage.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--ts-config",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\njsconfig.json\n|{\"compilerOptions\":{\"strict\":true}}\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\njsconfig.json\n|{\"compilerOptions\":{\"strict\":true}}\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -306,7 +306,7 @@
             "args": "--preprocess=index",
             "output": "package.json\n|{}\nsrc\n  index.ts\n|// #if es\n|export const format = 'es';\n|// #endif\n|// #if cjs\n|export const format = 'cjs';\n|// #endif",
             "exitCode": 255,
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 2\n✕ RollupError: src/index.ts (5:13): Identifier \"format\" has already been declared\n",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\n✕ RollupError: src/index.ts (5:13): Identifier \"format\" has already been declared\n",
             "stderr": ""
         },
         {
@@ -316,7 +316,7 @@
             "args": "--preprocess=index --umd=index",
             "output": "package.json\n|{\"name\":\"test\"}\nsrc\n  index.ts\n|// #if es\n|export const format = 'es';\n|// #endif\n|// #if cjs\n|export const format = 'cjs';\n|// #endif\n|// #if umd\n|export const format = 'umd';\n|// #endif",
             "exitCode": 255,
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 3\n✕ RollupError: src/index.ts (5:13): Identifier \"format\" has already been declared\n",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 2\n✕ RollupError: src/index.ts (5:13): Identifier \"format\" has already been declared\n",
             "stderr": ""
         }
     ],
@@ -358,8 +358,8 @@
             "name": "umd with single input from multiple exports",
             "input": "package.json\n|{\"name\":\"test\",\"exports\":{\".\":{\"import\":\"./dist/index.mjs\"},\"./second\":{\"import\":\"./dist/second.mjs\"}}}\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
             "args": "--umd=index",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\n  second.cjs\n|'use strict';\n|\n|const second = 1;\n|\n|exports.second = second;\n|\n  second.mjs\n|const second = 1;\n|\n|export { second };\n|\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./second\": {\n|      \"import\": \"./dist/second.mjs\",\n|      \"default\": \"./dist/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 2\nℹ ✓ index, second [es, cjs]\nsrc → dist 1 / 2\nℹ ✓ index [umd]\nsrc → dist 2 / 2\n✓ src → dist 2 / 2 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\n  second.mjs\n|const second = 1;\n|\n|export { second };\n|\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./second\": {\n|      \"import\": \"./dist/second.mjs\",\n|      \"default\": \"./dist/second.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;\n  second.ts\n|export const second = 1;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 2\nℹ ✓ index, second [es]\nsrc → dist 1 / 2\nℹ ✓ index [umd]\nsrc → dist 2 / 2\n✓ src → dist 2 / 2 in XXX\n",
             "stderr": ""
         }
     ],
@@ -378,8 +378,8 @@
             "name": "type module with exports",
             "input": "package.json\n|{\"type\":\"module\",\"exports\":{\".\":{\"default\":\"./dist/index.mjs\"}}}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"type\": \"module\",\n|  \"exports\": {\n|    \".\": {\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.mjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"type\": \"module\",\n|  \"exports\": {\n|    \".\": {\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.mjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\"\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -387,8 +387,8 @@
             "name": "type module default formats",
             "input": "package.json\n|{\"type\":\"module\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"type\": \"module\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.mjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"type\": \"module\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.mjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -398,8 +398,8 @@
             "name": "existing umd string field in package.json",
             "input": "package.json\n|{\"name\":\"test\",\"umd\":\"./old/path.js\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--umd=index",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"umd\": \"./dist/index.umd.js\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs, umd]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"umd\": \"./dist/index.umd.js\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, umd]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -409,8 +409,8 @@
             "name": "compress es and cjs",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--compress=es,cjs",
-            "output": "dist\n  index.cjs\n|\"use strict\";exports.test=0;\n|\n  index.mjs\n|const o=0;export{o as test};\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const o=0;export{o as test};\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -420,8 +420,8 @@
             "name": "js source with default options",
             "input": "package.json\n|{}\nsrc\n  index.js\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.js\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.js\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -429,8 +429,8 @@
             "name": "jsx source file",
             "input": "package.json\n|{}\nsrc\n  index.jsx\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.jsx\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.jsx\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -440,8 +440,8 @@
             "name": "existing module field not overwritten",
             "input": "package.json\n|{\"module\":\"./dist/index.mjs\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"module\": \"./dist/index.mjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"module\": \"./dist/index.mjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         },
         {
@@ -449,8 +449,8 @@
             "name": "existing main field",
             "input": "package.json\n|{\"main\":\"./lib/index.js\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"main\": \"./dist/index.cjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"main\": \"./dist/index.cjs\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -472,8 +472,8 @@
             "name": "existing prepack script not overwritten",
             "input": "package.json\n|{\"scripts\":{\"prepack\":\"my-custom-script\"}}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"prepack\": \"my-custom-script\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"scripts\": {\n|    \"prepack\": \"my-custom-script\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -483,8 +483,8 @@
             "name": "custom commonjs and esm patterns",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--commonjs-pattern=[name].common.js --esm-pattern=[name].esm.js",
-            "output": "dist\n  index.common.js\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.esm.js\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.common.js\",\n|  \"module\": \"./dist/index.esm.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.esm.js\",\n|      \"require\": \"./dist/index.common.js\",\n|      \"default\": \"./dist/index.common.js\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.esm.js\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.common.js\",\n|  \"module\": \"./dist/index.esm.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.esm.js\",\n|      \"require\": \"./dist/index.common.js\",\n|      \"default\": \"./dist/index.common.js\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -494,8 +494,8 @@
             "name": "pkg.umd string field without umd cli flag",
             "input": "package.json\n|{\"name\":\"test\",\"umd\":\"./old/path.js\"}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"umd\": \"./dist/index.umd.js\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs, umd]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\n  index.umd.js\n|!function(e,o){\"object\"==typeof exports&&\"undefined\"!=typeof module?o(exports):\"function\"==typeof define&&define.amd?define([\"exports\"],o):o((e=\"undefined\"!=typeof globalThis?globalThis:e||self).test={})}(this,(function(e){\"use strict\";e.test=0}));\n|//# sourceMappingURL=index.umd.js.map\n|\n  index.umd.js.map\n|{\"version\":3,\"file\":\"index.umd.js\",\"sources\":[\"../src/index.ts\"],\"sourcesContent\":[\"export const test = 0;\"],\"names\":[],\"mappings\":\"mPAAoB\"}\npackage.json\n|{\n|  \"name\": \"test\",\n|  \"umd\": \"./dist/index.umd.js\",\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"unpkg\": \"./dist/index.umd.js\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, umd]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ],
@@ -505,8 +505,8 @@
             "name": "bin comma only resets to undefined",
             "input": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "args": "--bin=,",
-            "output": "dist\n  index.cjs\n|'use strict';\n|\n|const test = 0;\n|\n|exports.test = test;\n|\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
-            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es, cjs]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
+            "output": "dist\n  index.mjs\n|const test = 0;\n|\n|export { test };\n|\npackage.json\n|{\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"main\": \"./dist/index.cjs\",\n|  \"module\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"import\": \"./dist/index.mjs\",\n|      \"require\": \"./dist/index.cjs\",\n|      \"default\": \"./dist/index.cjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  index.ts\n|export const test = 0;",
+            "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
             "stderr": ""
         }
     ]

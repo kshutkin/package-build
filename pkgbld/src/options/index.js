@@ -50,7 +50,7 @@ function CommaSeparatedStringOrBoolean(value) {
 }
 
 export const cliFlagsDefaults = {
-    formats: /** @type {string[]} */ (['es', 'cjs']),
+    formats: /** @type {string[]} */ (['es']),
     umd: /** @type {string[]} */ ([]),
     compress: /** @type {string[]} */ (['umd']),
     sourcemaps: /** @type {string[]} */ (['umd']),
