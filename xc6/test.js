@@ -1,11 +1,12 @@
-import { filesToString, stringToFiles } from 'cli-test-helper';
+import assert from 'node:assert';
+import cd from 'node:child_process';
+import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import fs from 'node:fs/promises';
-import assert from 'node:assert';
 import test, { afterEach, beforeEach, describe } from 'node:test';
-import cd from 'node:child_process';
 import util from 'node:util';
+
+import { filesToString, stringToFiles } from 'cli-test-helper';
 
 const exec = util.promisify(cd.exec);
 
@@ -40,7 +41,6 @@ Commands:
 `;
 
 describe('top level script', () => {
-    
     test('wrong command', async () => {
         let result;
         try {
@@ -69,7 +69,6 @@ test('help command', async () => {
 });
 
 describe('rm', () => {
-
     test('happy path (directory)', async () => {
         const referenceString = 'tmp1\n  1.js\n|sdsdf\n  tmp2';
 
@@ -132,14 +131,12 @@ describe('rm', () => {
         assert.strictEqual(true, result.stderr.includes('Error'), 'Has no error message');
         assert.strictEqual(1, result.code, 'Wrong exit code');
     });
-
 });
 
 describe('cp', () => {
-
     test('happy path (directory)', async () => {
         const referenceString = 'tmp1\n  1.js\n|sdsdf\n  tmp2';
-            
+
         await stringToFiles(referenceString, dir);
 
         const result = await exec(`node index.js cp ${dir}/tmp1 ${dir}/tmp3`);
@@ -152,7 +149,7 @@ describe('cp', () => {
 
     test('happy path (file)', async () => {
         const referenceString = 'tmp1\n  1.js\n|sdsdf\n  tmp2';
-            
+
         await stringToFiles(referenceString, dir);
 
         const result = await exec(`node index.js cp ${dir}/tmp1/1.js ${dir}/tmp1/2.js`);
@@ -177,10 +174,9 @@ describe('cp', () => {
 });
 
 describe('ln', () => {
-
     test('happy path (directory)', async () => {
         const referenceString = 'tmp1\n  1.js\n|sdsdf\n  tmp2';
-            
+
         await stringToFiles(referenceString, dir);
 
         const result = await exec(`node index.js ln ${dir}/tmp1 ${dir}/tmp2`);
@@ -193,7 +189,7 @@ describe('ln', () => {
 
     test('happy path (file)', async () => {
         const referenceString = 'tmp1\n  1.js\n|sdsdf\n  tmp2';
-            
+
         await stringToFiles(referenceString, dir);
 
         const result = await exec(`node index.js ln ${dir}/tmp1/1.js ${dir}/tmp1/2.js`);
@@ -218,10 +214,9 @@ describe('ln', () => {
 });
 
 describe('mv', () => {
-
     test('happy path (directory)', async () => {
         const referenceString = 'tmp1\n  1.js\n|sdsdf\n  tmp2';
-            
+
         await stringToFiles(referenceString, dir);
 
         const result = await exec(`node index.js mv ${dir}/tmp1 ${dir}/tmp2`);

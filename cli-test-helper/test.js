@@ -1,9 +1,10 @@
-import { filesToString, stringToFiles } from './index.js';
+import assert from 'node:assert';
+import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import fs from 'node:fs/promises';
-import assert from 'node:assert';
 import test, { afterEach, beforeEach } from 'node:test';
+
+import { filesToString, stringToFiles } from './index.js';
 
 let dir;
 
