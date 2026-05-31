@@ -147,6 +147,15 @@ importers:
       '@types/prompts':
         specifier: 2.4.9
         version: 2.4.9
+      pkgbld-plugin-biome:
+        specifier: workspace:*
+        version: link:../pkgbld-plugin-biome
+      pkgbld-plugin-dts-buddy:
+        specifier: workspace:*
+        version: link:../pkgbld-plugin-dts-buddy
+      pkgbld-plugin-swc:
+        specifier: workspace:*
+        version: link:../pkgbld-plugin-swc
 
   integration-tests/dts-buddy-plugin-integration:
     devDependencies:
@@ -253,6 +262,8 @@ importers:
       type-fest:
         specifier: 'catalog:'
         version: 4.34.1
+
+  pkgbld-plugin-biome: {}
 
   pkgbld-plugin-dts-buddy:
     dependencies:

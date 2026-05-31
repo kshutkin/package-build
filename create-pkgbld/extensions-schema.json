@@ -1,0 +1,47 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "create-pkgbld extension registry",
+    "description": "Registry file describing extensions available to create-pkgbld.",
+    "type": "object",
+    "required": ["extensions"],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "Optional schema reference."
+        },
+        "extensions": {
+            "type": "array",
+            "description": "List of extensions exposed by this registry.",
+            "items": { "$ref": "#/definitions/extensionEntry" }
+        }
+    },
+    "definitions": {
+        "extensionEntry": {
+            "type": "object",
+            "required": ["name", "package", "description"],
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Unique extension name as referenced from CLI (e.g. `create-pkgbld add <name>`)."
+                },
+                "package": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Module specifier or path to the extension package implementing the contract."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Short human description shown in the list / TUI."
+                },
+                "tags": {
+                    "type": "array",
+                    "description": "Optional tags for grouping/filtering.",
+                    "items": { "type": "string", "minLength": 1 }
+                }
+            }
+        }
+    }
+}

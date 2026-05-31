@@ -8,7 +8,9 @@
     "type": "module",
     "files": [
         "src",
-        "index.js"
+        "index.js",
+        "extensions.json",
+        "extensions-schema.json"
     ],
     "engines": {
         "node": ">=20"
@@ -27,7 +29,8 @@
         "init"
     ],
     "scripts": {
-        "build": "echo 'no build needed'"
+        "build": "echo 'no build needed'",
+        "test": "node --test 'test/*.test.js'"
     },
     "dependencies": {
         "string-argv": "0.3.2",
@@ -43,6 +46,9 @@
         "@types/git-user-name": "2.0.3",
         "@types/parse-git-config": "3.0.4",
         "@types/prompts": "2.4.9",
-        "@types/lodash": "catalog:"
+        "@types/lodash": "catalog:",
+        "pkgbld-plugin-swc": "workspace:*",
+        "pkgbld-plugin-dts-buddy": "workspace:*",
+        "pkgbld-plugin-biome": "workspace:*"
     }
 }

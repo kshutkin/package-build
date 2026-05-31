@@ -1,3 +1,4 @@
+import fsSync from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ import { cliFlags, cliFlagsDefaults, isPackageJson, processPackageJson, toFormat
 import prompts from 'prompts';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
 
-import { blue, gray, green, white } from '@niceties/ansi';
+import { blue, gray, green, red, white, yellow } from '@niceties/ansi';
 import { parseArgsPlus } from '@niceties/node-parseargs-plus';
 import { camelCase } from '@niceties/node-parseargs-plus/camel-case';
 import { customValue } from '@niceties/node-parseargs-plus/custom-value';
@@ -17,7 +18,17 @@ import { help } from '@niceties/node-parseargs-plus/help';
 import { optionalValue } from '@niceties/node-parseargs-plus/optional-value';
 import { parameters } from '@niceties/node-parseargs-plus/parameters';
 
+import { detectConflicts, formatConflicts, recordOps } from './conflicts.js';
+import { renderChanges } from './diff.js';
+import { runRemove, runSetup } from './engine.js';
 import getGitRoot from './get-git-root.js';
+import { changesAffectDependencies, detectPackageManager, runInstall } from './install.js';
+import { loadRegistry } from './registry.js';
+import { runAdd, runList, runRemoveCmd } from './subcommands.js';
+import { Tree } from './tree.js';
+import { buildExtensionMenuItems, getOptionsValue, pad16plus, runInteractiveLoop } from './tui.js';
+
+const SUBCOMMANDS = new Set(['add', 'remove', 'list']);
 
 /**
  * @typedef {import('pkgbld/options').PackageJson} PackageJson
@@ -28,14 +39,21 @@ import getGitRoot from './get-git-root.js';
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const done = Symbol('done');
+const builtinRegistryPath = path.resolve(__dirname, '..', 'extensions.json');
 
 const formats = ['amd', 'cjs', 'es', 'iife', 'system', 'umd'];
 const pkgbldBinaries = ['pkgbld', 'node ../pkgbld/dist/index.js'];
 
 async function execute() {
     const version = await reportVersion();
+
+    const sub = process.argv[2];
+    if (sub && SUBCOMMANDS.has(sub)) {
+        const rest = process.argv.slice(3);
+        if (sub === 'list') return runList(version, rest);
+        if (sub === 'add') return runAdd(version, rest);
+        if (sub === 'remove') return runRemoveCmd(version, rest);
+    }
 
     const args = parseArgsPlus(
         {
@@ -48,108 +66,128 @@ async function execute() {
                     description: 'Quiet mode',
                     default: false,
                 },
+                install: {
+                    type: /** @type {'boolean'} */ ('boolean'),
+                    description: 'Run package manager install after commit if deps changed',
+                    default: false,
+                },
             },
         },
         [help, parameters]
     );
 
-    if (!args.values.quiet) console.log(`create-pkgbld v${version}\n`);
+    const quiet = Boolean(args.values.quiet);
+    const installFlag = Boolean(args.values.install);
+
+    if (!quiet) console.log(`create-pkgbld v${version}\n`);
 
     const targetDir = path.join(process.cwd(), args.parameters.packageName ?? '.');
 
-    if (!args.values.quiet) console.log(gray(pad16plus('Target Directory', 0)) + white(targetDir));
+    if (!quiet) console.log(gray(pad16plus('Target Directory', 0)) + white(targetDir));
 
     const pkg = await readPackage(targetDir);
 
-    if (!args.values.quiet) console.log(gray(pad16plus('Mode', 0)) + white(pkg.mode));
+    if (!quiet) console.log(gray(pad16plus('Mode', 0)) + white(pkg.mode));
 
     const packageName = path.basename(targetDir);
 
-    let cancelled = false;
-
     const options = getBasicOptions(packageName, pkg);
-
     options.push(...(await getGitOptions(targetDir, pkg.pkg)));
-
     options.push(...getPkgbldOptions(pkg.pkg));
 
     const state = getOptionsValue(options);
 
-    if (!args.values.quiet) {
-        for (;;) {
-            const topLevelAction = await prompts(
-                {
-                    type: 'select',
-                    name: 'value',
-                    message: 'Select an option to change, Done to execute, Escape to cancel',
-                    choices: [
-                        { title: green('Done'), description: `${pkg.mode === 'update' ? 'Update' : 'Create'} package`, value: done },
-                        ...options.map(mapOption(state)),
-                    ],
-                    initial: 0,
-                },
-                { onCancel }
-            );
+    /** @type {import('./tui.js').ExtensionMenuItem[]} */
+    let extensionItems = [];
 
-            if (cancelled) {
-                process.exit(-1);
-            }
+    if (!quiet) {
+        const registry = await loadRegistry(builtinRegistryPath, targetDir);
+        extensionItems = await buildExtensionMenuItems(registry, targetDir);
 
-            if (topLevelAction.value === done) {
-                break;
-            }
-
-            let option = /** @type {Option} */ (options.find(item => item.field === topLevelAction.value));
-            let mutateObject = state;
-
-            while ('items' in option) {
-                const nextLevelAction = await prompts(
-                    [
-                        {
-                            type: 'select',
-                            name: 'value',
-                            message: option.title,
-                            choices: option.items.map(
-                                mapOption(option.mutateInnerObject ? /** @type {Record<string, string>} */ (state[option.field]) : state)
-                            ),
-                        },
-                    ],
-                    { onCancel }
-                );
-
-                if (cancelled) {
-                    process.exit(-1);
-                }
-
-                if (option.mutateInnerObject) {
-                    mutateObject = /** @type {Record<string, string>} */ (state[option.field]);
-                }
-
-                option = /** @type {Option} */ (option.items.find((/** @type {Option} */ item) => item.field === nextLevelAction.value));
-            }
-
-            const action = await prompts(getPromptOption(option, mutateObject), { onCancel });
-
-            if (cancelled) {
-                process.exit(-1);
-            }
-
-            mutateObject[option.field] = action[option.field];
-        }
-
-        if (cancelled) {
-            process.exit(-1);
+        try {
+            await runInteractiveLoop({ options, state, extensionItems, mode: pkg.mode, projectRoot: targetDir });
+        } catch (/** @type {any} */ err) {
+            if (err && err.message === 'cancelled') process.exit(-1);
+            throw err;
         }
     }
 
     updatePackage(pkg, state);
-
     pkg.readme ??= `# ${state.name}`;
 
-    await writePackage(targetDir, pkg);
+    const tree = new Tree(targetDir);
+    await fs.mkdir(targetDir, { recursive: true });
+    tree.write('package.json', toFormattedJson(pkg.pkg));
+    tree.write('README.md', pkg.readme);
 
-    function onCancel() {
-        cancelled = true;
+    /** @type {import('./conflicts.js').RecordedOp[]} */
+    const allOps = [];
+    for (const item of extensionItems) {
+        if (!item.intent || !item.ext) continue;
+        const { ops } = await recordOps(tree, item.entry.name, async () => {
+            if (item.intent === 'setup') await runSetup(/** @type {any} */ (item.ext), tree, item.options);
+            else await runRemove(/** @type {any} */ (item.ext), tree, item.options);
+        });
+        allOps.push(...ops);
+    }
+
+    const changes = tree.listChanges();
+    const conflicts = detectConflicts(allOps);
+
+    if (!quiet) {
+        console.log(`\n${gray('Pending changes:')}`);
+        console.log(renderChanges(changes, { readDiskJson: p => readDiskJsonFromDir(targetDir, p) }));
+        if (conflicts.length > 0) {
+            console.log(yellow('\nConflicts detected:'));
+            for (const line of formatConflicts(conflicts)) console.log(yellow(line));
+        }
+    }
+
+    const beforePkg = readDiskJsonFromDir(targetDir, 'package.json');
+    try {
+        await tree.commit();
+    } catch (e) {
+        console.error(e);
+        process.exit(-1);
+    }
+
+    if (!quiet) {
+        const applied = extensionItems.filter(i => i.intent);
+        for (const item of applied) {
+            const verb = item.intent === 'setup' ? green('installed') : red('removed');
+            console.log(`${gray('Extension')} ${white(item.entry.name)} ${verb}`);
+        }
+    }
+
+    if (changesAffectDependencies(changes, targetDir, beforePkg)) {
+        const pm = detectPackageManager(targetDir);
+        let shouldInstall = installFlag;
+        if (!shouldInstall && !quiet) {
+            const ans = await prompts({ type: 'confirm', name: 'go', message: `Run ${pm} install now?`, initial: false });
+            shouldInstall = Boolean(ans.go);
+        }
+        if (shouldInstall) {
+            if (!quiet) console.log(gray(`\nRunning ${pm} install...`));
+            const code = await runInstall(pm, targetDir);
+            if (code !== 0) {
+                console.error(red(`${pm} install exited with code ${code}`));
+                process.exitCode = code;
+            }
+        } else if (!quiet) {
+            console.log(gray(`\nDependencies changed. Run "${pm} install" to apply (or pass --install).`));
+        }
+    }
+}
+
+/**
+ * @param {string} dir
+ * @param {string} relPath
+ */
+function readDiskJsonFromDir(dir, relPath) {
+    try {
+        return JSON.parse(fsSync.readFileSync(path.join(dir, relPath), 'utf8'));
+    } catch {
+        return null;
     }
 }
 
@@ -185,119 +223,6 @@ function getScriptValue(pkgbld) {
     pkgBldCopy.pkgbldBinary = undefined;
     pkgBldCopy.extraParameters = undefined;
     return `${binary} ${asCommandLineArgs(/** @type {Record<string, undefined | null | string | number | boolean>} */ (pkgBldCopy), cliFlagsDefaults)} ${extraArgs}`.trimEnd();
-}
-
-/**
- * @param {Option} option
- * @param {OptionsValue} mutateObject
- * @returns {PromptObject}
- */
-function getPromptOption(option, mutateObject) {
-    const value = /** @type {string | string[] | undefined} */ (mutateObject[option.field]);
-    const type = option.type ?? 'text';
-    /** @type {PromptObject} */
-    const promptOption = {
-        type,
-        name: option.field,
-        message: option.title,
-        initial: (Array.isArray(value) ? value.join(',') : value) ?? '',
-    };
-    if (type === 'multiselect') {
-        promptOption.choices =
-            'list' in option
-                ? option.list.map((/** @type {string} */ item) => ({
-                      title: item,
-                      value: item,
-                      selected: /** @type {string[]} */ (value).includes(item),
-                  }))
-                : [];
-    }
-    if (type === 'select') {
-        promptOption.choices =
-            'list' in option
-                ? option.list.map((/** @type {string} */ item) => ({
-                      title: item,
-                      value: item,
-                  }))
-                : [];
-        promptOption.initial = /** @type {import('prompts').Choice[]} */ (promptOption.choices).findIndex(
-            (/** @type {import('prompts').Choice} */ item) => item.value === promptOption.initial
-        );
-    }
-    return promptOption;
-}
-
-/**
- * @param {OptionsValue} state
- */
-function mapOption(state) {
-    return (/** @type {Option} */ option) => {
-        const fieldValue = state[option.field];
-        return {
-            title:
-                pad16plus(option.title) +
-                gray(
-                    'items' in option
-                        ? getPrintString(
-                              option,
-                              option.mutateInnerObject
-                                  ? /** @type {Record<string, string>} */ (fieldValue)
-                                  : /** @type {Record<string, string>} */ (state)
-                          )
-                        : /** @type {string} */ (fieldValue ?? '')
-                ),
-            value: option.field,
-        };
-    };
-}
-
-/**
- * @param {{ items: Option[]; mutateInnerObject: boolean; render?: (option: Option, value: OptionsValue) => string; }} option
- * @param {OptionsValue} json
- * @returns {string}
- */
-function getPrintString(option, json) {
-    if (option.render) {
-        return option.render(/** @type {Option} */ (option), json);
-    }
-    return option.items
-        .filter(
-            item =>
-                item.field in json &&
-                json[item.field] &&
-                (Array.isArray(json[item.field]) ? /** @type {unknown[]} */ (/** @type {unknown} */ (json[item.field])).length > 0 : true)
-        )
-        .map(
-            item =>
-                `${gray(item.title)} ${white(
-                    'items' in item
-                        ? `[${getPrintString(item, item.mutateInnerObject ? /** @type {OptionsValue} */ (json[item.field]) : json)}]`
-                        : /** @type {string} */ (json[item.field])
-                )}`
-        )
-        .join(', ');
-}
-
-/**
- * @param {Option[]} options
- * @returns {OptionsValue}
- */
-function getOptionsValue(options) {
-    /** @type {OptionsValue} */
-    const result = {};
-    for (const item of options) {
-        if ('items' in item) {
-            const value = getOptionsValue(item.items);
-            if (item.mutateInnerObject) {
-                result[item.field] = value;
-            } else {
-                Object.assign(result, value);
-            }
-        } else {
-            result[item.field] = item.initialValue;
-        }
-    }
-    return result;
 }
 
 async function reportVersion() {
@@ -656,15 +581,6 @@ function getBasicOptions(packageName, pkg) {
 }
 
 /**
- * @param {string} value
- * @param {number} [indent]
- * @param {number} [offset]
- */
-function pad16plus(value, indent = 4, offset = 3) {
-    return value + ''.padEnd(offset - Math.floor((value.length + indent) / 8), '\t');
-}
-
-/**
  * @param {string} dir
  * @returns {Promise<PkgInfo>}
  */
@@ -696,23 +612,6 @@ async function readPackage(dir) {
         readme: '',
         mode: /** @type {const} */ ('create'),
     };
-}
-
-/**
- * @param {string} dir
- * @param {PkgInfo} pkg
- */
-async function writePackage(dir, pkg) {
-    const packageFileName = path.resolve(dir, 'package.json');
-    const readmeFileName = path.resolve(dir, 'README.md');
-    try {
-        await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(packageFileName, toFormattedJson(pkg.pkg));
-        await fs.writeFile(readmeFileName, pkg.readme);
-    } catch (e) {
-        console.error(e);
-        process.exit(-1);
-    }
 }
 
 /**

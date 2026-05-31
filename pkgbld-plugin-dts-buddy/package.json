@@ -13,6 +13,9 @@
             "types": "./types/index.d.ts",
             "default": "./src/index.js"
         },
+        "./extension": {
+            "default": "./src/extension.js"
+        },
         "./package.json": "./package.json"
     },
     "repository": {

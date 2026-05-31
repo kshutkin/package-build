@@ -5,6 +5,7 @@ packages:
   - "cli-test-helper"
   - "pkgbld-plugin-dts-buddy"
   - "pkgbld-plugin-swc"
+  - "pkgbld-plugin-biome"
   - "integration-tests/*"
 
 catalog:

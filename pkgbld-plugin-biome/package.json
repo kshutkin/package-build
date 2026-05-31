@@ -1,7 +1,7 @@
 {
     "version": "0.1.0",
-    "name": "pkgbld-plugin-swc",
-    "description": "Plugin to strip TypeScript types using SWC",
+    "name": "pkgbld-plugin-biome",
+    "description": "create-pkgbld extension that wires Biome (linter/formatter) into a project",
     "license": "MIT",
     "author": "Konstantin Shutkin",
     "readme": "README.md",
@@ -11,27 +11,20 @@
         ".": {
             "default": "./src/index.js"
         },
-        "./extension": {
-            "default": "./src/extension.js"
-        },
         "./package.json": "./package.json"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/kshutkin/package-build.git",
-        "directory": "pkgbld-plugin-swc"
+        "directory": "pkgbld-plugin-biome"
     },
     "bugs": "https://github.com/kshutkin/package-build/issues",
-    "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld-plugin-swc/README.md",
+    "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld-plugin-biome/README.md",
     "files": [
         "src"
     ],
-    "dependencies": {
-        "@rollup/plugin-swc": "^0.4.0",
-        "@swc/core": "^1.3.0"
-    },
-    "devDependencies": {
-        "pkgbld": "workspace:*",
-        "rollup": "catalog:"
+    "scripts": {
+        "build": "echo 'no build needed'",
+        "test": "echo 'no tests'"
     }
 }
