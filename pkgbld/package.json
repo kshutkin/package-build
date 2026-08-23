@@ -59,9 +59,9 @@
         "@rollup-extras/plugin-binify": "catalog:",
         "@rollup-extras/plugin-externals": "catalog:",
         "@slimlib/refine-partition": "catalog:",
-        "@slimlib/smart-mock": "^0.1.6",
+        "@slimlib/smart-mock": "^1.0.2",
         "is-builtin-module": "catalog:",
-        "terser": "^5.39.0",
+        "terser": "^5.50.0",
         "@niceties/ansi": "catalog:",
         "@niceties/node-parseargs-plus": "catalog:"
     },

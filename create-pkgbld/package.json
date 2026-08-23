@@ -34,17 +34,13 @@
     },
     "dependencies": {
         "string-argv": "0.3.2",
-        "git-user-name": "2.0.0",
         "@niceties/node-parseargs-plus": "catalog:",
-        "parse-git-config": "3.0.0",
         "prompts": "2.4.2",
         "@niceties/ansi": "catalog:",
         "lodash": "catalog:",
         "pkgbld": "workspace:*"
     },
     "devDependencies": {
-        "@types/git-user-name": "2.0.3",
-        "@types/parse-git-config": "3.0.4",
         "@types/prompts": "2.4.9",
         "@types/lodash": "catalog:",
         "pkgbld-plugin-swc": "workspace:*",

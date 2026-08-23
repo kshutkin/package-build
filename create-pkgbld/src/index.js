@@ -1,11 +1,10 @@
+import { execFileSync } from 'node:child_process';
 import fsSync from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import userName from 'git-user-name';
 import isEqual from 'lodash/isEqual.js';
-import gitConfig from 'parse-git-config';
 import { cliFlags, cliFlagsDefaults, isPackageJson, processPackageJson, toFormattedJson } from 'pkgbld/options';
 import prompts from 'prompts';
 import { parseArgsStringToArgv as toArgv } from 'string-argv';
@@ -240,9 +239,8 @@ async function reportVersion() {
  */
 async function getGitOptions(targetDir, packageJson) {
     try {
-        const gitCfg = await gitConfig();
-        if (gitCfg) {
-            const url = /** @type {string} */ (gitCfg['remote "origin"'].url);
+        const url = getGitConfigValue('remote.origin.url');
+        if (url) {
             const root = await getGitRoot();
             const directory = path.relative(root, targetDir);
             return [
@@ -545,7 +543,7 @@ function getBasicOptions(packageName, pkg) {
                 {
                     title: 'Author',
                     field: 'author',
-                    initialValue: chooseValue(toAuthorString(pkg.pkg.author), userName() ?? ''),
+                    initialValue: chooseValue(toAuthorString(pkg.pkg.author), getGitConfigValue('user.name')),
                 },
                 {
                     title: 'Readme',
@@ -577,6 +575,18 @@ function getBasicOptions(packageName, pkg) {
         const email = author.email ?? '';
         const url = author.url ?? '';
         return `${name}${email ? ` <${email}>` : ''}${url ? ` (${url})` : ''}`;
+    }
+}
+
+/**
+ * @param {string} key
+ * @returns {string}
+ */
+function getGitConfigValue(key) {
+    try {
+        return execFileSync('git', ['config', '--get', key], { encoding: 'utf8' }).trim();
+    } catch (_) {
+        return '';
     }
 }
 
