@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.36.0
+
+### Minor Changes
+
+- a1cfa46: added noSubpackages option
+
 ## 1.35.1
 
 ### Patch Changes
