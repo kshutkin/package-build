@@ -11,7 +11,7 @@ packages:
 catalog:
   "dts-buddy": "^0.8.3"
   "typescript": "^6.0.3"
-  rollup: ^4.62.5
+  rollup: ^4.63.1
   rollup-plugin-preprocess: ^0.0.4
   "@rollup/plugin-commonjs": ^29.0.3
   "@rollup/plugin-node-resolve": ^16.0.3
@@ -25,7 +25,7 @@ catalog:
   "@rollup-extras/plugin-clean": ^2.0.1
   "@rollup-extras/plugin-binify": ^2.0.0
   c8: ^12.0.0
-  "type-fest": ^5.8.0
+  "type-fest": ^5.9.0
   "@niceties/logger": ^2.1.1
   "@niceties/draftlog-appender": ^2.1.1
   "@niceties/node-parseargs-plus": ^0.6.0

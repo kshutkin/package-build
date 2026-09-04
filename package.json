@@ -11,9 +11,9 @@
         "ci:publish": "changeset publish"
     },
     "devDependencies": {
-        "@changesets/cli": "^3.0.1",
-        "@types/node": "^26.2.0",
-        "@biomejs/biome": "2.5.10",
+        "@changesets/cli": "^3.0.2",
+        "@types/node": "^26.4.1",
+        "@biomejs/biome": "2.5.12",
         "pkgbld-plugin-swc": "workspace:*",
         "typescript": "catalog:"
     }

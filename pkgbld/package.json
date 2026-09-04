@@ -61,7 +61,7 @@
         "@slimlib/refine-partition": "catalog:",
         "@slimlib/smart-mock": "^1.0.2",
         "is-builtin-module": "catalog:",
-        "terser": "^5.50.0",
+        "terser": "^5.51.2",
         "@niceties/ansi": "catalog:",
         "@niceties/node-parseargs-plus": "catalog:"
     },
