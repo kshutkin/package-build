@@ -9,60 +9,18 @@ catalogs:
     '@niceties/ansi':
       specifier: ^1.1.2
       version: 1.1.2
-    '@niceties/draftlog-appender':
-      specifier: ^2.1.1
-      version: 2.1.1
-    '@niceties/logger':
-      specifier: ^2.1.1
-      version: 2.1.1
     '@niceties/node-parseargs-plus':
       specifier: ^0.6.0
       version: 0.6.0
-    '@rollup-extras/plugin-binify':
-      specifier: ^2.0.0
-      version: 2.0.0
-    '@rollup-extras/plugin-clean':
-      specifier: ^2.0.1
-      version: 2.0.1
-    '@rollup-extras/plugin-externals':
-      specifier: ^2.0.0
-      version: 2.0.0
-    '@rollup/plugin-commonjs':
-      specifier: ^29.0.3
-      version: 29.0.3
-    '@rollup/plugin-json':
-      specifier: ^6.1.0
-      version: 6.1.0
-    '@rollup/plugin-node-resolve':
-      specifier: ^16.0.3
-      version: 16.0.3
-    '@rollup/plugin-terser':
-      specifier: ^1.0.0
-      version: 1.0.0
-    '@slimlib/refine-partition':
-      specifier: ^2.0.2
-      version: 2.0.2
-    '@types/lodash':
-      specifier: ^4.17.25
-      version: 4.17.25
     c8:
       specifier: ^12.0.0
       version: 12.0.0
     dts-buddy:
       specifier: ^0.8.3
       version: 0.8.3
-    is-builtin-module:
-      specifier: ^5.0.0
-      version: 5.0.0
-    lodash:
-      specifier: ^4.18.1
-      version: 4.18.1
     rollup:
       specifier: ^4.63.1
       version: 4.63.1
-    rollup-plugin-preprocess:
-      specifier: ^0.0.4
-      version: 0.0.4
     type-fest:
       specifier: ^5.9.0
       version: 5.9.0
@@ -172,59 +130,59 @@ importers:
         specifier: 'catalog:'
         version: 1.1.2
       '@niceties/draftlog-appender':
-        specifier: 'catalog:'
+        specifier: ^2.1.1
         version: 2.1.1(@niceties/logger@2.1.1)
       '@niceties/logger':
-        specifier: 'catalog:'
+        specifier: ^2.1.1
         version: 2.1.1
       '@niceties/node-parseargs-plus':
         specifier: 'catalog:'
         version: 0.6.0
       '@rollup-extras/plugin-binify':
-        specifier: 'catalog:'
+        specifier: ^2.0.0
         version: 2.0.0(rollup@4.63.1)
       '@rollup-extras/plugin-clean':
-        specifier: 'catalog:'
+        specifier: ^2.0.1
         version: 2.0.1(rollup@4.63.1)
       '@rollup-extras/plugin-externals':
-        specifier: 'catalog:'
+        specifier: ^2.0.0
         version: 2.0.0(rollup@4.63.1)
       '@rollup/plugin-commonjs':
-        specifier: 'catalog:'
+        specifier: ^29.0.3
         version: 29.0.3(rollup@4.63.1)
       '@rollup/plugin-json':
-        specifier: 'catalog:'
+        specifier: ^6.1.0
         version: 6.1.0(rollup@4.63.1)
       '@rollup/plugin-node-resolve':
-        specifier: 'catalog:'
+        specifier: ^16.0.3
         version: 16.0.3(rollup@4.63.1)
       '@rollup/plugin-terser':
-        specifier: 'catalog:'
+        specifier: ^1.0.0
         version: 1.0.0(rollup@4.63.1)
       '@slimlib/refine-partition':
-        specifier: 'catalog:'
+        specifier: ^2.0.2
         version: 2.0.2
       '@slimlib/smart-mock':
         specifier: ^1.0.2
         version: 1.0.2
       is-builtin-module:
-        specifier: 'catalog:'
+        specifier: ^5.0.0
         version: 5.0.0
       lodash:
-        specifier: 'catalog:'
+        specifier: ^4.18.1
         version: 4.18.1
       rollup:
         specifier: 'catalog:'
         version: 4.63.1
       rollup-plugin-preprocess:
-        specifier: 'catalog:'
+        specifier: ^0.0.4
         version: 0.0.4
       terser:
         specifier: ^5.51.2
         version: 5.51.2
     devDependencies:
       '@types/lodash':
-        specifier: 'catalog:'
+        specifier: ^4.17.25
         version: 4.17.25
       c8:
         specifier: 'catalog:'

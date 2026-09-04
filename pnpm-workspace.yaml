@@ -12,22 +12,7 @@ catalog:
   "dts-buddy": "^0.8.3"
   "typescript": "^6.0.3"
   rollup: ^4.63.1
-  rollup-plugin-preprocess: ^0.0.4
-  "@rollup/plugin-commonjs": ^29.0.3
-  "@rollup/plugin-node-resolve": ^16.0.3
-  "@rollup/plugin-terser": ^1.0.0
-  "@rollup/plugin-json": ^6.1.0
-  lodash: ^4.18.1
-  "@types/lodash": ^4.17.25
-
-  "is-builtin-module": ^5.0.0
-  "@rollup-extras/plugin-externals": ^2.0.0
-  "@rollup-extras/plugin-clean": ^2.0.1
-  "@rollup-extras/plugin-binify": ^2.0.0
   c8: ^12.0.0
   "type-fest": ^5.9.0
-  "@niceties/logger": ^2.1.1
-  "@niceties/draftlog-appender": ^2.1.1
   "@niceties/node-parseargs-plus": ^0.6.0
   "@niceties/ansi": ^1.1.2
-  "@slimlib/refine-partition": ^2.0.2
