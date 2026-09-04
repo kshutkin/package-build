@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { afterEach, beforeEach, describe } from 'node:test';
 
-import { buildExtensionMenuItems, getOptionsValue, getPrintString, getPromptOption, mapOption, toggleExtensionIntent } from '../src/tui.js';
+import { buildExtensionMenuItems, getOptionsValue, getPromptOption, toggleExtensionIntent } from '../src/tui.js';
 
 /** @type {string} */
 let dir;
@@ -64,56 +64,6 @@ describe('getOptionsValue', () => {
             },
         ]);
         assert.deepStrictEqual(state, { group: { a: '1' } });
-    });
-});
-
-describe('mapOption', () => {
-    test('renders leaf option title + value', () => {
-        const choice = mapOption({ name: 'foo' })({ title: 'Name', field: 'name', initialValue: 'foo' });
-        assert.match(choice.title, /Name/);
-        assert.match(choice.title, /foo/);
-        assert.strictEqual(choice.value, 'name');
-    });
-
-    test('renders group option using getPrintString', () => {
-        const choice = mapOption({ a: '1' })({
-            title: 'G',
-            field: 'g',
-            mutateInnerObject: false,
-            items: [{ title: 'A', field: 'a', initialValue: '1' }],
-        });
-        assert.match(choice.title, /A/);
-        assert.match(choice.title, /1/);
-    });
-});
-
-describe('getPrintString', () => {
-    test('skips empty / falsy values', () => {
-        const out = getPrintString(
-            {
-                items: [
-                    { title: 'A', field: 'a', initialValue: '' },
-                    { title: 'B', field: 'b', initialValue: 'val' },
-                ],
-                mutateInnerObject: false,
-            },
-            { a: '', b: 'val' }
-        );
-        assert.match(out, /B/);
-        assert.match(out, /val/);
-        assert.ok(!/A/.test(out));
-    });
-
-    test('uses custom render when provided', () => {
-        const out = getPrintString(
-            {
-                items: [],
-                mutateInnerObject: false,
-                render: () => 'CUSTOM',
-            },
-            {}
-        );
-        assert.strictEqual(out, 'CUSTOM');
     });
 });
 

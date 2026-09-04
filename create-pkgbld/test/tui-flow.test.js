@@ -103,6 +103,10 @@ describe('toggleExtensionIntent round-trips', () => {
 });
 
 describe('runInteractiveLoop via prompts.inject', () => {
+    test('new project setup executes directly with detected defaults', async () => {
+        await runInteractiveLoop({ extensionItems: [], mode: 'create', projectRoot: dir });
+    });
+
     test('selecting an unavailable extension is a no-op (no crash, intent stays null)', async () => {
         await fs.writeFile(
             path.join(dir, '.pkgbld-extensions.json'),
@@ -122,7 +126,7 @@ describe('runInteractiveLoop via prompts.inject', () => {
         console.log = () => {};
         try {
             prompts.inject(['__ext__:ghost', done]);
-            await runInteractiveLoop({ options: [], state: {}, extensionItems: items, mode: 'create', projectRoot: dir });
+            await runInteractiveLoop({ extensionItems: items, mode: 'update', projectRoot: dir });
         } finally {
             console.log = origLog;
         }
@@ -146,11 +150,11 @@ export function detect(tree) {
         assert.strictEqual(items[0].installed, false);
 
         prompts.inject(['__ext__:fx', done]);
-        await runInteractiveLoop({ options: [], state: {}, extensionItems: items, mode: 'create', projectRoot: dir });
+        await runInteractiveLoop({ extensionItems: items, mode: 'update', projectRoot: dir });
         assert.strictEqual(items[0].intent, 'setup');
 
         prompts.inject(['__ext__:fx', done]);
-        await runInteractiveLoop({ options: [], state: {}, extensionItems: items, mode: 'create', projectRoot: dir });
+        await runInteractiveLoop({ extensionItems: items, mode: 'update', projectRoot: dir });
         assert.strictEqual(items[0].intent, null);
     });
 
@@ -175,7 +179,7 @@ export function detect(tree) {
         assert.strictEqual(items[0].installed, true);
 
         prompts.inject(['__ext__:fx', done]);
-        await runInteractiveLoop({ options: [], state: {}, extensionItems: items, mode: 'update', projectRoot: dir });
+        await runInteractiveLoop({ extensionItems: items, mode: 'update', projectRoot: dir });
         assert.strictEqual(items[0].intent, 'remove');
     });
 
@@ -203,7 +207,7 @@ export function detect(tree) {
         const items = await buildExtensionMenuItems([{ name: 'fx', package: './fx/index.js', description: 'X' }], dir);
 
         prompts.inject(['__ext__:fx', done]);
-        await runInteractiveLoop({ options: [], state: {}, extensionItems: items, mode: 'create', projectRoot: dir });
+        await runInteractiveLoop({ extensionItems: items, mode: 'update', projectRoot: dir });
         assert.strictEqual(items[0].intent, 'setup');
 
         // Replicate the commit sequence from index.js
@@ -238,9 +242,9 @@ export function detect() { return false; }
         );
         const items = await buildExtensionMenuItems([{ name: 'fx', package: './fx/index.js', description: 'X' }], dir);
 
-        // sequence: top-level select fx → ext prompt answer → top-level select done
+        // sequence: select fx → answer its prompt → done
         prompts.inject(['__ext__:fx', 'hello-world', done]);
-        await runInteractiveLoop({ options: [], state: {}, extensionItems: items, mode: 'create', projectRoot: dir });
+        await runInteractiveLoop({ extensionItems: items, mode: 'update', projectRoot: dir });
 
         assert.strictEqual(items[0].intent, 'setup');
         assert.strictEqual(items[0].options.greeting, 'hello-world');

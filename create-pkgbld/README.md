@@ -15,10 +15,13 @@ npm init pkgbld
 npm init pkgbld <folder name>
 ```
 
-The default flow walks you through `package.json`, git, and pkgbld options
-in an interactive menu. The same menu includes an **Extensions** section
-where you can toggle each registered extension on or off; pending changes
-are diffed once before commit.
+The project mode is detected automatically and its workflow starts directly:
+
+- A new project is created from detected defaults.
+- An existing project opens plugin management, where you can add or remove
+  plugins from the registry shipped with `create-pkgbld`.
+
+Pending changes are diffed once before commit.
 
 ### Flags
 

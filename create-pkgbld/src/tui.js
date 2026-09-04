@@ -1,6 +1,6 @@
 import prompts from 'prompts';
 
-import { blue, gray, green, red, white } from '@niceties/ansi';
+import { blue, gray, green, red } from '@niceties/ansi';
 
 import { detectExtension } from './engine.js';
 import { resolveExtension } from './registry.js';
@@ -24,7 +24,6 @@ import { Tree } from './tree.js';
  */
 
 export const done = Symbol('done');
-const SEP_VALUE = '__sep__';
 const EXT_PREFIX = '__ext__:';
 
 /**
@@ -58,61 +57,6 @@ export function getOptionsValue(options) {
         }
     }
     return result;
-}
-
-/**
- * Build the rendered string for a group option (with `items`).
- *
- * @param {{ items: Option[]; mutateInnerObject: boolean; render?: (option: Option, value: OptionsValue) => string; }} option
- * @param {OptionsValue} json
- * @returns {string}
- */
-export function getPrintString(option, json) {
-    if (option.render) {
-        return option.render(/** @type {Option} */ (option), json);
-    }
-    return option.items
-        .filter(
-            item =>
-                item.field in json &&
-                json[item.field] &&
-                (Array.isArray(json[item.field]) ? /** @type {unknown[]} */ (/** @type {unknown} */ (json[item.field])).length > 0 : true)
-        )
-        .map(
-            item =>
-                `${gray(item.title)} ${white(
-                    'items' in item
-                        ? `[${getPrintString(item, item.mutateInnerObject ? /** @type {OptionsValue} */ (json[item.field]) : json)}]`
-                        : /** @type {string} */ (json[item.field])
-                )}`
-        )
-        .join(', ');
-}
-
-/**
- * Build a `mapOption`-style choice mapper for a top-level option list bound to `state`.
- *
- * @param {OptionsValue} state
- */
-export function mapOption(state) {
-    return (/** @type {Option} */ option) => {
-        const fieldValue = state[option.field];
-        return {
-            title:
-                pad16plus(option.title) +
-                gray(
-                    'items' in option
-                        ? getPrintString(
-                              option,
-                              option.mutateInnerObject
-                                  ? /** @type {Record<string, string>} */ (fieldValue)
-                                  : /** @type {Record<string, string>} */ (state)
-                          )
-                        : /** @type {string} */ (fieldValue ?? '')
-                ),
-            value: option.field,
-        };
-    };
 }
 
 /**
@@ -226,54 +170,44 @@ export function toggleExtensionIntent(item) {
 }
 
 /**
- * Drive the interactive top-level menu loop. Mutates `state` and
- * `extensionItems` (intents + collected options) in place. Returns when the
- * user picks Done. Throws if the user cancels.
+ * Enter the workflow selected by the detected project mode. Create currently
+ * applies its detected defaults directly; update opens plugin management.
+ * Mutates `extensionItems` (intents + collected options) in place. Throws if
+ * the user cancels.
  *
  * @param {{
- *   options: Option[],
- *   state: OptionsValue,
  *   extensionItems: ExtensionMenuItem[],
  *   mode: 'create' | 'update',
  *   projectRoot: string
  * }} params
  */
-export async function runInteractiveLoop({ options, state, extensionItems, mode, projectRoot }) {
+export async function runInteractiveLoop({ extensionItems, mode, projectRoot }) {
+    if (mode === 'create') return;
+
     let cancelled = false;
     function onCancel() {
         cancelled = true;
     }
 
     for (;;) {
-        /** @type {import('prompts').Choice[]} */
-        const choices = [
-            { title: green('Done'), description: `${mode === 'update' ? 'Update' : 'Create'} package`, value: /** @type {any} */ (done) },
-            ...options.map(mapOption(state)),
-        ];
-        if (extensionItems.length > 0) {
-            choices.push({ title: gray('── Extensions ──'), value: SEP_VALUE, disabled: true });
-            for (const item of extensionItems) {
-                choices.push({ title: renderExtensionLabel(item), value: `${EXT_PREFIX}${item.entry.name}` });
-            }
-        }
-
-        const topLevelAction = await prompts(
+        const pluginAction = await prompts(
             {
                 type: 'select',
                 name: 'value',
-                message: 'Select an option to change, Done to execute, Escape to cancel',
-                choices,
+                message: 'Select a plugin to add or remove, Done to execute, Escape to cancel',
+                choices: [
+                    { title: green('Done'), value: /** @type {any} */ (done) },
+                    ...extensionItems.map(item => ({ title: renderExtensionLabel(item), value: `${EXT_PREFIX}${item.entry.name}` })),
+                ],
                 initial: 0,
             },
             { onCancel }
         );
         if (cancelled) throw new Error('cancelled');
+        if (pluginAction.value === done) return;
 
-        if (topLevelAction.value === done) return;
-        if (topLevelAction.value === SEP_VALUE) continue;
-
-        if (typeof topLevelAction.value === 'string' && topLevelAction.value.startsWith(EXT_PREFIX)) {
-            const name = topLevelAction.value.slice(EXT_PREFIX.length);
+        if (typeof pluginAction.value === 'string' && pluginAction.value.startsWith(EXT_PREFIX)) {
+            const name = pluginAction.value.slice(EXT_PREFIX.length);
             const item = extensionItems.find(i => i.entry.name === name);
             if (!item) continue;
             if (item.error || !item.ext) {
@@ -290,32 +224,6 @@ export async function runInteractiveLoop({ options, state, extensionItems, mode,
                     item.options[promptDef.field] = answer[promptDef.field];
                 }
             }
-            continue;
         }
-
-        let option = /** @type {Option} */ (options.find(it => it.field === topLevelAction.value));
-        let mutateObject = state;
-        while ('items' in option) {
-            const nextLevelAction = await prompts(
-                {
-                    type: 'select',
-                    name: 'value',
-                    message: option.title,
-                    choices: option.items.map(
-                        mapOption(option.mutateInnerObject ? /** @type {Record<string, string>} */ (state[option.field]) : state)
-                    ),
-                },
-                { onCancel }
-            );
-            if (cancelled) throw new Error('cancelled');
-            if (option.mutateInnerObject) {
-                mutateObject = /** @type {Record<string, string>} */ (state[option.field]);
-            }
-            option = /** @type {Option} */ (option.items.find((/** @type {Option} */ it) => it.field === nextLevelAction.value));
-        }
-
-        const action = await prompts(getPromptOption(option, mutateObject), { onCancel });
-        if (cancelled) throw new Error('cancelled');
-        mutateObject[option.field] = action[option.field];
     }
 }

@@ -86,8 +86,6 @@ async function execute() {
 
     const pkg = await readPackage(targetDir);
 
-    if (!quiet) console.log(gray(pad16plus('Mode', 0)) + white(pkg.mode));
-
     const packageName = path.basename(targetDir);
 
     const options = getBasicOptions(packageName, pkg);
@@ -100,11 +98,13 @@ async function execute() {
     let extensionItems = [];
 
     if (!quiet) {
-        const registry = await loadRegistry(builtinRegistryPath, targetDir);
-        extensionItems = await buildExtensionMenuItems(registry, targetDir);
+        if (pkg.mode === 'update') {
+            const registry = await loadRegistry(builtinRegistryPath, targetDir);
+            extensionItems = await buildExtensionMenuItems(registry, targetDir);
+        }
 
         try {
-            await runInteractiveLoop({ options, state, extensionItems, mode: pkg.mode, projectRoot: targetDir });
+            await runInteractiveLoop({ extensionItems, mode: pkg.mode, projectRoot: targetDir });
         } catch (/** @type {any} */ err) {
             if (err && err.message === 'cancelled') process.exit(-1);
             throw err;
