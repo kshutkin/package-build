@@ -1,0 +1,23 @@
+{
+    "$schema": "./extensions-schema.json",
+    "extensions": [
+        {
+            "name": "biome",
+            "package": "pkgbld-plugin-biome",
+            "description": "Biome linter and formatter",
+            "tags": ["linter", "formatter"]
+        },
+        {
+            "name": "pkgbld-swc",
+            "package": "pkgbld-plugin-swc/extension",
+            "description": "SWC TypeScript stripping via pkgbld",
+            "tags": ["plugin", "typescript", "pkgbld"]
+        },
+        {
+            "name": "pkgbld-dts-buddy",
+            "package": "pkgbld-plugin-dts-buddy/extension",
+            "description": "Generate d.ts files using dts-buddy",
+            "tags": ["plugin", "types", "pkgbld"]
+        }
+    ]
+}

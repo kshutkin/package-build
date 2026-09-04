@@ -1,9 +1,18 @@
 packages:
   - "pkgbld"
   - "create-pkgbld"
-  - "pkgbld-internal"
-  - "options"
   - "xc6"
   - "cli-test-helper"
   - "pkgbld-plugin-dts-buddy"
+  - "pkgbld-plugin-swc"
+  - "pkgbld-plugin-biome"
   - "integration-tests/*"
+
+catalog:
+  "dts-buddy": "^0.8.3"
+  "typescript": "^6.0.3"
+  rollup: ^4.63.1
+  c8: ^12.0.0
+  "type-fest": ^5.9.0
+  "@niceties/node-parseargs-plus": ^0.6.0
+  "@niceties/ansi": ^1.1.2

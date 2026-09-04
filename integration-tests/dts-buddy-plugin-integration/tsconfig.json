@@ -1,22 +1,17 @@
 {
-  "include": [
-    "src",
-    "types"
-  ],
-  "compilerOptions": {
-    "lib": [
-      "dom",
-      "esnext"
-    ],
-    "target": "esnext",
-    "module": "esnext",
-    "esModuleInterop": true,
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "sourceMap": true,
-    "noUncheckedIndexedAccess": true,
-    "declaration": true,
-    "moduleResolution": "node"
-  }
+    "include": ["src", "types"],
+    "compilerOptions": {
+        "rootDir": "./src",
+        "lib": ["dom", "esnext"],
+        "target": "esnext",
+        "module": "esnext",
+        "esModuleInterop": true,
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "sourceMap": true,
+        "noUncheckedIndexedAccess": true,
+        "declaration": true,
+        "moduleResolution": "bundler"
+    }
 }

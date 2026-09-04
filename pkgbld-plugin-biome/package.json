@@ -1,0 +1,30 @@
+{
+    "version": "0.1.0",
+    "name": "pkgbld-plugin-biome",
+    "description": "create-pkgbld extension that wires Biome (linter/formatter) into a project",
+    "license": "MIT",
+    "author": "Konstantin Shutkin",
+    "readme": "README.md",
+    "type": "module",
+    "main": "./src/index.js",
+    "exports": {
+        ".": {
+            "default": "./src/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kshutkin/package-build.git",
+        "directory": "pkgbld-plugin-biome"
+    },
+    "bugs": "https://github.com/kshutkin/package-build/issues",
+    "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld-plugin-biome/README.md",
+    "files": [
+        "src"
+    ],
+    "scripts": {
+        "build": "echo 'no build needed'",
+        "test": "echo 'no tests'"
+    }
+}

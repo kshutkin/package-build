@@ -4,11 +4,12 @@
   "scripts": {
     "build": "pkgbld --formats=es --no-exports",
     "test": "node ./test.js",
-    "prepack": "pkgbld prune"
+    "prepack": "pkgprn"
   },
   "devDependencies": {
     "pkgbld": "workspace:*",
     "pkgbld-plugin-dts-buddy": "workspace:*",
+    "pkgprn": "^0.8.0",
     "cli-test-helper": "workspace:*"
   },
   "files": [

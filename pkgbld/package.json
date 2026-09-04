@@ -1,70 +1,76 @@
 {
-  "version": "1.36.0",
-  "name": "pkgbld",
-  "license": "MIT",
-  "author": "Konstantin Shutkin",
-  "bin": "./index.js",
-  "type": "module",
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=20"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kshutkin/package-build.git",
-    "directory": "pkgbld"
-  },
-  "bugs": "https://github.com/kshutkin/package-build/issues",
-  "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld/README.md",
-  "readme": "README.md",
-  "keywords": [
-    "pkgbld",
-    "build",
-    "exports",
-    "rollup"
-  ],
-  "scripts": {
-    "build": "rollup -c && dts-bundle-generator -o dist/index.d.ts src/index.ts",
-    "lint": "eslint ./src",
-    "prepack": "node ./index.js prune --removeSourcemaps",
-    "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
-  },
-  "dependencies": {
-    "@niceties/logger": "^1.1.13",
-    "@niceties/draftlog-appender": "^1.3.3",
-    "lodash": "^4.17.21",
-    "rollup": "^4.34.7",
-    "rollup-plugin-typescript2": "^0.36.0",
-    "rollup-plugin-preprocess": "^0.0.4",
-    "@rollup/plugin-commonjs": "^28.0.2",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup-extras/plugin-clean": "^1.3.9",
-    "@rollup-extras/plugin-binify": "^1.1.10",
-    "@rollup-extras/plugin-externals": "^1.2.2",
-    "@slimlib/refine-partition": "^1.0.3",
-    "@slimlib/smart-mock": "^0.1.6",
-    "is-builtin-module": "^3.2.1",
-    "terser": "^5.39.0",
-    "kleur": "^4.1.5",
-    "cleye": "^1.3.4",
-    "jsonata": "^2.0.6"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.17.15",
-    "@total-typescript/ts-reset": "^0.6.0",
-    "type-fest": "^4.20.1",
-    "dts-bundle-generator": "^9.5.1",
-    "options": "workspace:*",
-    "c8": "^10.0.0",
-    "cli-test-helper": "workspace:*"
-  },
-  "peerDependencies": {
-    "typescript": ">=5.3.3"
-  }
+    "version": "1.36.0",
+    "name": "pkgbld",
+    "license": "MIT",
+    "author": "Konstantin Shutkin",
+    "bin": "./index.js",
+    "type": "module",
+    "main": "./src/index.js",
+    "types": "./types/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./types/index.d.ts",
+            "default": "./src/index.js"
+        },
+        "./options": {
+            "types": "./types/index.d.ts",
+            "default": "./src/options/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "src",
+        "types"
+    ],
+    "engines": {
+        "node": ">=20"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kshutkin/package-build.git",
+        "directory": "pkgbld"
+    },
+    "bugs": "https://github.com/kshutkin/package-build/issues",
+    "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld/README.md",
+    "readme": "README.md",
+    "keywords": [
+        "pkgbld",
+        "build",
+        "exports",
+        "rollup"
+    ],
+    "scripts": {
+        "build": "dts-buddy types/index.d.ts -m pkgbld:src/index.js -m pkgbld/options:src/options/index.js",
+        "lint": "eslint ./src",
+        "prepack": "pkgprn --remove-sourcemaps",
+        "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
+    },
+    "dependencies": {
+        "@niceties/logger": "^2.1.1",
+        "@niceties/draftlog-appender": "^2.1.1",
+        "lodash": "^4.18.1",
+        "rollup": "catalog:",
+        "rollup-plugin-preprocess": "^0.0.4",
+        "@rollup/plugin-commonjs": "^29.0.3",
+        "@rollup/plugin-terser": "^1.0.0",
+        "@rollup/plugin-json": "^6.1.0",
+        "@rollup/plugin-node-resolve": "^16.0.3",
+        "@rollup-extras/plugin-clean": "^2.0.1",
+        "@rollup-extras/plugin-binify": "^2.0.0",
+        "@rollup-extras/plugin-externals": "^2.0.0",
+        "@slimlib/refine-partition": "^2.0.2",
+        "@slimlib/smart-mock": "^1.0.2",
+        "is-builtin-module": "^5.0.0",
+        "terser": "^5.51.2",
+        "@niceties/ansi": "catalog:",
+        "@niceties/node-parseargs-plus": "catalog:"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.17.25",
+        "type-fest": "catalog:",
+        "dts-buddy": "catalog:",
+        "pkgprn": "^0.8.0",
+        "c8": "catalog:",
+        "cli-test-helper": "workspace:*"
+    }
 }

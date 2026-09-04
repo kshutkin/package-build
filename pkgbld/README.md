@@ -243,18 +243,6 @@ Optimizes files by removing all files that are not required for pack at the give
 
 You might want to disable this option in some edge cases.
 
-### no-subpackages
-
-```
-pkgbld --no-subpackages
-```
-
-Do not create subpackage directories with package.json files for non-index entry points.
-
-By default, pkgbld creates a directory for each non-index entry point (e.g., `second/package.json` for a `./second` export) to enable simpler imports. Use this flag to disable this behavior.
-
-Note: The `pkgbld-plugin-dts-buddy` plugin automatically sets this flag when loaded, as it provides alternative type resolution through the dts-buddy bundling approach.
-
 ### removeLegalComments
 
 ```
