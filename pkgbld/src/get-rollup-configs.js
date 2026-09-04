@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import refiner from '@slimlib/refine-partition';
 
 import { plugins as pluginFactories } from './get-plugins.js';
@@ -128,7 +130,9 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
 
     return partitions.map(({ formats, inputs }) => {
         return {
-            input: inputs,
+            input: Object.fromEntries(
+                inputs.map(input => [path.relative(config.sourceDir, input).slice(0, -path.extname(input).length), input])
+            ),
 
             output: formats.map(format => ({
                 format,

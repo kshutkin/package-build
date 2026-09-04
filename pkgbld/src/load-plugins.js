@@ -28,3 +28,10 @@ export async function loadPlugins(pkg, loaded) {
         return [];
     }
 }
+
+/**
+ * @param {Partial<import('./types.js').PkgbldPlugin>[]} plugins
+ */
+export async function runPluginBuildEnd(plugins) {
+    await Promise.all(plugins.filter(plugin => plugin.buildEnd).map(plugin => plugin.buildEnd()));
+}

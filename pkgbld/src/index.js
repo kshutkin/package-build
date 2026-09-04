@@ -13,7 +13,7 @@ import { getJson } from './get-json.js';
 import { createProvider } from './get-plugins.js';
 import { getRollupConfigs } from './get-rollup-configs.js';
 import { formatInput, formatOutput, formatPackageJson, getHelpers, getTimeDiff, searchForWorkspaceRoot, toArray } from './helpers.js';
-import { loadPlugins } from './load-plugins.js';
+import { loadPlugins, runPluginBuildEnd } from './load-plugins.js';
 import { mainLoggerText } from './messages.js';
 import { processPackage } from './process-pkg.js';
 import { checkTsConfig } from './process-ts-config.js';
@@ -77,9 +77,7 @@ async function execute() {
             if (options.updatePackageJson) {
                 await writeJson(pkgPath, pkg);
             }
-            await Promise.all(
-                plugins.filter(plugin => plugin.buildEnd).map(plugin => /** @type {Required<PkgbldPlugin>} */ (plugin).buildEnd())
-            );
+            await runPluginBuildEnd(plugins);
 
             mainLogger.finish(updater(true));
         }
@@ -97,7 +95,11 @@ async function execute() {
         await Promise.all(toArray(config.output).map(config => bundle.write(config)));
         await bundle.close();
         mainLogger(
-            `${green('✓')} ${formatInput(/** @type {string | string[]} */ (config.input))} [${formatOutput(config.output, 'format')}]`
+            `${green('✓')} ${formatInput(
+                /** @type {string | string[]} */ (
+                    typeof config.input === 'object' && !Array.isArray(config.input) ? Object.values(config.input) : config.input
+                )
+            )} [${formatOutput(config.output, 'format')}]`
         );
         mainLogger.update(updater());
     }
