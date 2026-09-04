@@ -36,30 +36,6 @@ export function pad16plus(value, indent = 4, offset = 3) {
 }
 
 /**
- * Reduce an Option tree into its default OptionsValue snapshot.
- *
- * @param {Option[]} options
- * @returns {OptionsValue}
- */
-export function getOptionsValue(options) {
-    /** @type {OptionsValue} */
-    const result = {};
-    for (const item of options) {
-        if ('items' in item) {
-            const value = getOptionsValue(item.items);
-            if (item.mutateInnerObject) {
-                result[item.field] = value;
-            } else {
-                Object.assign(result, value);
-            }
-        } else {
-            result[item.field] = item.initialValue;
-        }
-    }
-    return result;
-}
-
-/**
  * Convert an Option leaf into a prompts() configuration.
  *
  * @param {Option} option
@@ -170,20 +146,15 @@ export function toggleExtensionIntent(item) {
 }
 
 /**
- * Enter the workflow selected by the detected project mode. Create currently
- * applies its detected defaults directly; update opens plugin management.
  * Mutates `extensionItems` (intents + collected options) in place. Throws if
  * the user cancels.
  *
  * @param {{
  *   extensionItems: ExtensionMenuItem[],
- *   mode: 'create' | 'update',
  *   projectRoot: string
  * }} params
  */
-export async function runInteractiveLoop({ extensionItems, mode, projectRoot }) {
-    if (mode === 'create') return;
-
+export async function runInteractiveLoop({ extensionItems, projectRoot }) {
     let cancelled = false;
     function onCancel() {
         cancelled = true;
@@ -218,7 +189,6 @@ export async function runInteractiveLoop({ extensionItems, mode, projectRoot }) 
             if (item.intent === 'setup' && typeof item.ext.prompts === 'function') {
                 const promptDefs = item.ext.prompts(new Tree(projectRoot)) ?? [];
                 for (const promptDef of promptDefs) {
-                    if ('items' in promptDef) continue;
                     const answer = await prompts(getPromptOption(promptDef, item.options), { onCancel });
                     if (cancelled) throw new Error('cancelled');
                     item.options[promptDef.field] = answer[promptDef.field];

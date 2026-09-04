@@ -1,33 +1,13 @@
 /** @typedef {import('pkgbld/options').PackageJson} PackageJson */
 
 /**
- * @typedef {(
- *   | {
- *       title: string;
- *       field: string;
- *       type?: undefined | 'toggle' | 'list' | 'text';
- *     }
- *   | {
- *       title: string;
- *       field: string;
- *       type: 'multiselect';
- *       list: string[];
- *     }
- *   | {
- *       title: string;
- *       field: string;
- *       type: 'select';
- *       list: string[];
- *     }
- * ) & (
- *   | {
- *       initialValue?: string | string[] | boolean;
- *     }
- *   | {
- *       items: Option[];
- *       mutateInnerObject: boolean;
- *       render?: (option: Option, value: OptionsValue) => string;
- *     }
+ * @typedef {{
+ *   title: string;
+ *   field: string;
+ *   initialValue?: string | string[] | boolean;
+ * } & (
+ *   | { type?: undefined | 'toggle' | 'list' | 'text' }
+ *   | { type: 'multiselect' | 'select'; list: string[] }
  * )} Option
  */
 

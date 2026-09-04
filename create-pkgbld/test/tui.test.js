@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { afterEach, beforeEach, describe } from 'node:test';
 
-import { buildExtensionMenuItems, getOptionsValue, getPromptOption, toggleExtensionIntent } from '../src/tui.js';
+import { buildExtensionMenuItems, getPromptOption, toggleExtensionIntent } from '../src/tui.js';
 
 /** @type {string} */
 let dir;
@@ -31,40 +31,6 @@ export function detect(tree) {
 
 afterEach(async () => {
     await fs.rm(dir, { recursive: true, force: true });
-});
-
-describe('getOptionsValue', () => {
-    test('collects initial values from flat options', () => {
-        const state = getOptionsValue([
-            { title: 'Name', field: 'name', initialValue: 'x' },
-            { title: 'Flag', field: 'flag', type: 'toggle', initialValue: true },
-        ]);
-        assert.deepStrictEqual(state, { name: 'x', flag: true });
-    });
-
-    test('flattens inner objects when mutateInnerObject is false', () => {
-        const state = getOptionsValue([
-            {
-                title: 'Group',
-                field: 'group',
-                mutateInnerObject: false,
-                items: [{ title: 'A', field: 'a', initialValue: '1' }],
-            },
-        ]);
-        assert.deepStrictEqual(state, { a: '1' });
-    });
-
-    test('nests inner object when mutateInnerObject is true', () => {
-        const state = getOptionsValue([
-            {
-                title: 'Group',
-                field: 'group',
-                mutateInnerObject: true,
-                items: [{ title: 'A', field: 'a', initialValue: '1' }],
-            },
-        ]);
-        assert.deepStrictEqual(state, { group: { a: '1' } });
-    });
 });
 
 describe('getPromptOption', () => {

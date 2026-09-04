@@ -33,16 +33,13 @@
         "test": "node --test 'test/*.test.js'"
     },
     "dependencies": {
-        "string-argv": "0.3.2",
         "@niceties/node-parseargs-plus": "catalog:",
         "prompts": "2.4.2",
         "@niceties/ansi": "catalog:",
-        "lodash": "catalog:",
         "pkgbld": "workspace:*"
     },
     "devDependencies": {
         "@types/prompts": "2.4.9",
-        "@types/lodash": "catalog:",
         "pkgbld-plugin-swc": "workspace:*",
         "pkgbld-plugin-dts-buddy": "workspace:*",
         "pkgbld-plugin-biome": "workspace:*"

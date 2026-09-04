@@ -146,7 +146,7 @@ export function detect(tree) {
 ### `prompts(tree) -> Option[]`
 
 Returns a list of `Option` objects (same `Option` type used by the rest of
-`create-pkgbld`'s TUI). Each leaf option contributes one prompt before
+`create-pkgbld`'s extension UI). Each option contributes one prompt before
 setup runs; the answers are passed into `setup(tree, options)`.
 
 ---
