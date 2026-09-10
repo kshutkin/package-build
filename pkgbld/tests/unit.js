@@ -1,15 +1,71 @@
 import assert from 'node:assert/strict';
+import childProcess from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, test } from 'node:test';
+import { pathToFileURL } from 'node:url';
+import { promisify } from 'node:util';
 
+import { rollup } from 'rollup';
+
+import { curry } from '../src/builtin-plugins/externals.js';
 import { getCliOptions } from '../src/get-cli-options.js';
 import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
+import { camelCase } from '../src/helpers.js';
 import { runPluginBuildEnd } from '../src/load-plugins.js';
 import { processPackage } from '../src/process-pkg.js';
 import { checkTsConfig } from '../src/process-ts-config.js';
+
+const execFile = promisify(childProcess.execFile);
+const packageRoot = path.resolve(import.meta.dirname, '..');
+
+describe('local utilities', () => {
+    test('converts package and JavaScript names to camel case', () => {
+        assert.equal(camelCase('@scope/package-name'), 'scopePackageName');
+        assert.equal(camelCase('XMLHttpRequest'), 'xmlHttpRequest');
+        assert.equal(camelCase('alreadyCamelCase'), 'alreadyCamelCase');
+        assert.equal(camelCase('déjà vu'), 'dejaVu');
+    });
+
+    test('curries arguments over multiple calls', () => {
+        const join = curry((first, second, third) => `${first}:${second}:${third}`);
+        assert.equal(join('one')('two', 'three'), 'one:two:three');
+    });
+
+    test('embeds local utilities into an executable multi-input UMD config', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('package.json', JSON.stringify({ name: '@scope/package-name', exports: { '.': {}, './second': {} } }));
+            await fs.writeFile('src/index.js', 'export const index = true;');
+            await fs.writeFile('src/second.js', 'export const second = true;');
+            await fs.symlink(path.join(packageRoot, 'node_modules'), 'node_modules');
+
+            await execFile(
+                process.execPath,
+                [path.join(packageRoot, 'index.js'), '--eject', '--formats=umd', '--umd=index,second', '--no-ts-config'],
+                { cwd: process.cwd() }
+            );
+
+            const generatedConfig = await fs.readFile('rollup.config.mjs', 'utf8');
+            assert.doesNotMatch(generatedConfig, /lodash/);
+            assert.match(generatedConfig, /function camelCase/);
+            assert.match(generatedConfig, /function curry/);
+
+            const { default: configs } = await import(`${pathToFileURL(path.resolve('rollup.config.mjs')).href}?test=${Date.now()}`);
+            for (const config of configs) {
+                const bundle = await rollup(config);
+                for (const output of Array.isArray(config.output) ? config.output : [config.output]) {
+                    await bundle.write(output);
+                }
+                await bundle.close();
+            }
+
+            await Promise.all([fs.access('dist/index.umd.js'), fs.access('dist/second.umd.js')]);
+        });
+    });
+});
 
 describe('plugin lifecycle', () => {
     test('applies package, tsconfig, Rollup, and output hooks', async () => {

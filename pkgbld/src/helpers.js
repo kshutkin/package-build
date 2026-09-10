@@ -2,8 +2,6 @@ import { access, constants, readFile, stat } from 'node:fs/promises';
 import path, { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import camelCase from 'lodash/camelCase.js';
-
 import { cyan, magenta } from '@niceties/ansi';
 
 import { processPackageJson } from './options/index.js';
@@ -15,6 +13,26 @@ import { processPackageJson } from './options/index.js';
  */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * @param {unknown} value
+ * @returns {string}
+ */
+export function camelCase(value) {
+    const words = String(value)
+        .normalize('NFKD')
+        .replaceAll(/\p{Mark}/gu, '')
+        .replaceAll(/([\p{Ll}\d])(\p{Lu})/gu, '$1 $2')
+        .replaceAll(/(\p{Lu}+)(\p{Lu}\p{Ll})/gu, '$1 $2')
+        .match(/[\p{L}\d]+/gu);
+
+    return (words ?? [])
+        .map((word, index) => {
+            const lowerCaseWord = word.toLowerCase();
+            return index === 0 ? lowerCaseWord : lowerCaseWord[0].toUpperCase() + lowerCaseWord.slice(1);
+        })
+        .join('');
+}
 
 /**
  * @param {string} pkgName

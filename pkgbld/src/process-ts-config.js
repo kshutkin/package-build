@@ -1,7 +1,6 @@
 import path from 'node:path';
 
-import cloneDeep from 'lodash/cloneDeep.js';
-import isEqual from 'lodash/isEqual.js';
+import { fastIsEqual } from 'fast-is-equal';
 
 import { getJson } from './get-json.js';
 import { writeJson } from './write-json.js';
@@ -67,11 +66,11 @@ export async function checkTsConfig(options, mainLogger, plugins) {
         config = /** @type {JsonObject} */ (createDefaultTsConfig(options.sourceDir || 'src'));
         needWrite = true;
     }
-    const originalConfig = cloneDeep(config);
+    const originalConfig = structuredClone(config);
     for (const plugin of plugins) {
         plugin.processTsConfig?.(config);
     }
-    if (!isEqual(originalConfig, config)) {
+    if (!fastIsEqual(originalConfig, config)) {
         needWrite = true;
     }
     if (needWrite) {

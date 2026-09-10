@@ -3,6 +3,16 @@ import path from 'node:path';
 import { Priority } from '../priorities.js';
 
 /**
+ * @template {(...args: any[]) => any} T
+ * @param {T} fn
+ * @param {unknown[]} args
+ * @returns {ReturnType<T> | ((...nextArgs: unknown[]) => ReturnType<T>)}
+ */
+export function curry(fn, ...args) {
+    return args.length >= fn.length ? fn(...args) : (...nextArgs) => curry(fn, ...args, ...nextArgs);
+}
+
+/**
  * @typedef {import('rollup').InternalModuleFormat} InternalModuleFormat
  * @typedef {import('../types.js').CliOptions} CliOptions
  * @typedef {import('../types.js').Provider} Provider
@@ -43,9 +53,9 @@ export default async function (provider, config, inputs, inputsExt) {
     }
 
     if (!allowGenericUmd && config.umdInputs.length > 0) {
-        const curry = /** @type {typeof import('lodash/curry')} */ (await provider.import('lodash/curry.js'));
+        const curryForConfig = /** @type {typeof curry} */ (provider.globalSetup(curry) ?? curry);
         for (const currentInput of config.umdInputs) {
-            const isExternal = curry(
+            const isExternal = curryForConfig(
                 (
                     /** @type {string} */ currentInput,
                     /** @type {string} */ id,

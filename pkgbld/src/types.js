@@ -27,7 +27,7 @@
  *   provide: ProvideFunction;
  *   import: (module: string, exportName?: string) => Promise<(...args: unknown[]) => Plugin>;
  *   globalImport: (module: string, exportName?: string | string[]) => void;
- *   globalSetup: (code: ((...args: any[]) => any) | string) => void;
+ *   globalSetup: (code: ((...args: any[]) => any) | string) => ((...args: any[]) => any) | undefined;
  * }} Provider
  */
 

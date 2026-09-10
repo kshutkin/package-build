@@ -36,7 +36,7 @@ export function createProvider() {
                 return result[exportName ?? 'default'];
             },
             globalImport: noop,
-            globalSetup: noop,
+            globalSetup: code => (typeof code === 'function' ? code : undefined),
         },
         plugins,
     ];

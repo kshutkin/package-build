@@ -1,9 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import camelCase from 'lodash/camelCase.js';
-
 import pkgbldPkg from '../package.json' with { type: 'json' };
+import { camelCase } from './helpers.js';
 
 /**
  * @typedef {import('rollup').RollupOptions} RollupOptions
@@ -54,6 +53,7 @@ export async function createEjectProvider() {
             globalSetup: (/** @type {((...args: any[]) => any) | string} */ code) => {
                 if (typeof code === 'function') {
                     setup.add(code.toString());
+                    return createMock(code, code.name);
                 }
                 setup.add(String(code));
             },
@@ -83,9 +83,9 @@ export async function ejectConfig(config, pkgPath, options, inputs, inputsExt, h
 
     if (options.formats.includes('umd')) {
         imports.set('path', 'path');
-        imports.set('lodash/camelCase.js', 'camelCase');
         imports.set('url', 'url');
         setup.add(`const pkgName = ${generate(/** @type {never} */ (pkgName))}`);
+        setup.add(camelCase.toString());
         setup.add(helpers.getGlobalName.toString());
         setup.add("const __dirname = url.fileURLToPath(new URL('.', import.meta.url));");
     }
