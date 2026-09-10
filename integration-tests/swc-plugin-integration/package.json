@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "name": "swc-plugin-test",
+  "scripts": {
+    "build": "pkgbld",
+    "test": "node ./test.js",
+    "prepack": "pkgprn"
+  },
+  "devDependencies": {
+    "pkgbld": "workspace:*",
+    "pkgbld-plugin-swc": "workspace:*",
+    "pkgprn": "^0.8.0",
+    "cli-test-helper": "workspace:*"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  }
+}

@@ -1,9 +1,9 @@
-import path from 'node:path';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
 /**
  * Converts a string to real files and directories in the file system.
- * @param {string} data 
+ * @param {string} data
  * @param {string} baseDir
  */
 export async function stringToFiles(data, baseDir) {
@@ -16,7 +16,7 @@ export async function stringToFiles(data, baseDir) {
     /**
      * @type {string | undefined}
      */
-    let content = undefined;
+    let content;
     for (const line of data.split('\n')) {
         if (!line) {
             continue;
@@ -56,11 +56,11 @@ export async function stringToFiles(data, baseDir) {
 }
 
 /**
- * @param {string} baseDir 
- * @param {string[]} directoriesStack 
- * @param {number} depth 
- * @param {string} name 
- * @param {string} content 
+ * @param {string} baseDir
+ * @param {string[]} directoriesStack
+ * @param {number} depth
+ * @param {string} name
+ * @param {string} content
  * @returns {Promise<void>}
  */
 async function createFile(baseDir, directoriesStack, depth, name, content) {
@@ -77,7 +77,7 @@ async function createFile(baseDir, directoriesStack, depth, name, content) {
 async function createDirectory(baseDir, directoriesStack, name) {
     const dirPath = path.join(baseDir, ...directoriesStack, name);
     await fs.mkdir(dirPath, { recursive: true });
-}    
+}
 
 /**
  * @param {string} string
@@ -124,8 +124,8 @@ async function filesToStringArray(baseDir, indentation = 0, ignore = []) {
     const result = [];
     for (const file of files) {
         result.push(indentationString(indentation) + file.name);
-        if (file.isDirectory() || file.isSymbolicLink()) {            
-            result.push(...await filesToStringArray(path.join(baseDir, file.name), indentation + 1, ignore));
+        if (file.isDirectory() || file.isSymbolicLink()) {
+            result.push(...(await filesToStringArray(path.join(baseDir, file.name), indentation + 1, ignore)));
         } else {
             const content = await fs.readFile(path.join(baseDir, file.name), 'utf8');
             result.push(...content.split('\n').map(line => `|${line}`));
@@ -135,8 +135,7 @@ async function filesToStringArray(baseDir, indentation = 0, ignore = []) {
 }
 
 /**
- * @param {number} indentation 
- * @returns {string}
+ * @param {number} indentation
  */
 function indentationString(indentation) {
     return ' '.repeat(indentation * 2);

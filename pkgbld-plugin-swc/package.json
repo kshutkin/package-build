@@ -1,0 +1,37 @@
+{
+    "version": "0.1.0",
+    "name": "pkgbld-plugin-swc",
+    "description": "Plugin to strip TypeScript types using SWC",
+    "license": "MIT",
+    "author": "Konstantin Shutkin",
+    "readme": "README.md",
+    "type": "module",
+    "main": "./src/index.js",
+    "exports": {
+        ".": {
+            "default": "./src/index.js"
+        },
+        "./extension": {
+            "default": "./src/extension.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kshutkin/package-build.git",
+        "directory": "pkgbld-plugin-swc"
+    },
+    "bugs": "https://github.com/kshutkin/package-build/issues",
+    "homepage": "https://github.com/kshutkin/package-build/blob/main/pkgbld-plugin-swc/README.md",
+    "files": [
+        "src"
+    ],
+    "dependencies": {
+        "@rollup/plugin-swc": "^0.4.1",
+        "@swc/core": "^1.16.2"
+    },
+    "devDependencies": {
+        "pkgbld": "workspace:*",
+        "rollup": "catalog:"
+    }
+}
