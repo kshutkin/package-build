@@ -35,6 +35,9 @@
     "dependencies": {
         "dts-buddy": "catalog:"
     },
+    "peerDependencies": {
+        "pkgbld": "workspace:^"
+    },
     "devDependencies": {
         "pkgbld": "workspace:*",
         "type-fest": "catalog:",

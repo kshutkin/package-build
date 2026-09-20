@@ -18,6 +18,8 @@ core rules.
 - Keep official package metadata in `create-pkgbld` without bundling extension
   implementations with the CLI.
 - Avoid executing third-party code merely to build the package list.
+- Make managed package updates reviewable without expanding the project lock
+  into an artifact-ownership database.
 
 ## Non-goals
 
@@ -26,6 +28,7 @@ core rules.
   metadata.
 - Defining the runtime plugin API. That contract belongs to `pkgbld`.
 - Treating every installed development tool as a PKG BLD package.
+- Providing a general-purpose three-way merge for arbitrary project files.
 
 ## Terminology
 
@@ -39,9 +42,11 @@ pkgbld-plugin-<name>
 @<scope>/pkgbld-plugin-<name>
 ```
 
-The package exports the PKG BLD runtime plugin API. Naming is the discovery
-contract: an additional `create-pkgbld` configuration or `/extension` export
-is not required for the plugin to work.
+The package exports the PKG BLD runtime plugin API and must declare `pkgbld` in
+`peerDependencies`. The peer range is both a compatibility constraint and the
+marker that the package follows the modern plugin contract. Naming identifies
+a plugin candidate; an additional `create-pkgbld` configuration or
+`/extension` export is not required for the plugin to work.
 
 ### Extension
 
@@ -49,6 +54,11 @@ An npm package containing setup and removal behavior for `create-pkgbld`.
 Extensions may add dependencies, scripts, configuration files, or package
 metadata. They are discovered through registry metadata because their purpose
 cannot be inferred from their package name alone.
+
+Extensions do not declare `pkgbld` as a peer dependency merely to participate
+in this system. They configure a package and may be useful when that package
+does not use PKG BLD. Extension compatibility may get a separate contract if
+it becomes necessary later.
 
 The recommended package-name patterns are:
 
@@ -81,18 +91,21 @@ fields. It may have no official entry or project-lock record.
 1. A build plugin is identified by its complete npm package name. The optional
    scope does not change the required `pkgbld-plugin-` prefix.
 2. `pkgbld` and `create-pkgbld` use the same plugin-name predicate.
-3. Installed plugins are discovered from `dependencies`, `devDependencies`,
+3. Every modern build plugin declares a compatible `pkgbld` range in
+   `peerDependencies`. A plugin without that declaration is treated as legacy.
+4. Installed plugins are discovered from `dependencies`, `devDependencies`,
    and `peerDependencies` in the target project's `package.json`.
-4. A package found only in `node_modules` is not considered installed. The
+5. A package found only in `node_modules` is not considered installed. The
    project manifest remains the source of truth.
-5. Listing installed third-party plugins must not import or execute them.
-6. An official registry entry enriches a discovered package; it does not create
+6. Listing installed third-party plugins may resolve and read package metadata,
+   but must not import or execute plugin code.
+7. An official registry entry enriches a discovered package; it does not create
    a second item for the same package.
-7. Extensions that are not build plugins require official metadata, a direct
+8. Extensions that are not build plugins require official metadata, a direct
    package specifier during their first add, or an existing lock entry.
-8. Official extension packages live in the internal cache. Build plugins and
+9. Official extension packages live in the internal cache. Build plugins and
    tools needed at build time live in the target project's dependencies.
-9. The project lock stores canonical package names and exact versions. It does
+10. The project lock stores canonical package names and exact versions. It does
    not store CLI aliases, export subpaths, version ranges, or package type.
 
 Within this design, `Installed` means declared in the project manifest. The
@@ -120,6 +133,24 @@ specialized behavior. A lock entry establishes that an integration is managed.
 A dependency declaration establishes that a build plugin is installed. These
 sources describe different facts and merge into one item by package name.
 
+Plugin-name discovery produces candidates rather than automatically eligible
+inventory entries. For each declared plugin, `create-pkgbld` resolves its
+package metadata without importing the package and verifies that
+`peerDependencies.pkgbld` is present. A missing peer declaration identifies a
+legacy plugin. The plugin is omitted from the manageable inventory and a
+warning tells the user to upgrade it first.
+
+If project dependencies have not been materialized and the plugin manifest
+cannot be resolved, `create-pkgbld` cannot establish eligibility. It omits the
+candidate and tells the user to install project dependencies before trying
+again. This check stays offline and does not search npm.
+
+For add and update operations, an eligible plugin's peer range must also accept
+the target project's `pkgbld` version. An incompatible range blocks the
+operation with the versions and required range in the diagnostic. Extensions
+whose package name is not a build-plugin name do not participate in this peer
+check.
+
 For a registered build plugin, specialized removal runs first and generic
 plugin removal then guarantees that the plugin package is absent from all three
 dependency fields. Registry behavior may clean up additional owned files and
@@ -142,9 +173,10 @@ contract, but the package is absent from both registries:
 
 ### Expected behavior
 
-`create-pkgbld` displays `@author/pkgbld-plugin-example` as an installed build
-plugin. No `.pkgbld-extensions.json` entry and no `/extension` export are
-required.
+`create-pkgbld` resolves the installed package manifest and checks its
+`peerDependencies.pkgbld` declaration. If the declaration exists, it displays
+`@author/pkgbld-plugin-example` as an installed build plugin. No
+`.pkgbld-extensions.json` entry and no `/extension` export are required.
 
 The generic entry uses:
 
@@ -155,8 +187,21 @@ The generic entry uses:
 - **Status:** `Installed`;
 - **Available operation:** remove.
 
-The listing operation reads `package.json` only. It does not resolve or import
-the plugin package.
+The listing operation reads the project manifest and the resolved plugin
+manifest. It does not import or execute the plugin package.
+
+If the peer declaration is absent, the package is excluded from the inventory
+and the CLI reports an actionable warning, for example:
+
+```text
+Ignoring @author/pkgbld-plugin-example: the installed package does not declare
+pkgbld in peerDependencies. Upgrade the plugin before managing it with
+create-pkgbld.
+```
+
+Exclusion affects `create-pkgbld` management only. `pkgbld` may still discover
+the dependency by name at runtime; this warning does not claim that legacy code
+is safe or compatible.
 
 ### Removal
 
@@ -257,9 +302,8 @@ adopted. Installing extension code does not prove that its setup was applied.
   applicable, and delete the lock entry only after commit.
 - **Fresh checkout:** use the exact lock version to restore missing extension
   code into the internal cache when an operation needs it.
-- **Update:** compare the recorded exact version with the candidate version;
-  schema v1 can identify an update but does not yet define safe artifact
-  migration.
+- **Update:** compare the recorded exact version with an exact candidate and
+  apply the guarded migration described in Scenario 3.
 
 Writes sort package names lexicographically so the generated file produces
 stable diffs. The lock is intended to be committed and must not be edited as a
@@ -278,9 +322,226 @@ The minimal format does not record:
 - timestamps.
 
 These omissions keep the first stage useful for rehydration and version
-comparison without claiming to support safe automatic migrations. Artifact
-ownership can be introduced by a later schema when update semantics are
-designed.
+comparison. Scenario 3 derives update ownership from the exact old and new
+extension contracts instead of persisting artifact metadata in schema v1.
+
+## Scenario 3: guarded package updates
+
+### Scope and baseline
+
+The first update implementation supports managed packages that have both a
+project-lock entry and official registry metadata. An unmanaged plugin must be
+adopted before it can be updated. The bundled registry version range defines
+the allowed update channel, and the selected candidate must resolve to an exact
+version newer than the locked version.
+
+Ordinary listing remains offline. Registry lookup, package download, and
+candidate selection start only after an explicit update action. Prereleases,
+downgrades, arbitrary npm tags, unregistered packages, and bulk updates are
+deferred until the single-package flow is established.
+
+This branch establishes the first modern extension-contract baseline. A locked
+legacy package whose old exact version does not expose that contract cannot be
+updated automatically. The user must upgrade it manually and adopt the
+resolved version before later updates can use this scenario.
+
+No production extension currently asks configuration questions. The update
+contract nevertheless permits target-version prompts in the future. Schema v1
+does not retain previous answers, so migration code must infer prior choices
+from the project or ask again.
+
+### Resource ownership
+
+An extension owns only the resource leaves declared or explicitly handled by
+its contract. Containers are shared:
+
+- a script resource is one key such as `scripts.lint`, not the `scripts`
+  object;
+- a dependency resource is one package name in one dependency field, not the
+  dependency object;
+- a package metadata resource is one property path;
+- a file resource is one project-relative path.
+
+Ownership gives an extension authority to propose a change. It does not permit
+silently overwriting a value that differs from the extension's known previous
+value. Extensions should use distinct resources. Existing cross-package claim
+analysis remains a backstop when two operations nevertheless propose different
+values for the same resource.
+
+The current official integrations satisfy this convention: Biome owns its
+dependency, `scripts.lint`, `scripts["lint:fix"]`, and `biome.json`; standalone
+DTS Buddy owns its dependencies and `scripts["build:types"]`; the two build
+plugin extensions currently own only their respective plugin dependencies.
+
+### Version-isolated extension cache
+
+Updates may need the old and target contracts at the same time. The shared
+extension cache therefore stores exact versions independently rather than
+installing every version into one mutable `node_modules` tree. Conceptually:
+
+```text
+<cache>/extensions/<encoded-package-name>/<exact-version>/
+```
+
+The locked exact version supplies the previous contract. The exact candidate
+supplies the desired declarative state and any explicit update code. Cache
+population may occur during preparation or dry-run, but it must not modify the
+target project.
+
+### Declarative resource reconciliation
+
+When both versions expose declarative setup, `create-pkgbld` derives resource
+transitions from the old declaration, current project value, and new
+declaration. This is a guarded resource comparison, not a general file merge
+and not additional project-lock metadata.
+
+For each resource, including absence as a value:
+
+| Old declaration | Current project | New declaration | Result |
+|---|---|---|---|
+| `A` | `A` | `B` | Replace with `B` |
+| `A` | `B` | `B` | No change; already updated |
+| `A` | custom | `B` | Report a migration conflict and propose `B` |
+| absent | absent | `B` | Add `B` |
+| absent | custom | `B` | Report a migration conflict and propose `B` |
+| `A` | `A` | absent | Remove the resource |
+| `A` | custom | absent | Report a migration conflict and propose removal |
+| `A` | custom | `A` | Preserve the customization |
+
+The final rule also covers a missing resource when the desired declaration did
+not change. Update does not double as repair. A separate restore or reconcile
+operation may restore missing unchanged resources later.
+
+Scripts and dependency specifiers use exact string comparison. Package JSON
+values use structural comparison. JSON configuration files should use parsed
+structural comparison so formatting-only edits do not create conflicts;
+arbitrary files use exact content comparison.
+
+This mechanism is sufficient for simple additions, replacements, and removals
+in the current declarative extensions. It also prevents one extension from
+replacing user customization merely because the extension owns the resource
+key or file path.
+
+### Explicit update behavior
+
+The target package may export an `update` function when a resource needs
+semantic migration. Target-version code owns the migration and must either
+support the exact source version or report that the transition is unsupported.
+It migrates directly from the locked version to the target version; the engine
+does not execute each intermediate release.
+
+An illustrative contract is:
+
+```js
+export async function update(tree, context, options) {
+    const {
+        fromVersion,
+        toVersion,
+        reconcileDeclarative,
+        reportConflict,
+    } = context;
+
+    reconcileDeclarative({ exclude: ['file:biome.json'] });
+
+    const config = tree.readJson('biome.json');
+    if (canMigrate(config, fromVersion, toVersion)) {
+        tree.updateJson('biome.json', value => migrate(value, toVersion));
+    } else {
+        reportConflict({
+            resource: 'file:biome.json',
+            current: config,
+            proposed: nextConfig,
+            message: 'Biome configuration cannot be migrated automatically',
+        });
+        tree.write('biome.json', `${JSON.stringify(nextConfig, null, 2)}\n`);
+    }
+}
+```
+
+The exact helper names are not yet public API. The required behavior is:
+
+- the hook can delegate ordinary resources to declarative reconciliation;
+- it can exclude resources that require domain-specific migration;
+- it can record a migration conflict while staging a proposed result for
+  review;
+- throwing rolls back the package operation's staged changes;
+- if no hook exists and declarative reconciliation is not possible, the update
+  is unsupported rather than falling back to remove followed by setup.
+
+### Conflict review
+
+A migration conflict records the owning package, resource, expected previous
+value, actual current value, and proposed result. The CLI stages the proposal
+so the user can inspect the normal project diff, then requires explicit
+approval before commit.
+
+Interactive mode may ask once whether to accept all displayed migration
+conflicts. Non-interactive execution requires `--accept-conflicts`; `--yes`
+answers extension questions with defaults but does not authorize overwriting
+modified resources. Rejecting conflicts leaves the project unchanged.
+
+Cross-package conflicts and migration conflicts remain distinct. The former
+mean two selected package operations disagree. The latter mean the project has
+drifted from the updating package's known previous value.
+
+### Build plugin updates
+
+Core package management updates a build plugin's own dependency. The extension
+hook handles only additional scripts, files, dependencies, or configuration.
+The first implementation writes the exact target plugin version to
+`devDependencies`, runs the project package manager, and verifies that exact
+version from the project before advancing the PKG BLD lock.
+
+Project changes and package-manager installation cannot be one filesystem
+transaction. A dependency-changing update therefore uses a recoverable
+two-phase flow:
+
+1. stage and review dependency and extension changes;
+2. commit project changes while retaining the old PKG BLD lock entry;
+3. run the package manager and verify the resolved plugin version;
+4. write the new exact version to the PKG BLD lock.
+
+If installation fails, the command exits unsuccessfully and the old lock entry
+remains. A retry is safe: resources already equal to the proposed values are
+no-ops under the reconciliation rules.
+
+An extension-only update does not install its implementation into the target
+project. Its exact target code remains in the shared cache. Dependencies that
+the extension adds to the target project continue to use the normal install
+flow.
+
+Modern build plugins must declare a compatible `pkgbld` peer dependency.
+`create-pkgbld` validates that peer range before staging an update instead of
+relying solely on package-manager enforcement. A plugin version without the
+peer declaration is a legacy baseline and is not an update candidate.
+
+### Operation shape
+
+The package-operation interface remains target-based:
+
+```js
+const operation = await packages.prepare({
+    package: 'biome',
+    target: 'updated',
+});
+
+// operation.effect === 'update'
+// operation.versionChange === { from: '0.1.0', to: '0.2.0' }
+
+await operation.stage(project, answers);
+```
+
+The initial command surface is:
+
+```text
+create-pkgbld update <package>
+create-pkgbld update <package> --dry-run
+create-pkgbld update <package> --accept-conflicts
+```
+
+Candidate resolution and extension validation occur before project staging.
+The lock change is prepared only after migration succeeds and is committed
+last, subject to the two-phase plugin flow above.
 
 ## User-visible states
 
@@ -290,6 +551,8 @@ designed.
 | Locked extension is not cached locally | `Applied` | Rehydrate, remove |
 | Registered package is installed | `Installed, managed` | Remove |
 | Unregistered plugin is declared in the project | `Installed, unmanaged` | Remove, adopt |
+| Declared plugin has no `pkgbld` peer dependency | Excluded | Warn and suggest upgrade |
+| Declared plugin metadata cannot be resolved | Excluded | Warn and suggest installing dependencies |
 | Registry package cannot be resolved | `Unavailable` | None |
 | Package name does not match the plugin pattern and has no registry entry | Hidden | None |
 
@@ -315,6 +578,11 @@ rolls back a failed operation's staged changes, and commits the project lock
 last. Conflicts remain warnings and the last staged value remains the pending
 result.
 
+Scenario 3 specifies the next update stage and is not implemented yet. In
+particular, the current cache is not version-isolated, extension contracts do
+not expose update behavior, migration conflicts do not yet block commit, and
+inventory discovery does not yet enforce the plugin peer-dependency gate.
+
 Direct addition of an unregistered third-party extension remains a future
 scenario. An unregistered plugin becomes visible after it is declared in the
 project manifest.
@@ -327,7 +595,6 @@ core rules and package inventory. Likely follow-ups include:
 - adding a third-party extension by full package specifier;
 - an official plugin before and after installation;
 - a package offering both standalone extension and build-plugin modes;
-- safe version updates and cache invalidation;
 - ownership conflicts between extensions;
 - monorepo root and workspace-package discovery.
 

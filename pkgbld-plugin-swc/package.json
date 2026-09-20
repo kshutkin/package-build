@@ -30,6 +30,9 @@
         "@rollup/plugin-swc": "^0.4.1",
         "@swc/core": "^1.16.2"
     },
+    "peerDependencies": {
+        "pkgbld": "workspace:^"
+    },
     "devDependencies": {
         "pkgbld": "workspace:*",
         "rollup": "catalog:"
