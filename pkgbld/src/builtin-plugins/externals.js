@@ -3,13 +3,14 @@ import path from 'node:path';
 import { Priority } from '../priorities.js';
 
 /**
- * @template {(...args: any[]) => any} T
- * @param {T} fn
- * @param {unknown[]} args
- * @returns {ReturnType<T> | ((...nextArgs: unknown[]) => ReturnType<T>)}
+ * @param {(...args: any[]) => any} fn
+ * @param {any[]} args
+ * @returns {any}
  */
 export function curry(fn, ...args) {
-    return args.length >= fn.length ? fn(...args) : (...nextArgs) => curry(fn, ...args, ...nextArgs);
+    return args.length >= fn.length
+        ? fn(...args)
+        : /** @type {(...nextArgs: any[]) => any} */ ((...nextArgs) => curry(fn, ...args, ...nextArgs));
 }
 
 /**

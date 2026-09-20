@@ -32,18 +32,16 @@ export default async function (provider, config, _inputs, inputsExt) {
             };
         }
 
-        if (filteredFormats.length > 0) {
-            for (const format of /** @type {InternalModuleFormat[]} */ (filteredFormats)) {
-                if (format !== 'umd') {
-                    provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true });
-                } else {
-                    for (const currentInput of config.umdInputs) {
-                        provider.provide(() => pluginTerser(options), Priority.compress, {
-                            format,
-                            outputPlugin: true,
-                            inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
-                        });
-                    }
+        for (const format of /** @type {InternalModuleFormat[]} */ (filteredFormats)) {
+            if (format !== 'umd') {
+                provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true });
+            } else {
+                for (const currentInput of config.umdInputs) {
+                    provider.provide(() => pluginTerser(options), Priority.compress, {
+                        format,
+                        outputPlugin: true,
+                        inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
+                    });
                 }
             }
         }

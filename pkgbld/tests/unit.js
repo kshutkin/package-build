@@ -190,6 +190,53 @@ describe('plugin lifecycle', () => {
     });
 });
 
+describe('format precedence', () => {
+    test('explicit formats override legacy UMD metadata unless --umd is also passed', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+
+            const explicitEs = getOptions('--formats=es');
+            const explicitEsPackage = createLegacyUmdPackage();
+            await processPackage(explicitEsPackage, explicitEs, []);
+            assert.deepEqual(explicitEs.formats, ['es']);
+            assert.deepEqual(explicitEs.umdInputs, []);
+            assert.equal(explicitEsPackage.umd, './legacy.umd.js');
+            assert.equal(explicitEsPackage.unpkg, undefined);
+
+            const explicitUmd = getOptions('--formats=es', '--umd=index');
+            const explicitUmdPackage = createLegacyUmdPackage();
+            await processPackage(explicitUmdPackage, explicitUmd, []);
+            assert.deepEqual(explicitUmd.formats, ['es', 'umd']);
+            assert.deepEqual(explicitUmd.umdInputs, ['index']);
+            assert.equal(explicitUmdPackage.umd, './dist/index.umd.js');
+            assert.equal(explicitUmdPackage.unpkg, './dist/index.umd.js');
+
+            const packageDefaults = getOptions();
+            const defaultPackage = createLegacyUmdPackage();
+            await processPackage(defaultPackage, packageDefaults, []);
+            assert.deepEqual(packageDefaults.formats, ['es', 'cjs', 'umd']);
+            assert.deepEqual(packageDefaults.umdInputs, ['index']);
+            assert.equal(defaultPackage.umd, './dist/index.umd.js');
+            assert.equal(defaultPackage.unpkg, './dist/index.umd.js');
+        });
+    });
+});
+
+function createLegacyUmdPackage() {
+    return { name: 'fixture', umd: './legacy.umd.js', scripts: {}, exports: { '.': {} } };
+}
+
+function getOptions(...args) {
+    const originalArgv = process.argv;
+    process.argv = [process.execPath, 'pkgbld', ...args];
+    try {
+        return getCliOptions([], {});
+    } finally {
+        process.argv = originalArgv;
+    }
+}
+
 /**
  * @param {() => Promise<void>} callback
  */

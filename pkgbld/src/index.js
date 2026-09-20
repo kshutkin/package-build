@@ -105,8 +105,6 @@ async function execute() {
     }
 }
 
-process.on('exit', () => {});
-
 /** @typedef {import('./types.js').Json} Json */
 /** @typedef {import('./types.js').CliOptions} CliOptions */
 /** @typedef {import('./types.js').ParsedOptions} ParsedOptions */

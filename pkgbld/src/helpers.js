@@ -1,4 +1,4 @@
-import { access, constants, readFile, stat } from 'node:fs/promises';
+import { access, constants, readFile } from 'node:fs/promises';
 import path, { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -153,11 +153,6 @@ export async function isExists(file) {
  * @returns {Promise<boolean>}
  */
 export async function isReadable(file) {
-    try {
-        await stat(file);
-    } catch {
-        return false;
-    }
     try {
         await access(file, constants.R_OK);
         return true;

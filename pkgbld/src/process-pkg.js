@@ -32,7 +32,8 @@ export async function processPackage(pkg, config, plugins) {
     const logger = createLogger();
     const allowEsm = (config.formatsOverridden && config.formats.includes('es')) || !config.formatsOverridden;
     const allowCjs = (config.formatsOverridden && config.formats.includes('cjs')) || !config.formatsOverridden;
-    const allowUmd = (config.formatsOverridden && config.formats.includes('umd')) || !config.formatsOverridden || config.umdInputs;
+    const allowUmd =
+        (config.formatsOverridden && config.formats.includes('umd')) || !config.formatsOverridden || config.umdInputs.length > 0;
 
     if (typeof pkg !== 'object' || Array.isArray(pkg) || pkg == null) {
         logger.finish('expecting object on top level of package.json', LogLevel.error);
