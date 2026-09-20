@@ -11,7 +11,7 @@ import { blue, gray, green, red, white, yellow } from '@niceties/ansi';
  * Pure: returns a string with no trailing newline; the caller decides
  * whether to wrap with headers or pipe through console.log.
  *
- * @param {FileChange[]} changes
+ * @param {readonly FileChange[]} changes
  * @param {{ projectRoot?: string, readDiskJson?: (path: string) => any | null }} [opts]
  * @returns {string}
  */

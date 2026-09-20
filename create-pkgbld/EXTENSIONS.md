@@ -176,7 +176,7 @@ calls `tree.commit()` once after all extensions have run.
 | `removeScript(name)` | |
 | `resolveExtensionFile(rel)` | Resolve a path relative to the extension's package directory. |
 | `listChanges()` | Returns `FileChange[]` of `{ path, type, content? }`. |
-| `commit()` | Flush staged changes to disk. Engine handles this. |
+| `commit()` | Reserved for the engine; unavailable during extension execution. |
 
 Paths are project-root-relative. `resolveExtensionFile` is what you use
 inside a programmatic `setup` to read template files bundled with your

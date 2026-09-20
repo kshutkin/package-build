@@ -21,7 +21,7 @@ export function detectPackageManager(projectRoot) {
  * fields in package.json. Compares against `beforePackageJson` if provided
  * (recommended: snapshot before commit), otherwise falls back to disk.
  *
- * @param {import('./tree.js').FileChange[]} changes
+ * @param {readonly import('./tree.js').FileChange[]} changes
  * @param {string} projectRoot
  * @param {any} [beforePackageJson]
  */

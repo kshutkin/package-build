@@ -15,6 +15,10 @@ _Avoid_: Intent, action
 A prepared transition from a package's inventory state to a package target.
 _Avoid_: Extension action, plugin action
 
+**Project changes**:
+The accumulated project state and attributed claims produced by sequential package operations before commit.
+_Avoid_: Independent changes, operation drafts
+
 **Build plugin**:
 An npm package discovered by its PKG BLD plugin name and loaded by `pkgbld` during a build.
 
@@ -28,6 +32,7 @@ The committed record of integrations that the project acknowledges as successful
 
 - A **Package inventory** describes zero or more **Build plugins** and **Extensions**.
 - A **Package operation** derives its behavior from one inventory entry and one **Package target**.
+- **Project changes** apply **Package operations** sequentially and retain each operation's claims for conflict review.
 - A successful **Package operation** updates the **Project lock** together with its project changes.
 
 ## Example dialogue

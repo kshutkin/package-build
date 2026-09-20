@@ -308,6 +308,13 @@ inventory state. Extension acquisition, lifecycle execution, and the matching
 project-lock mutation stay together behind that interface; interactive and
 subcommand callers retain prompting, rendering, commit, and installation.
 
+Package operations stage sequentially through `ProjectChanges`. Each operation
+sees the accumulated result of earlier operations. `ProjectChanges` retains
+semantic claims for conflict review separately from the final filesystem diff,
+rolls back a failed operation's staged changes, and commits the project lock
+last. Conflicts remain warnings and the last staged value remains the pending
+result.
+
 Direct addition of an unregistered third-party extension remains a future
 scenario. An unregistered plugin becomes visible after it is declared in the
 project manifest.

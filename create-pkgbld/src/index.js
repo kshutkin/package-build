@@ -12,14 +12,14 @@ import { parseArgsPlus } from '@niceties/node-parseargs-plus';
 import { help } from '@niceties/node-parseargs-plus/help';
 import { parameters } from '@niceties/node-parseargs-plus/parameters';
 
-import { detectConflicts, formatConflicts } from './conflicts.js';
+import { formatConflicts } from './conflicts.js';
 import { renderChanges } from './diff.js';
 import getGitRoot from './get-git-root.js';
 import { changesAffectDependencies, detectPackageManager, runInstall } from './install.js';
 import { openPackageOperations } from './package-operations.js';
+import { ProjectChanges } from './project-changes.js';
 import { loadRegistry } from './registry.js';
 import { runAdd, runList, runRemoveCmd } from './subcommands.js';
-import { Tree } from './tree.js';
 import { pad16plus, runInteractiveLoop } from './tui.js';
 
 const SUBCOMMANDS = new Set(['add', 'remove', 'list']);
@@ -90,20 +90,18 @@ async function execute() {
         }
     }
 
-    const tree = new Tree(targetDir);
     await fs.mkdir(targetDir, { recursive: true });
-    tree.write('package.json', toFormattedJson(pkg.pkg));
-    tree.write('README.md', pkg.readme);
+    const project = new ProjectChanges(targetDir);
+    project.edit(tree => {
+        tree.write('package.json', toFormattedJson(pkg.pkg));
+        tree.write('README.md', pkg.readme);
+    });
 
-    /** @type {import('./conflicts.js').RecordedOp[]} */
-    const allOps = [];
     for (const pending of pendingPackageOperations) {
-        const result = await pending.operation.stage(tree, pending.answers);
-        allOps.push(...result.operations);
+        await pending.operation.stage(project, pending.answers);
     }
 
-    const changes = tree.listChanges();
-    const conflicts = detectConflicts(allOps);
+    const { changes, conflicts } = project.review();
 
     if (!quiet) {
         console.log(`\n${gray('Pending changes:')}`);
@@ -116,7 +114,7 @@ async function execute() {
 
     const beforePkg = readDiskJsonFromDir(targetDir, 'package.json');
     try {
-        await tree.commit();
+        await project.commit();
     } catch (e) {
         console.error(e);
         process.exit(-1);

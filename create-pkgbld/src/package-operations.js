@@ -1,8 +1,6 @@
-import { recordOps } from './conflicts.js';
 import { runRemove, runSetup } from './engine.js';
 import { buildPackageInventory } from './inventory.js';
 import { resolveInstalledPackage } from './package-resolution.js';
-import { removeLockedPackage, setLockedPackage } from './project-lock.js';
 import { resolveExtension } from './registry.js';
 import { Tree } from './tree.js';
 
@@ -26,10 +24,9 @@ import { Tree } from './tree.js';
  *   target: PackageTarget,
  *   effect: PackageEffect,
  *   questions: readonly import('./types.js').Option[],
- *   stage(tree: import('./tree.js').Tree, answers?: import('./types.js').OptionsValue): Promise<{
+ *   stage(project: import('./project-changes.js').ProjectChanges, answers?: import('./types.js').OptionsValue): Promise<{
  *     package: PackageView,
- *     effect: PackageEffect,
- *     operations: readonly import('./conflicts.js').RecordedOp[]
+ *     effect: PackageEffect
  *   }>
  * }} PreparedPackageOperation
  */
@@ -145,15 +142,17 @@ function createPreparedOperation({ effect, item, questions, target, view }) {
             questions.map(question => Object.freeze('list' in question ? { ...question, list: [...question.list] } : { ...question }))
         ),
 
-        async stage(tree, answers = {}) {
+        async stage(project, answers = {}) {
             if (staged) throw new Error(`Package operation for "${view.name}" has already been staged`);
             staged = true;
-            if (effect === 'none') return { package: view, effect, operations: [] };
+            if (effect === 'none') return { package: view, effect };
 
             const intent = /** @type {PackageIntent} */ (effect === 'adopt' ? 'adopt' : effect === 'remove' ? 'remove' : 'setup');
             const preparedItem = { ...item, intent, options: answers };
-            const { ops } = await recordOps(tree, item.entry.name, () => applyPackageIntent(preparedItem, tree));
-            return { package: view, effect, operations: Object.freeze(ops) };
+            await project.stagePackageOperation(item.entry.name, ({ tree, projectLock }) =>
+                applyPackageIntent(preparedItem, tree, projectLock)
+            );
+            return { package: view, effect };
         },
     });
 }
@@ -177,20 +176,21 @@ async function ensurePackageExtension(item, projectRoot) {
 /**
  * @param {import('./inventory.js').PackageItem & { intent: PackageIntent, options: import('./types.js').OptionsValue }} item
  * @param {import('./tree.js').Tree} tree
+ * @param {{ set(packageName: string, version: string): void, remove(packageName: string): void }} projectLock
  */
-async function applyPackageIntent(item, tree) {
+async function applyPackageIntent(item, tree, projectLock) {
     if (item.intent === 'adopt') {
         const version = item.resolvedVersion;
         if (!version)
             throw new PackageOperationError('VERSION_UNRESOLVED', `Cannot adopt "${item.packageName}": exact version is unavailable`);
-        setLockedPackage(tree, item.packageName, version);
+        projectLock.set(item.packageName, version);
         return;
     }
 
     if (item.intent === 'setup') {
         if (!item.hasExtensionContract && item.kind === 'plugin' && item.lockedVersion) {
             tree.addDependency(item.packageName, item.lockedVersion, 'devDependencies');
-            setLockedPackage(tree, item.packageName, item.lockedVersion);
+            projectLock.set(item.packageName, item.lockedVersion);
             return;
         }
         const ext = item.ext;
@@ -198,13 +198,13 @@ async function applyPackageIntent(item, tree) {
         await runSetup(ext, tree, item.options);
         const version = ext.__packageVersion;
         if (!version) throw new Error(`Cannot lock "${item.packageName}": its exact package version could not be resolved`);
-        setLockedPackage(tree, item.packageName, version);
+        projectLock.set(item.packageName, version);
         return;
     }
 
     if (item.ext) await runRemove(item.ext, tree, item.options);
     if (item.kind === 'plugin') removePluginDependencies(tree, item.packageName);
-    removeLockedPackage(tree, item.packageName);
+    projectLock.remove(item.packageName);
 }
 
 /** @param {import('./tree.js').Tree} tree @param {string} packageName */

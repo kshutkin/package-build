@@ -5,8 +5,8 @@ import path from 'node:path';
 import test, { afterEach, beforeEach, describe } from 'node:test';
 
 import { openPackageOperations, PackageOperationError } from '../src/package-operations.js';
+import { ProjectChanges } from '../src/project-changes.js';
 import { LOCK_SCHEMA } from '../src/project-lock.js';
-import { Tree } from '../src/tree.js';
 
 /** @type {string} */
 let dir;
@@ -68,9 +68,9 @@ describe('package operations', () => {
         assert.strictEqual(operation.effect, 'adopt');
         assert.deepStrictEqual(operation.questions, []);
 
-        const tree = new Tree(dir);
-        await operation.stage(tree);
-        await tree.commit();
+        const project = new ProjectChanges(dir);
+        await operation.stage(project);
+        await project.commit();
         const lock = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));
         assert.strictEqual(lock.packages[packageName], '1.2.3');
     });
@@ -86,9 +86,10 @@ describe('package operations', () => {
         const operation = await packages.prepare({ package: packageName, target: 'managed' });
         assert.strictEqual(operation.effect, 'restore');
 
-        const tree = new Tree(dir);
-        await operation.stage(tree);
-        assert.strictEqual(tree.readJson('package.json').devDependencies[packageName], '1.2.3');
+        const project = new ProjectChanges(dir);
+        await operation.stage(project);
+        const packageChange = project.review().changes.find(change => change.path === 'package.json');
+        assert.strictEqual(JSON.parse(/** @type {string} */ (packageChange?.content)).devDependencies[packageName], '1.2.3');
     });
 
     test('prepares extension questions without staging changes, then stages setup and its lock together', async () => {
@@ -117,12 +118,13 @@ export const prompts = () => [{ title: 'Answer', field: 'answer', initialValue: 
         await assert.rejects(() => fs.access(path.join(dir, 'answer.txt')));
         await assert.rejects(() => fs.access(path.join(dir, '.pkgbld-lock.json')));
 
-        const tree = new Tree(dir);
-        const result = await operation.stage(tree, { answer: 'chosen' });
-        assert.ok(result.operations.some(item => item.path === 'answer.txt'));
-        assert.strictEqual(tree.read('answer.txt'), 'chosen');
-        assert.strictEqual(tree.readJson('.pkgbld-lock.json').packages[packageName], '1.2.3');
-        await assert.rejects(operation.stage(tree), /already been staged/);
+        const project = new ProjectChanges(dir);
+        await operation.stage(project, { answer: 'chosen' });
+        const changes = project.review().changes;
+        assert.strictEqual(changes.find(change => change.path === 'answer.txt')?.content, 'chosen');
+        const lock = JSON.parse(/** @type {string} */ (changes.find(change => change.path === '.pkgbld-lock.json')?.content));
+        assert.strictEqual(lock.packages[packageName], '1.2.3');
+        await assert.rejects(operation.stage(project), /already been staged/);
     });
 
     test('reports stable errors for unknown and unresolvable package targets', async () => {

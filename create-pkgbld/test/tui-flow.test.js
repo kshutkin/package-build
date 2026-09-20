@@ -7,7 +7,7 @@ import test, { afterEach, beforeEach, describe } from 'node:test';
 import prompts from 'prompts';
 
 import { openPackageOperations } from '../src/package-operations.js';
-import { Tree } from '../src/tree.js';
+import { ProjectChanges } from '../src/project-changes.js';
 import { done, runInteractiveLoop } from '../src/tui.js';
 
 /** @type {string} */
@@ -50,9 +50,9 @@ describe('interactive package management', () => {
         assert.strictEqual(pending.operation.effect, 'setup');
         assert.strictEqual(pending.answers.greeting, 'hello');
 
-        const tree = new Tree(dir);
-        await pending.operation.stage(tree, pending.answers);
-        await tree.commit();
+        const project = new ProjectChanges(dir);
+        await pending.operation.stage(project, pending.answers);
+        await project.commit();
         const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
         assert.strictEqual(pkg.devDependencies['fixture-tool'], '^1.0.0');
         const lock = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));

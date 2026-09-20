@@ -9,12 +9,12 @@ import { parseArgsPlus } from '@niceties/node-parseargs-plus';
 import { help } from '@niceties/node-parseargs-plus/help';
 import { parameters } from '@niceties/node-parseargs-plus/parameters';
 
-import { detectConflicts, formatConflicts } from './conflicts.js';
+import { formatConflicts } from './conflicts.js';
 import { renderChanges } from './diff.js';
 import { changesAffectDependencies, detectPackageManager, runInstall } from './install.js';
 import { openPackageOperations, PackageOperationError } from './package-operations.js';
+import { ProjectChanges } from './project-changes.js';
 import { loadRegistry } from './registry.js';
-import { Tree } from './tree.js';
 
 /**
  * @typedef {import('./types.js').OptionsValue} OptionsValue
@@ -118,12 +118,10 @@ async function runAddOrRemove(mode, version, argv) {
         return;
     }
 
-    const tree = new Tree(projectRoot);
     const answers = await collectAnswers(operation.questions, yes);
-    const { operations: ops } = await operation.stage(tree, answers);
-
-    const changes = tree.listChanges();
-    const conflicts = detectConflicts([...ops]);
+    const project = new ProjectChanges(projectRoot);
+    await operation.stage(project, answers);
+    const { changes, conflicts } = project.review();
 
     if (!quiet) {
         const verb = mode === 'add' ? 'Adding' : 'Removing';
@@ -138,7 +136,7 @@ async function runAddOrRemove(mode, version, argv) {
     if (dryRun) return;
 
     const beforePkg = readDiskJson(projectRoot, 'package.json');
-    await tree.commit();
+    await project.commit();
 
     if (changesAffectDependencies(changes, projectRoot, beforePkg)) {
         const pm = detectPackageManager(projectRoot);

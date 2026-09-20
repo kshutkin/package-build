@@ -15,13 +15,15 @@ import { LOCK_FILE } from './project-lock.js';
 export class Tree {
     /**
      * @param {string} projectRoot
+     * @param {{ onMutation?: (mutation: { path: string, before: string | null, after: string | null }) => void }} [options]
      */
-    constructor(projectRoot) {
+    constructor(projectRoot, options = {}) {
         this.projectRoot = projectRoot;
         /** @type {Map<string, Entry>} */
         this.entries = new Map();
         /** @type {string | null} */
         this.extensionBase = null;
+        this.onMutation = options.onMutation ?? null;
     }
 
     /**
@@ -85,7 +87,8 @@ export class Tree {
      */
     write(p, content) {
         const key = this._key(p);
-        const existing = this.entries.get(key);
+        const before = this.read(key);
+        const existing = /** @type {Entry} */ (this.entries.get(key));
         /** @type {ChangeAction} */
         let action;
         if (existing) {
@@ -103,6 +106,7 @@ export class Tree {
             action = diskContent === null ? 'CREATE' : 'UPDATE';
         }
         this.entries.set(key, { content, action });
+        this.onMutation?.({ path: key, before, after: content });
     }
 
     /**
@@ -117,20 +121,12 @@ export class Tree {
      */
     delete(p) {
         const key = this._key(p);
-        const cached = this.entries.get(key);
-        if (cached) {
-            if (cached.action === 'CREATE') {
-                this.entries.delete(key);
-                return;
-            }
-            if (cached.content === null) {
-                // already known to not exist (read miss or prior DELETE)
-                return;
-            }
-        } else if (this._loadFromDisk(key) === null) {
-            return;
-        }
-        this.entries.set(key, { content: null, action: 'DELETE' });
+        const before = this.read(key);
+        if (before === null) return;
+        const cached = /** @type {Entry} */ (this.entries.get(key));
+        if (cached.action === 'CREATE') this.entries.delete(key);
+        else this.entries.set(key, { content: null, action: 'DELETE' });
+        this.onMutation?.({ path: key, before, after: null });
     }
 
     /**
@@ -247,6 +243,20 @@ export class Tree {
         }
         result.sort((a, b) => a.path.localeCompare(b.path));
         return result;
+    }
+
+    /** @returns {{ entries: Map<string, Entry>, extensionBase: string | null }} */
+    _createCheckpoint() {
+        return {
+            entries: new Map([...this.entries].map(([key, entry]) => [key, { ...entry }])),
+            extensionBase: this.extensionBase,
+        };
+    }
+
+    /** @param {{ entries: Map<string, Entry>, extensionBase: string | null }} checkpoint */
+    _restoreCheckpoint(checkpoint) {
+        this.entries = new Map([...checkpoint.entries].map(([key, entry]) => [key, { ...entry }]));
+        this.extensionBase = checkpoint.extensionBase;
     }
 
     async commit() {
