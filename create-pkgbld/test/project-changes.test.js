@@ -135,4 +135,37 @@ describe('ProjectChanges', () => {
         );
         assert.deepStrictEqual(project.review(), { changes: [], conflicts: [] });
     });
+
+    test('retains reported migration conflicts with the staged proposal', async () => {
+        const project = new ProjectChanges(dir);
+        await project.stagePackageOperation('extension-a', ({ tree, reportConflict }) => {
+            reportConflict({
+                resource: 'script:lint',
+                expected: 'old',
+                current: 'custom',
+                proposed: 'new',
+                message: 'Script was customized',
+            });
+            tree.addScript('lint', 'new');
+        });
+        const review = project.review();
+        assert.equal(review.conflicts[0].kind, 'migration-conflict');
+        assert.equal(review.conflicts[0].resource, 'script:lint');
+        assert.equal(JSON.parse(review.changes[0].content).scripts.lint, 'new');
+    });
+
+    test('can commit project files before the project lock', async () => {
+        const project = new ProjectChanges(dir);
+        await project.stagePackageOperation('extension-a', ({ tree, projectLock }) => {
+            tree.write('updated.txt', 'ready');
+            projectLock.set('create-pkgbld-extension-a', '2.0.0');
+        });
+        await project.commit({ lock: 'exclude' });
+        assert.equal(await fs.readFile(path.join(dir, 'updated.txt'), 'utf8'), 'ready');
+        await assert.rejects(() => fs.access(path.join(dir, '.pkgbld-lock.json')));
+
+        await project.commit({ lock: 'only' });
+        const lock = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));
+        assert.equal(lock.packages['create-pkgbld-extension-a'], '2.0.0');
+    });
 });

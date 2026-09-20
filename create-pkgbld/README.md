@@ -49,6 +49,18 @@ diff), then commits it together with `.pkgbld-lock.json`.
 
 Reverse of `add`.
 
+### `create-pkgbld update <extension>`
+
+Update one managed official package to the newest stable version allowed by
+its registry range. The command compares the old and new extension contracts
+with the current project, displays proposed replacements for customized
+resources, and asks before applying conflicts. In non-interactive mode, pass
+`--accept-conflicts` to approve those replacements; `--yes` alone does not.
+
+Build plugin updates always install and verify the exact target version before
+advancing `.pkgbld-lock.json`. Extension implementations remain in the shared
+cache and are not installed into the project.
+
 ### Subcommand flags
 
 | Flag | Description |
@@ -57,6 +69,7 @@ Reverse of `add`.
 | `--dry-run` | Print the diff but write nothing. Implies no install. |
 | `--quiet`, `-q` | Suppress informational output. |
 | `--install` | After commit, run `<pm> install` if dependencies changed. In interactive mode (no `--yes`) you will also be prompted. In `--yes` mode, install only runs when `--install` is also passed. |
+| `--accept-conflicts` | Update only: accept proposed replacements for resources changed since the locked version. |
 
 ### Examples
 
@@ -69,6 +82,10 @@ create-pkgbld add biome --yes --install
 
 # Remove a feature
 create-pkgbld remove biome --yes
+
+# Preview an update and then accept its reviewed migration conflicts
+create-pkgbld update biome --dry-run
+create-pkgbld update biome --yes --accept-conflicts
 ```
 
 ## Extensions
@@ -103,6 +120,9 @@ in the committed `.pkgbld-lock.json` file:
 Plugins named `pkgbld-plugin-*` or `@scope/pkgbld-plugin-*` are discovered
 from `dependencies`, `devDependencies`, and `peerDependencies`. An installed
 plugin that is absent from the lock can be removed or explicitly adopted.
+Modern plugins must declare `pkgbld` in `peerDependencies`; legacy or
+unresolvable candidates are omitted with an upgrade or install-dependencies
+warning.
 
 For the contract that extension packages must implement, see
 [EXTENSIONS.md](./EXTENSIONS.md). Package discovery and management behavior is

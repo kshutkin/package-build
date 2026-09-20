@@ -16,11 +16,15 @@ const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'peerDependencies'
  *   fingerprint: string
  * }} ChangeClaim
  * @typedef {{
- *   kind: 'write-conflict' | 'write-vs-delete' | 'dependency-version' | 'script-value' | 'package-json-value',
+ *   kind: 'write-conflict' | 'write-vs-delete' | 'dependency-version' | 'script-value' | 'package-json-value' | 'migration-conflict',
  *   path?: string,
  *   key?: string,
  *   sources: readonly string[],
- *   message: string
+ *   message: string,
+ *   resource?: string,
+ *   expected?: unknown,
+ *   current?: unknown,
+ *   proposed?: unknown
  * }} Conflict
  */
 
@@ -31,11 +35,13 @@ export class ProjectChanges {
     constructor(projectRoot) {
         this.projectRoot = projectRoot;
         this.#tree = new Tree(projectRoot, { onMutation: mutation => this._recordMutation(mutation) });
-        /** @type {{ source: string, touched: Map<string, { before: string | null, after: string | null }> } | null} */
+        /** @type {{ source: string, touched: Map<string, { before: string | null, after: string | null }>, conflicts: Conflict[] } | null} */
         this.activeStage = null;
         this.bookkeepingDepth = 0;
         /** @type {ChangeClaim[]} */
         this.claims = [];
+        /** @type {Conflict[]} */
+        this.migrationConflicts = [];
     }
 
     /**
@@ -62,7 +68,7 @@ export class ProjectChanges {
      * Stage one package operation against the accumulated project state.
      * @template T
      * @param {string} source
-     * @param {(scope: { tree: Tree, projectLock: { set(packageName: string, version: string): void, remove(packageName: string): void } }) => T | Promise<T>} fn
+     * @param {(scope: { tree: Tree, projectLock: { set(packageName: string, version: string): void, remove(packageName: string): void }, reportConflict(conflict: { resource: string, message: string, expected?: unknown, current?: unknown, proposed?: unknown }): void }) => T | Promise<T>} fn
      * @returns {Promise<T>}
      */
     async stagePackageOperation(source, fn) {
@@ -71,7 +77,7 @@ export class ProjectChanges {
 
         const checkpoint = this.#tree._createCheckpoint();
         const scope = new ScopedTree(this.#tree);
-        this.activeStage = { source, touched: new Map() };
+        this.activeStage = { source, touched: new Map(), conflicts: [] };
         let stageOpen = true;
         const assertStageOpen = () => {
             if (!stageOpen) throw new Error('Project-lock scope is closed');
@@ -86,12 +92,18 @@ export class ProjectChanges {
                 this._recordBookkeeping(() => removeLockedPackage(this.#tree, packageName));
             },
         });
+        const reportConflict = (/** @type {{ resource: string, message: string, expected?: unknown, current?: unknown, proposed?: unknown }} */ conflict) => {
+            assertStageOpen();
+            if (!conflict.resource || !conflict.message) throw new TypeError('Migration conflicts require a resource and message');
+            this.activeStage?.conflicts.push({ kind: 'migration-conflict', sources: [source], ...conflict });
+        };
 
         try {
-            const result = await fn({ tree: /** @type {Tree} */ (scope), projectLock });
+            const result = await fn({ tree: /** @type {Tree} */ (scope), projectLock, reportConflict });
             for (const [changedPath, change] of this.activeStage.touched) {
                 this.claims.push(...classifyChange(source, changedPath, change.before, change.after, this.projectRoot));
             }
+            this.migrationConflicts.push(...this.activeStage.conflicts);
             return result;
         } catch (error) {
             this.#tree._restoreCheckpoint(checkpoint);
@@ -106,14 +118,17 @@ export class ProjectChanges {
     review() {
         const changes = Object.freeze(this.#tree.listChanges().map(change => Object.freeze({ ...change })));
         const conflicts = Object.freeze(
-            listConflicts(this.claims).map(conflict => Object.freeze({ ...conflict, sources: Object.freeze(conflict.sources) }))
+            [...listConflicts(this.claims), ...this.migrationConflicts].map(conflict =>
+                Object.freeze({ ...conflict, sources: Object.freeze(conflict.sources) })
+            )
         );
         return Object.freeze({ changes, conflicts });
     }
 
-    async commit() {
+    /** @param {{ lock?: 'include' | 'exclude' | 'only' }} [options] */
+    async commit(options) {
         if (this.activeStage) throw new Error('Cannot commit while a package operation is active');
-        await this.#tree.commit();
+        await this.#tree.commit(options);
     }
 
     /** @param {{ path: string, before: string | null, after: string | null }} mutation */

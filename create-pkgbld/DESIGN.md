@@ -1,6 +1,6 @@
 # Create PKG BLD Package Management Design
 
-**Status:** Initial lock stage implemented
+**Status:** Guarded update stage implemented
 **Scope:** `create-pkgbld` package discovery and management  
 **Last updated:** 2026-09-20
 
@@ -565,11 +565,12 @@ lock, supports explicit adoption, restores locked extension code through the
 shared cache, and provides generic removal for plugins without extension
 behavior. `.pkgbld-extensions.json` is not read.
 
-Callers request a package target of `managed` or `absent`. Package operations
-derive setup, restoration, adoption, or removal from that target and the
-inventory state. Extension acquisition, lifecycle execution, and the matching
-project-lock mutation stay together behind that interface; interactive and
-subcommand callers retain prompting, rendering, commit, and installation.
+Callers request a package target of `managed`, `updated`, or `absent`. Package
+operations derive setup, restoration, adoption, update, or removal from that
+target and the inventory state. Extension acquisition, lifecycle execution,
+and the matching project-lock mutation stay together behind that interface;
+interactive and subcommand callers retain prompting, rendering, commit, and
+installation.
 
 Package operations stage sequentially through `ProjectChanges`. Each operation
 sees the accumulated result of earlier operations. `ProjectChanges` retains
@@ -578,10 +579,12 @@ rolls back a failed operation's staged changes, and commits the project lock
 last. Conflicts remain warnings and the last staged value remains the pending
 result.
 
-Scenario 3 specifies the next update stage and is not implemented yet. In
-particular, the current cache is not version-isolated, extension contracts do
-not expose update behavior, migration conflicts do not yet block commit, and
-inventory discovery does not yet enforce the plugin peer-dependency gate.
+Scenario 3 is implemented for explicit single-package updates. The cache keeps
+exact extension versions in separate slots, declarative contracts use guarded
+resource reconciliation, target packages may export explicit update behavior,
+and migration conflicts require interactive approval or
+`--accept-conflicts`. Build plugin updates use the two-phase install and lock
+flow and inventory discovery enforces the plugin peer-dependency gate.
 
 Direct addition of an unregistered third-party extension remains a future
 scenario. An unregistered plugin becomes visible after it is declared in the

@@ -77,13 +77,55 @@ export const manifest = {
 
 export const setup  = /* declarative obj OR async (tree, options) => void */;
 export const remove = /* declarative obj OR async (tree, options) => void */;
+export async function update(tree, context, options) { /* optional migration */ }
 export function detect(tree)  { /* boolean: is it already installed? */ }
-export function prompts(tree) { /* optional: Option[] for interactive flow */ }
+export function prompts(tree, context) { /* optional: Option[] */ }
 ```
 
 `manifest`, `setup`, and `remove` are required. `detect` is optional but
 strongly recommended (without it, the CLI assumes "not installed").
 `prompts` is optional and only used in interactive mode.
+
+When both locked and target versions have declarative `setup` objects, the
+engine can update their individual dependency, script, file, and package JSON
+resources automatically. It replaces a resource only when the project still
+matches the old declaration, or when the project already matches the target.
+A customized resource becomes a migration conflict with the target value
+staged for review.
+
+### Programmatic `update`
+
+Export `update` when a version transition needs semantic migration. The target
+version receives the project tree, an update context, and newly collected
+options:
+
+```js
+export async function update(tree, context, options) {
+    const { fromVersion, toVersion, reconcileDeclarative, reportConflict } = context;
+
+    reconcileDeclarative({ exclude: ['file:tool.json'] });
+    const current = tree.readJson('tool.json');
+    if (canMigrate(current, fromVersion, toVersion)) {
+        tree.updateJson('tool.json', value => migrate(value, options));
+        return;
+    }
+    const proposed = createConfig(options);
+    reportConflict({
+        resource: 'file:tool.json',
+        current,
+        proposed,
+        message: 'The tool configuration needs review',
+    });
+    tree.write('tool.json', `${JSON.stringify(proposed, null, 2)}\n`);
+}
+```
+
+`reconcileDeclarative({ exclude })` applies the guarded comparison to all
+ordinary resources except the listed resource IDs. IDs use
+`file:<path>`, `script:<name>`, `dependency:<field>:<package>`, or
+`package-json:<key>`. `reportConflict` records a proposed migration that the
+user must approve before commit. If either version uses programmatic setup and
+the target has no `update`, the transition is unsupported.
 
 ### Declarative `setup`
 
@@ -281,4 +323,6 @@ Build plugins do not need registry metadata or an extension export to run.
 `create-pkgbld` discovers their scoped and unscoped names from all project
 dependency fields without importing them. Such plugins can be generically
 removed or adopted into `.pkgbld-lock.json` when their exact installed version
-can be resolved.
+can be resolved. Every modern build plugin must declare a compatible `pkgbld`
+range in `peerDependencies`; extension-only packages should not add that peer
+solely for `create-pkgbld` compatibility.

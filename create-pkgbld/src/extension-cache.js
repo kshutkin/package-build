@@ -1,8 +1,11 @@
 import { spawn } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import findCacheDirectory from 'find-cache-directory';
+import semver from 'semver';
+
+import { resolvePublishedVersion } from './package-version.js';
 
 /** @returns {string} */
 export function getExtensionCacheDir() {
@@ -24,55 +27,74 @@ export function getPackageName(specifier) {
     return parts[0] || null;
 }
 
+/** @param {string} packageName @param {string} version @param {string} [cacheRoot] */
+export function getExtensionCacheSlot(packageName, version, cacheRoot = getExtensionCacheDir()) {
+    return path.join(cacheRoot, encodeURIComponent(packageName), version);
+}
+
 /**
- * Install an extension in create-pkgbld's shared cache.
- * @param {{ package: string, version?: string }} entry
- * @param {string} [cacheDir]
- * @param {(command: string, args: string[], cwd: string) => Promise<number>} [runner]
+ * Return cached exact-version roots newest first.
+ * @param {string} packageName
+ * @param {string | undefined} selector
+ * @param {string} [cacheRoot]
  */
-export async function installCachedExtension(entry, cacheDir = getExtensionCacheDir(), runner = runCommand) {
+export async function listCachedExtensionSlots(packageName, selector, cacheRoot = getExtensionCacheDir()) {
+    const packageRoot = path.join(cacheRoot, encodeURIComponent(packageName));
+    let versions;
+    try {
+        versions = await readdir(packageRoot);
+    } catch {
+        return [];
+    }
+    return semver
+        .rsort(versions.filter(version => semver.valid(version) && (!selector || semver.satisfies(version, selector))))
+        .map(version => ({ version, cacheDir: getExtensionCacheSlot(packageName, version, cacheRoot) }));
+}
+
+/**
+ * Install one exact extension version in an immutable shared-cache slot.
+ * A range is resolved before the slot is selected.
+ * @param {{ package: string, version?: string }} entry
+ * @param {string} [cacheRoot]
+ * @param {(command: string, args: string[], cwd: string) => Promise<number>} [runner]
+ * @param {(packageName: string, selector: string) => Promise<string>} [versionResolver]
+ */
+export async function installCachedExtension(
+    entry,
+    cacheRoot = getExtensionCacheDir(),
+    runner = runCommand,
+    versionResolver = resolvePublishedVersion
+) {
     const packageName = getPackageName(entry.package);
     if (!packageName) throw new Error(`Extension package "${entry.package}" cannot be installed in the shared cache`);
 
-    await mkdir(cacheDir, { recursive: true });
+    const selector = entry.version ?? 'latest';
+    const exactVersion = semver.valid(selector) ?? (await versionResolver(packageName, selector));
+    const cacheDir = getExtensionCacheSlot(packageName, exactVersion, cacheRoot);
     const manifestPath = path.join(cacheDir, 'package.json');
-    let manifest = { private: true, dependencies: /** @type {Record<string, string>} */ ({}) };
-    try {
-        manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-        manifest.private = true;
-        manifest.dependencies ??= {};
-    } catch {
-        // The cache is initialized on first use.
-    }
-
-    const requestedVersion = entry.version ?? 'latest';
     const packageManifest = path.join(cacheDir, 'node_modules', packageName, 'package.json');
-    if (manifest.dependencies[packageName] === requestedVersion) {
-        if (await hasCachedPackage(packageManifest, requestedVersion)) return cacheDir;
-    }
-    const previousVersion = manifest.dependencies[packageName];
-    manifest.dependencies[packageName] = requestedVersion;
+    if (await hasCachedPackage(packageManifest, exactVersion)) return { cacheDir, version: exactVersion };
+
+    await mkdir(cacheDir, { recursive: true });
+    const manifest = { private: true, dependencies: { [packageName]: exactVersion } };
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
     const code = await runner('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund'], cacheDir);
     if (code !== 0) {
-        if (previousVersion === undefined) delete manifest.dependencies[packageName];
-        else manifest.dependencies[packageName] = previousVersion;
-        await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-        throw new Error(`Failed to cache extension package "${packageName}" (npm install exited with code ${code})`);
+        await writeFile(manifestPath, `${JSON.stringify({ private: true, dependencies: {} }, null, 2)}\n`);
+        throw new Error(`Failed to cache extension package "${packageName}@${exactVersion}" (npm install exited with code ${code})`);
     }
-    if (!(await hasCachedPackage(packageManifest, requestedVersion))) {
-        throw new Error(`npm install completed without caching extension package "${packageName}"`);
+    if (!(await hasCachedPackage(packageManifest, exactVersion))) {
+        throw new Error(`npm install completed without caching extension package "${packageName}@${exactVersion}"`);
     }
-    return cacheDir;
+    return { cacheDir, version: exactVersion };
 }
 
-/** @param {string} manifestPath @param {string} requestedVersion */
-async function hasCachedPackage(manifestPath, requestedVersion) {
+/** @param {string} manifestPath @param {string} exactVersion */
+async function hasCachedPackage(manifestPath, exactVersion) {
     try {
         const installed = JSON.parse(await readFile(manifestPath, 'utf8'));
-        const exact = /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(requestedVersion);
-        return !exact || installed.version === requestedVersion;
+        return installed.version === exactVersion;
     } catch {
         return false;
     }

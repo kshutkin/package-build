@@ -259,8 +259,14 @@ export class Tree {
         this.extensionBase = checkpoint.extensionBase;
     }
 
-    async commit() {
-        const changes = this.listChanges();
+    /** @param {{ lock?: 'include' | 'exclude' | 'only' }} [options] */
+    async commit(options = {}) {
+        const lockMode = options.lock ?? 'include';
+        const changes = this.listChanges().filter(change => {
+            if (lockMode === 'exclude') return change.path !== LOCK_FILE;
+            if (lockMode === 'only') return change.path === LOCK_FILE;
+            return true;
+        });
         const orderedChanges = [
             ...changes.filter(change => change.path !== LOCK_FILE),
             ...changes.filter(change => change.path === LOCK_FILE),

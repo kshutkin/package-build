@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { afterEach, beforeEach, describe } from 'node:test';
 
-import { getPackageName, installCachedExtension } from '../src/extension-cache.js';
+import { getExtensionCacheSlot, getPackageName, installCachedExtension } from '../src/extension-cache.js';
 
 /** @type {string} */
 let dir;
@@ -32,37 +32,45 @@ describe('extension cache', () => {
             calls.push({ command, args, cwd });
             const packageDir = path.join(cwd, 'node_modules/@author/create-pkgbld-extension-demo');
             await fs.mkdir(packageDir, { recursive: true });
-            await fs.writeFile(path.join(packageDir, 'package.json'), '{}');
+            await fs.writeFile(
+                path.join(packageDir, 'package.json'),
+                JSON.stringify({ name: '@author/create-pkgbld-extension-demo', version: '1.2.4' })
+            );
             return 0;
         };
         const entry = { package: '@author/create-pkgbld-extension-demo/contract', version: '^1.2.0' };
-        await installCachedExtension(entry, dir, runner);
-        await installCachedExtension(entry, dir, runner);
+        const resolveVersion = async () => '1.2.4';
+        await installCachedExtension(entry, dir, runner, resolveVersion);
+        await installCachedExtension(entry, dir, runner, resolveVersion);
 
         assert.equal(calls.length, 1);
         assert.equal(calls[0].command, 'npm');
         assert.deepEqual(calls[0].args, ['install', '--ignore-scripts', '--no-audit', '--no-fund']);
-        assert.equal(calls[0].cwd, dir);
-        const manifest = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
+        const slot = getExtensionCacheSlot('@author/create-pkgbld-extension-demo', '1.2.4', dir);
+        assert.equal(calls[0].cwd, slot);
+        const manifest = JSON.parse(await fs.readFile(path.join(slot, 'package.json'), 'utf8'));
         assert.equal(manifest.private, true);
-        assert.equal(manifest.dependencies['@author/create-pkgbld-extension-demo'], '^1.2.0');
+        assert.equal(manifest.dependencies['@author/create-pkgbld-extension-demo'], '1.2.4');
     });
 
     test('reports a failed cache install', async () => {
         await assert.rejects(
-            installCachedExtension({ package: 'create-pkgbld-extension-demo' }, dir, async () => 7),
+            installCachedExtension({ package: 'create-pkgbld-extension-demo', version: '1.0.0' }, dir, async () => 7),
             /npm install exited with code 7/
         );
-        const manifest = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
+        const manifest = JSON.parse(
+            await fs.readFile(path.join(getExtensionCacheSlot('create-pkgbld-extension-demo', '1.0.0', dir), 'package.json'), 'utf8')
+        );
         assert.equal(manifest.dependencies['create-pkgbld-extension-demo'], undefined);
     });
 
     test('repairs an exact-version cache entry when installed code has another version', async () => {
         const packageName = 'create-pkgbld-extension-demo';
-        const packageDir = path.join(dir, 'node_modules', packageName);
+        const slot = getExtensionCacheSlot(packageName, '1.0.0', dir);
+        const packageDir = path.join(slot, 'node_modules', packageName);
         await fs.mkdir(packageDir, { recursive: true });
         await fs.writeFile(path.join(packageDir, 'package.json'), JSON.stringify({ name: packageName, version: '2.0.0' }));
-        await fs.writeFile(path.join(dir, 'package.json'), JSON.stringify({ private: true, dependencies: { [packageName]: '1.0.0' } }));
+        await fs.writeFile(path.join(slot, 'package.json'), JSON.stringify({ private: true, dependencies: { [packageName]: '1.0.0' } }));
         let calls = 0;
         await installCachedExtension({ package: packageName, version: '1.0.0' }, dir, async () => {
             calls += 1;

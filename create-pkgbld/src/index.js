@@ -19,10 +19,10 @@ import { changesAffectDependencies, detectPackageManager, runInstall } from './i
 import { openPackageOperations } from './package-operations.js';
 import { ProjectChanges } from './project-changes.js';
 import { loadRegistry } from './registry.js';
-import { runAdd, runList, runRemoveCmd } from './subcommands.js';
+import { runAdd, runList, runRemoveCmd, runUpdate } from './subcommands.js';
 import { pad16plus, runInteractiveLoop } from './tui.js';
 
-const SUBCOMMANDS = new Set(['add', 'remove', 'list']);
+const SUBCOMMANDS = new Set(['add', 'remove', 'update', 'list']);
 
 /**
  * @typedef {import('pkgbld/options').PackageJson} PackageJson
@@ -41,6 +41,7 @@ async function execute() {
         if (sub === 'list') return runList(version, rest);
         if (sub === 'add') return runAdd(version, rest);
         if (sub === 'remove') return runRemoveCmd(version, rest);
+        if (sub === 'update') return runUpdate(version, rest);
     }
 
     const args = parseArgsPlus(
@@ -82,6 +83,7 @@ async function execute() {
     if (!quiet && pkg.mode === 'update') {
         const registry = await loadRegistry(builtinRegistryPath);
         const packageOperations = await openPackageOperations({ projectRoot: targetDir, registry });
+        for (const warning of packageOperations.warnings) console.warn(yellow(`Warning: ${warning}`));
         try {
             pendingPackageOperations = await runInteractiveLoop({ packageOperations });
         } catch (/** @type {any} */ err) {

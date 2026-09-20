@@ -4,6 +4,7 @@ import path from 'node:path';
 import { detectExtension } from './engine.js';
 import { getPackageName } from './extension-cache.js';
 import { getPackageKind, isPluginPackageName } from './package-names.js';
+import { getPkgbldPeerRange, inspectInstalledPlugin } from './plugin-compatibility.js';
 import { resolveInstalledPackage } from './package-resolution.js';
 import { readProjectLock } from './project-lock.js';
 import { resolveExtension } from './registry.js';
@@ -31,7 +32,7 @@ import { Tree } from './tree.js';
  * Build the package inventory without downloading or executing missing packages.
  * @param {import('./registry.js').ExtensionEntry[]} registry
  * @param {string} projectRoot
- * @returns {Promise<PackageItem[]>}
+ * @returns {Promise<{ items: PackageItem[], warnings: string[] }>}
  */
 export async function buildPackageInventory(registry, projectRoot) {
     const lock = await readProjectLock(projectRoot);
@@ -96,14 +97,36 @@ export async function buildPackageInventory(registry, projectRoot) {
     const tree = new Tree(projectRoot);
     /** @type {PackageItem[]} */
     const items = [];
+    /** @type {string[]} */
+    const warnings = [];
     for (const record of records.values()) {
+        let installedPackage = resolveInstalledPackage(record.packageName, projectRoot);
+        if (record.kind === 'plugin' && record.dependencyFields.length > 0) {
+            const inspection = inspectInstalledPlugin(record.packageName, projectRoot);
+            if (!inspection.eligible) {
+                warnings.push(/** @type {string} */ (inspection.warning));
+                continue;
+            }
+            installedPackage = inspection.resolved;
+        } else if (record.kind === 'plugin' && record.lockedVersion && !record.entry.official) {
+            warnings.push(
+                `Ignoring ${record.packageName}: its plugin metadata cannot be verified from the project. Install and adopt a modern version before managing it with create-pkgbld.`
+            );
+            continue;
+        }
         let ext = null;
         let error = null;
         let detected = false;
-        let resolvedVersion = resolveInstalledPackage(record.packageName, projectRoot)?.version ?? null;
+        let resolvedVersion = installedPackage?.version ?? null;
         if (record.hasExtensionContract && record.entry.official) {
             try {
                 ext = await resolveExtension(record.entry, projectRoot, { exactVersion: record.lockedVersion ?? undefined });
+                if (record.kind === 'plugin' && !getPkgbldPeerRange(ext.__packageManifest)) {
+                    warnings.push(
+                        `Ignoring ${record.packageName}: the resolved package does not declare pkgbld in peerDependencies. Upgrade the plugin before managing it with create-pkgbld.`
+                    );
+                    continue;
+                }
                 detected = detectExtension(ext, tree);
                 resolvedVersion = ext.__packageVersion ?? resolvedVersion;
             } catch (/** @type {any} */ cause) {
@@ -120,7 +143,7 @@ export async function buildPackageInventory(registry, projectRoot) {
         else state = 'unavailable';
         items.push({ ...record, state, resolvedVersion, ext, error, installed, managed });
     }
-    return items.sort((a, b) => a.entry.name.localeCompare(b.entry.name));
+    return { items: items.sort((a, b) => a.entry.name.localeCompare(b.entry.name)), warnings };
 }
 
 /** @param {Record<string, any>} pkg @param {string} packageName */

@@ -2,7 +2,15 @@ import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
-import { getExtensionCacheDir, getPackageName, installCachedExtension } from './extension-cache.js';
+import semver from 'semver';
+
+import {
+    getExtensionCacheDir,
+    getExtensionCacheSlot,
+    getPackageName,
+    installCachedExtension,
+    listCachedExtensionSlots,
+} from './extension-cache.js';
 import { readResolvedPackage } from './package-resolution.js';
 
 /**
@@ -30,10 +38,12 @@ import { readResolvedPackage } from './package-resolution.js';
  *   manifest: { name: string, description: string, tags?: string[] },
  *   setup?: SetupDeclarative | ((tree: Tree, options: OptionsValue) => Promise<void>),
  *   remove?: RemoveDeclarative | ((tree: Tree, options: OptionsValue) => Promise<void>),
+ *   update?: (tree: Tree, context: any, options: OptionsValue) => Promise<void>,
  *   detect?: (tree: Tree) => boolean,
- *   prompts?: (tree: Tree) => Option[],
+ *   prompts?: (tree: Tree, context?: any) => Option[],
  *   __baseDir?: string,
- *   __packageVersion?: string
+ *   __packageVersion?: string,
+ *   __packageManifest?: Record<string, any>
  * }} Extension
  */
 
@@ -69,7 +79,7 @@ async function readRegistryFile(file) {
  *
  * @param {ExtensionEntry} entry
  * @param {string} projectRoot
- * @param {{ install?: boolean, exactVersion?: string }} [options]
+ * @param {{ install?: boolean, exactVersion?: string, resolveVersion?: (packageName: string, selector: string) => Promise<string> }} [options]
  * @returns {Promise<Extension>}
  */
 export async function resolveExtension(entry, projectRoot, options = {}) {
@@ -79,23 +89,54 @@ export async function resolveExtension(entry, projectRoot, options = {}) {
     const projectManifest = path.join(projectRoot, 'package.json');
     try {
         resolved = createRequire(projectManifest).resolve(specifier);
-        if (!hasExpectedVersion(resolved, packageName, options.exactVersion)) resolved = undefined;
+        if (!hasExpectedVersion(resolved, packageName, options.exactVersion, entry.version)) resolved = undefined;
     } catch {
         // Fall back to the shared cache and create-pkgbld's dependencies.
     }
 
-    if (!resolved && options.install && entry.official && packageName) {
-        await installCachedExtension(entry);
+    if (!resolved && packageName) {
+        const slots = options.exactVersion
+            ? [{ cacheDir: getExtensionCacheSlot(packageName, options.exactVersion), version: options.exactVersion }]
+            : await listCachedExtensionSlots(packageName, entry.version);
+        for (const slot of slots) {
+            try {
+                resolved = createRequire(path.join(slot.cacheDir, 'package.json')).resolve(specifier);
+                if (hasExpectedVersion(resolved, packageName, options.exactVersion, entry.version)) break;
+                resolved = undefined;
+            } catch {
+                // Try the next cached exact version.
+            }
+        }
     }
 
-    for (const root of [path.join(getExtensionCacheDir(), 'package.json'), import.meta.url]) {
-        if (resolved) break;
+    // Read caches created by the pre-versioned layout. New installations are
+    // always written to exact-version slots.
+    if (!resolved && packageName) {
         try {
-            resolved = createRequire(root).resolve(specifier);
-            if (!hasExpectedVersion(resolved, packageName, options.exactVersion)) resolved = undefined;
+            resolved = createRequire(path.join(getExtensionCacheDir(), 'package.json')).resolve(specifier);
+            if (!hasExpectedVersion(resolved, packageName, options.exactVersion, entry.version)) resolved = undefined;
         } catch {
-            // Try the next resolution root.
+            // Continue to bundled resolution or installation.
         }
+    }
+
+    if (!resolved) {
+        try {
+            resolved = createRequire(import.meta.url).resolve(specifier);
+            if (!hasExpectedVersion(resolved, packageName, options.exactVersion, entry.version)) resolved = undefined;
+        } catch {
+            // Installation may provide the package below.
+        }
+    }
+
+    if (!resolved && options.install && entry.official && packageName) {
+        const installed = await installCachedExtension(
+            { ...entry, version: options.exactVersion ?? entry.version },
+            getExtensionCacheDir(),
+            undefined,
+            options.resolveVersion
+        );
+        resolved = createRequire(path.join(installed.cacheDir, 'package.json')).resolve(specifier);
     }
     if (!resolved) {
         const hint = entry.official && packageName ? ' Select it to download it to the shared cache.' : '';
@@ -105,17 +146,25 @@ export async function resolveExtension(entry, projectRoot, options = {}) {
     const mod = await import(resolved);
     const ext = normalizeModule(mod);
     ext.__baseDir = path.dirname(resolved);
-    if (packageName) ext.__packageVersion = readResolvedPackage(resolved, packageName)?.version;
+    if (packageName) {
+        const pkg = readResolvedPackage(resolved, packageName);
+        ext.__packageVersion = pkg?.version;
+        ext.__packageManifest = pkg?.manifest;
+    }
     if (!ext.manifest) {
         throw new Error(`Extension "${entry.name}" (${specifier}) does not export a "manifest"`);
     }
     return ext;
 }
 
-/** @param {string} resolved @param {string | null} packageName @param {string | undefined} exactVersion */
-function hasExpectedVersion(resolved, packageName, exactVersion) {
-    if (!packageName || !exactVersion) return true;
-    return readResolvedPackage(resolved, packageName)?.version === exactVersion;
+/** @param {string} resolved @param {string | null} packageName @param {string | undefined} exactVersion @param {string | undefined} selector */
+function hasExpectedVersion(resolved, packageName, exactVersion, selector) {
+    if (!packageName) return true;
+    const version = readResolvedPackage(resolved, packageName)?.version;
+    if (!version) return false;
+    if (exactVersion) return version === exactVersion;
+    if (selector && semver.validRange(selector)) return semver.satisfies(version, selector);
+    return true;
 }
 
 /**
@@ -128,6 +177,7 @@ function normalizeModule(mod) {
         manifest: source.manifest,
         setup: source.setup,
         remove: source.remove,
+        update: source.update,
         detect: source.detect,
         prompts: source.prompts,
     };

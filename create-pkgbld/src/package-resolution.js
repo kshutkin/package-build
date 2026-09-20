@@ -14,7 +14,7 @@ export function readResolvedPackage(resolved, expectedName) {
         try {
             const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
             if (manifest.name === expectedName && typeof manifest.version === 'string') {
-                return { name: expectedName, version: manifest.version, dir };
+                return { name: expectedName, version: manifest.version, dir, manifest };
             }
         } catch {
             // Continue toward the filesystem root.
