@@ -62,4 +62,28 @@ describe('default command', () => {
         assert.deepStrictEqual(JSON.parse(await fs.readFile(path.join(projectDir, 'package.json'), 'utf8')), pkg);
         assert.strictEqual(await fs.readFile(path.join(projectDir, 'README.md'), 'utf8'), '# Existing\n');
     });
+
+    test('update with no selected operations does not rewrite project files', async () => {
+        const projectDir = path.join(dir, 'existing-package');
+        const packagePath = path.join(projectDir, 'package.json');
+        const readmePath = path.join(projectDir, 'README.md');
+        const pkg = {
+            name: 'existing-package',
+            version: '1.2.3',
+        };
+        const unchangedTime = new Date('2020-01-02T03:04:05.000Z');
+        await fs.mkdir(projectDir);
+        await fs.writeFile(packagePath, `${JSON.stringify(pkg, null, 4)}\n`);
+        await fs.writeFile(readmePath, '# Existing\n');
+        await fs.utimes(packagePath, unchangedTime, unchangedTime);
+        await fs.utimes(readmePath, unchangedTime, unchangedTime);
+
+        const result = /** @type {{ code: number | null; stderr: string }} */ (await runCli(['existing-package', '--quiet']));
+        assert.strictEqual(result.code, 0, result.stderr);
+
+        assert.strictEqual((await fs.stat(packagePath)).mtimeMs, unchangedTime.getTime());
+        assert.strictEqual((await fs.stat(readmePath)).mtimeMs, unchangedTime.getTime());
+        assert.strictEqual(await fs.readFile(packagePath, 'utf8'), `${JSON.stringify(pkg, null, 4)}\n`);
+        assert.strictEqual(await fs.readFile(readmePath, 'utf8'), '# Existing\n');
+    });
 });

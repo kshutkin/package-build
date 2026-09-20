@@ -94,10 +94,12 @@ async function execute() {
 
     await fs.mkdir(targetDir, { recursive: true });
     const project = new ProjectChanges(targetDir);
-    project.edit(tree => {
-        tree.write('package.json', toFormattedJson(pkg.pkg, tree.read('package.json')));
-        tree.write('README.md', pkg.readme);
-    });
+    if (pkg.mode === 'create') {
+        project.edit(tree => {
+            tree.write('package.json', toFormattedJson(pkg.pkg, tree.read('package.json')));
+            tree.write('README.md', pkg.readme);
+        });
+    }
 
     for (const pending of pendingPackageOperations) {
         await pending.operation.stage(project, pending.answers);
