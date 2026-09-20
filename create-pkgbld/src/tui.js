@@ -79,8 +79,8 @@ export function getPromptOption(option, mutateObject) {
 
 /**
  * Resolve every registry entry and compute its current install status against
- * a fresh Tree. Entries that fail to resolve are returned with `ext=null` and
- * an `error` message so the menu can render them as unavailable.
+ * a fresh Tree. Official packages not yet present in the shared cache remain
+ * selectable and are downloaded only when selected.
  *
  * @param {ExtensionEntry[]} registry
  * @param {string} projectRoot
@@ -96,10 +96,11 @@ export async function buildExtensionMenuItems(registry, projectRoot) {
             const installed = detectExtension(ext, tree);
             result.push({ entry, ext, error: null, installed, intent: null, options: {} });
         } catch (/** @type {any} */ err) {
+            const available = entry.official && !entry.package.startsWith('.') && !entry.package.startsWith('/');
             result.push({
                 entry,
                 ext: null,
-                error: /** @type {string} */ (err.message ?? String(err)),
+                error: available ? null : /** @type {string} */ (err.message ?? String(err)),
                 installed: false,
                 intent: null,
                 options: {},
@@ -119,6 +120,7 @@ function renderExtensionLabel(item) {
     if (item.error) {
         return `${left}${red('[Unavailable]')} ${gray(item.error)}`;
     }
+    if (!item.ext) return `${left}${gray('[Available]')}`;
     if (item.intent === 'setup') {
         return `${left}${blue('[Pending setup]')}`;
     }
@@ -181,6 +183,14 @@ export async function runInteractiveLoop({ extensionItems, projectRoot }) {
             const name = pluginAction.value.slice(EXT_PREFIX.length);
             const item = extensionItems.find(i => i.entry.name === name);
             if (!item) continue;
+            if (!item.ext && !item.error) {
+                try {
+                    item.ext = await resolveExtension(item.entry, projectRoot, { install: true });
+                    item.installed = detectExtension(item.ext, new Tree(projectRoot));
+                } catch (/** @type {any} */ err) {
+                    item.error = err.message ?? String(err);
+                }
+            }
             if (item.error || !item.ext) {
                 console.log(red(`Extension "${name}" is unavailable: ${item.error ?? 'not resolvable'}`));
                 continue;

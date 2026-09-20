@@ -5,7 +5,8 @@ packages:
   - "cli-test-helper"
   - "pkgbld-plugin-dts-buddy"
   - "pkgbld-plugin-swc"
-  - "pkgbld-plugin-biome"
+  - "create-pkgbld-extension-biome"
+  - "create-pkgbld-extension-dts-buddy"
   - "integration-tests/*"
 
 catalog:
@@ -16,3 +17,4 @@ catalog:
   "type-fest": ^5.9.0
   "@niceties/node-parseargs-plus": ^0.6.0
   "@niceties/ansi": ^1.1.2
+  "find-cache-directory": ^6.0.0

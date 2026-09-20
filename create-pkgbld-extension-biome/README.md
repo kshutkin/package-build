@@ -1,4 +1,4 @@
-# pkgbld-plugin-biome
+# create-pkgbld-extension-biome
 
 A [create-pkgbld](https://github.com/kshutkin/package-build/tree/main/create-pkgbld) extension that wires [Biome](https://biomejs.dev) (linter + formatter) into a project.
 

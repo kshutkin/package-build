@@ -13,7 +13,7 @@ export const manifest = {
 
 export const setup = {
     devDependencies: {
-        'pkgbld-plugin-dts-buddy': '^0.1.2',
+        'pkgbld-plugin-dts-buddy': '^0.3.0',
     },
 };
 

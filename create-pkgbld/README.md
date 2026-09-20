@@ -18,8 +18,8 @@ npm init pkgbld <folder name>
 The project mode is detected automatically and its workflow starts directly:
 
 - A new project is created from detected defaults.
-- An existing project opens plugin management, where you can add or remove
-  plugins from the registry shipped with `create-pkgbld`.
+- An existing project opens extension management, where you can add or remove
+  extensions from the registry shipped with `create-pkgbld`.
 
 Pending changes are diffed once before commit.
 
@@ -35,8 +35,8 @@ Pending changes are diffed once before commit.
 ### `create-pkgbld list`
 
 List all extensions in the registry (built-in + project-local
-`.pkgbld-extensions.json`), with `[Installed]` / `[Not installed]` /
-`[Unresolved: …]` status.
+`.pkgbld-extensions.json`), with `[Available]` / `[Installed]` /
+`[Not installed]` / `[Unresolved: …]` status. Listing does not download packages.
 
 ### `create-pkgbld add <extension>`
 
@@ -77,7 +77,15 @@ The built-in registry currently includes:
 
 - `biome` — Biome linter/formatter
 - `pkgbld-swc` — SWC TypeScript stripping via `pkgbld-plugin-swc`
+- `dts-buddy` — standalone d.ts bundling via `create-pkgbld-extension-dts-buddy`
 - `pkgbld-dts-buddy` — d.ts bundling via `pkgbld-plugin-dts-buddy`
+
+The built-in registry contains package metadata rather than extension code.
+Selecting an official extension downloads it into a shared internal cache in
+the platform-standard location selected by `find-cache-directory`. Extension
+packages are not added to the target project's dependencies. Build plugins and
+tools requested by an extension are still added to the project when needed.
+Set `CREATE_PKGBLD_CACHE_DIR` to override the cache location.
 
 To add your own, ship a per-project `.pkgbld-extensions.json`:
 
@@ -91,7 +99,8 @@ To add your own, ship a per-project `.pkgbld-extensions.json`:
 ```
 
 For the contract that extension packages must implement, see
-[EXTENSIONS.md](./EXTENSIONS.md).
+[EXTENSIONS.md](./EXTENSIONS.md). Package discovery and management behavior is
+specified in [DESIGN.md](./DESIGN.md).
 
 # License
 

@@ -253,7 +253,9 @@ Removes all legal comments from the package. Only works with compress.
 
 ## Plugin API
 
-`pkgbld` reads all installed packages named `pkgbld-plugin-*` and assumes they are plugins
+`pkgbld` loads plugins named `pkgbld-plugin-*` or `@scope/pkgbld-plugin-*` from
+`dependencies`, `devDependencies`, and `peerDependencies`. The package name after
+the optional scope must start with `pkgbld-plugin-`.
 
 Plugins suppose to implement one or more of the following interface methods on an object that returned by `create()` function exported by the plugin module.
 

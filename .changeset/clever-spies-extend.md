@@ -1,6 +1,6 @@
 ---
 "create-pkgbld": minor
-"pkgbld-plugin-biome": patch
+"create-pkgbld-extension-biome": patch
 "pkgbld-plugin-dts-buddy": minor
 "pkgbld-plugin-swc": patch
 ---

@@ -16,7 +16,7 @@ export async function loadPlugins(pkg, loaded) {
                     ...Object.keys(pkg.peerDependencies || {}),
                 ]),
             ]
-                .filter(packageName => packageName.startsWith('pkgbld-plugin-') && !loaded.has(packageName))
+                .filter(packageName => /^(?:@[^/]+\/)?pkgbld-plugin-/.test(packageName) && !loaded.has(packageName))
                 .map(async packageName => {
                     loaded.add(packageName);
                     const pluginFactory = await import(packageName);

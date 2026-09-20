@@ -13,6 +13,7 @@ const cliEntry = path.resolve(__dirname, '..', 'index.js');
 let dir;
 /** @type {string} */
 let extPkgDir;
+const originalCacheDir = process.env.CREATE_PKGBLD_CACHE_DIR;
 
 /**
  * @param {string[]} argv
@@ -42,6 +43,7 @@ beforeEach(async () => {
     extPkgDir = path.join(dir, 'fixture-ext');
     await fs.mkdir(dir, { recursive: true });
     await fs.mkdir(extPkgDir, { recursive: true });
+    process.env.CREATE_PKGBLD_CACHE_DIR = path.join(dir, 'extension-cache');
 
     await fs.writeFile(path.join(extPkgDir, 'package.json'), JSON.stringify({ name: 'fixture-ext', main: 'index.js' }));
     await fs.writeFile(
@@ -75,6 +77,8 @@ export function detect(tree) {
 
 afterEach(async () => {
     await fs.rm(dir, { recursive: true, force: true });
+    if (originalCacheDir === undefined) delete process.env.CREATE_PKGBLD_CACHE_DIR;
+    else process.env.CREATE_PKGBLD_CACHE_DIR = originalCacheDir;
 });
 
 describe('CLI subcommands', () => {
@@ -85,6 +89,7 @@ describe('CLI subcommands', () => {
         assert.match(stdout, /pkgbld-swc/);
         assert.match(stdout, /pkgbld-dts-buddy/);
         assert.match(stdout, /fixture/);
+        assert.match(stdout, /biome.*\[Available\]/);
         assert.match(stdout, /\[Not installed\]/);
     });
 
@@ -110,6 +115,26 @@ describe('CLI subcommands', () => {
 
         const list = await runCli(['list', '--quiet'], dir);
         assert.match(list.stdout, /fixture.*\[Installed\]/);
+    });
+
+    test('official extension code comes from the shared cache and is not added to the project', async () => {
+        const cacheDir = /** @type {string} */ (process.env.CREATE_PKGBLD_CACHE_DIR);
+        const packageName = 'create-pkgbld-extension-biome';
+        const packageDir = path.join(cacheDir, 'node_modules', packageName);
+        await fs.mkdir(path.dirname(packageDir), { recursive: true });
+        await fs.symlink(path.resolve(import.meta.dirname, '../..', packageName), packageDir);
+        await fs.writeFile(
+            path.join(cacheDir, 'package.json'),
+            JSON.stringify({ private: true, dependencies: { [packageName]: '^0.1.0' } })
+        );
+
+        const { code, stdout, stderr } = await runCli(['add', 'biome', '--yes'], dir);
+        assert.strictEqual(code, 0, stdout + stderr);
+        const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
+        assert.ok(pkg.devDependencies['@biomejs/biome']);
+        assert.strictEqual(pkg.devDependencies[packageName], undefined);
+        assert.strictEqual(pkg.dependencies?.[packageName], undefined);
+        assert.match(await fs.readFile(path.join(dir, 'biome.json'), 'utf8'), /"linter"/);
     });
 
     test('remove --yes reverses changes', async () => {

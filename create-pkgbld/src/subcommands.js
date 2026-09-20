@@ -51,7 +51,7 @@ export async function runList(version, argv) {
         : builtinRegistryPath;
     if (!quiet) console.log(`create-pkgbld v${version}\n`);
 
-    const entries = await loadRegistry(registryPath, projectRoot);
+    const entries = await loadRegistry(registryPath, projectRoot, registryPath === builtinRegistryPath);
     if (entries.length === 0) {
         console.log(gray('No extensions registered.'));
         return;
@@ -63,6 +63,10 @@ export async function runList(version, argv) {
             const tree = new Tree(projectRoot);
             installed = detectExtension(ext, tree);
         } catch (/** @type {any} */ err) {
+            if (entry.official) {
+                console.log(`${pad16plus(entry.name)}${gray((entry.description ?? '').padEnd(40))}  ${gray('[Available]')}`);
+                continue;
+            }
             console.log(`${pad16plus(entry.name)}${gray((entry.description ?? '').padEnd(40))}  ${red(`[Unresolved: ${err.message}]`)}`);
             continue;
         }
@@ -114,7 +118,7 @@ async function runAddOrRemove(mode, version, argv) {
         : builtinRegistryPath;
     if (!quiet) console.log(`create-pkgbld v${version}\n`);
 
-    const entries = await loadRegistry(registryPath, projectRoot);
+    const entries = await loadRegistry(registryPath, projectRoot, registryPath === builtinRegistryPath);
     const entry = entries.find(e => e.name === extName);
     if (!entry) {
         console.error(red(`Extension "${extName}" not found in registry.`));
@@ -122,7 +126,7 @@ async function runAddOrRemove(mode, version, argv) {
         return;
     }
 
-    const ext = await resolveExtension(entry, projectRoot);
+    const ext = await resolveExtension(entry, projectRoot, { install: true });
     const tree = new Tree(projectRoot);
 
     const options = await collectExtensionOptions(ext, tree, yes);

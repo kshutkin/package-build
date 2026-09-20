@@ -18,6 +18,9 @@ catalogs:
     dts-buddy:
       specifier: ^0.8.3
       version: 0.8.3
+    find-cache-directory:
+      specifier: ^6.0.0
+      version: 6.0.0
     rollup:
       specifier: ^4.63.1
       version: 4.63.1
@@ -74,6 +77,9 @@ importers:
       '@niceties/node-parseargs-plus':
         specifier: 'catalog:'
         version: 0.6.0
+      find-cache-directory:
+        specifier: 'catalog:'
+        version: 6.0.0
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
@@ -84,15 +90,13 @@ importers:
       '@types/prompts':
         specifier: 2.4.9
         version: 2.4.9
-      pkgbld-plugin-biome:
-        specifier: workspace:*
-        version: link:../pkgbld-plugin-biome
-      pkgbld-plugin-dts-buddy:
-        specifier: workspace:*
-        version: link:../pkgbld-plugin-dts-buddy
-      pkgbld-plugin-swc:
-        specifier: workspace:*
-        version: link:../pkgbld-plugin-swc
+      dts-buddy:
+        specifier: 'catalog:'
+        version: 0.8.3(typescript@6.0.3)
+
+  create-pkgbld-extension-biome: {}
+
+  create-pkgbld-extension-dts-buddy: {}
 
   integration-tests/dts-buddy-plugin-integration:
     devDependencies:
@@ -196,8 +200,6 @@ importers:
       type-fest:
         specifier: 'catalog:'
         version: 5.9.0
-
-  pkgbld-plugin-biome: {}
 
   pkgbld-plugin-dts-buddy:
     dependencies:
@@ -844,6 +846,9 @@ packages:
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
+  common-path-prefix@3.0.0:
+    resolution: {integrity: sha512-QE33hToZseCH3jS0qN96O/bSh3kaw/h+Tq7ngyY9eWDUnTlTNUyqfqvCXioLe5Na5jFsL78ra/wuBU4iuEgd4w==}
+
   commondir@1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
 
@@ -901,6 +906,10 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  find-cache-directory@6.0.0:
+    resolution: {integrity: sha512-CvFd5ivA6HcSHbD+59P7CyzINHXzwhuQK8RY7CxJZtgDSAtRlHiCaQpZQ2lMR/WRyUIEmzUvL6G2AGurMfegZA==}
+    engines: {node: '>=20'}
 
   find-up-simple@1.0.1:
     resolution: {integrity: sha512-afd4O7zpqHeRyg4PfDQsXmlDe2PfdHtJt6Akt8jOWaApLOZk5JXs6VMR29lz03pRe9mpykrRCYIYxaJYcfpncQ==}
@@ -1060,6 +1069,10 @@ packages:
   picomatch@4.0.5:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
+
+  pkg-dir@8.0.0:
+    resolution: {integrity: sha512-4peoBq4Wks0riS0z8741NVv+/8IiTvqnZAr8QGgtdifrtpdXbNw/FxRS1l6NFqm4EMzuS0EDqNNx4XGaz8cuyQ==}
+    engines: {node: '>=18'}
 
   pkg-dir@9.0.0:
     resolution: {integrity: sha512-BMmxOuokumBehLGYwCKMBJxpAGSBbvGTtDn1yUV9UpCAvC4F7UWHoPTGSDGPV8eQPkYq/G8b0g1W5vIc5K/EhA==}
@@ -1739,6 +1752,8 @@ snapshots:
 
   commander@2.20.3: {}
 
+  common-path-prefix@3.0.0: {}
+
   commondir@1.0.1: {}
 
   convert-source-map@2.0.0: {}
@@ -1788,6 +1803,11 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.5):
     optionalDependencies:
       picomatch: 4.0.5
+
+  find-cache-directory@6.0.0:
+    dependencies:
+      common-path-prefix: 3.0.0
+      pkg-dir: 8.0.0
 
   find-up-simple@1.0.1: {}
 
@@ -1918,6 +1938,10 @@ snapshots:
   picocolors@1.1.1: {}
 
   picomatch@4.0.5: {}
+
+  pkg-dir@8.0.0:
+    dependencies:
+      find-up-simple: 1.0.1
 
   pkg-dir@9.0.0:
     dependencies:

@@ -32,6 +32,11 @@
                     "minLength": 1,
                     "description": "Module specifier or path to the extension package implementing the contract."
                 },
+                "version": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Version range installed in the shared extension cache. Defaults to latest."
+                },
                 "description": {
                     "type": "string",
                     "description": "Short human description shown in the list / TUI."

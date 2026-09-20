@@ -21,6 +21,52 @@ import { checkTsConfig } from '../src/process-ts-config.js';
 const execFile = promisify(childProcess.execFile);
 const packageRoot = path.resolve(import.meta.dirname, '..');
 
+describe('plugin discovery', () => {
+    test('loads scoped and unscoped plugins once across dependency fields and ignores other names', async () => {
+        const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pkgbld-scoped-plugins-'));
+        try {
+            await fs.copyFile(path.join(packageRoot, 'src/load-plugins.js'), path.join(dir, 'load-plugins.mjs'));
+            const names = ['pkgbld-plugin-demo', '@author/pkgbld-plugin-demo', '@other/pkgbld-plugin-demo'];
+            for (const name of names) {
+                const moduleDir = path.join(dir, 'node_modules', name);
+                await fs.mkdir(moduleDir, { recursive: true });
+                await fs.writeFile(
+                    path.join(moduleDir, 'package.json'),
+                    JSON.stringify({
+                        name,
+                        type: 'module',
+                        exports: './index.js',
+                    })
+                );
+                await fs.writeFile(
+                    path.join(moduleDir, 'index.js'),
+                    `export function create() { return { name: ${JSON.stringify(name)} }; }`
+                );
+            }
+            const { loadPlugins } = await import(pathToFileURL(path.join(dir, 'load-plugins.mjs')).href);
+            const loaded = new Set();
+            const pkg = {
+                dependencies: { 'pkgbld-plugin-demo': '*', '@author/pkgbld-plugin-demo': '*' },
+                devDependencies: {
+                    '@author/pkgbld-plugin-demo': '*',
+                    '@author/create-pkgbld-extension-demo': '*',
+                    '@pkgbld-plugin-author/unrelated': '*',
+                    '@author/other-pkgbld-plugin-demo': '*',
+                    '@author/pkgbld-plugin': '*',
+                    'other-pkgbld-plugin-demo': '*',
+                },
+                peerDependencies: { '@other/pkgbld-plugin-demo': '*' },
+            };
+            const plugins = await loadPlugins(pkg, loaded);
+            assert.deepEqual(plugins.map(plugin => plugin.name).sort(), [...names].sort());
+            assert.deepEqual([...loaded].sort(), [...names].sort());
+            assert.deepEqual(await loadPlugins(pkg, loaded), []);
+        } finally {
+            await fs.rm(dir, { recursive: true, force: true });
+        }
+    });
+});
+
 describe('local utilities', () => {
     test('converts package and JavaScript names to camel case', () => {
         assert.equal(camelCase('@scope/package-name'), 'scopePackageName');

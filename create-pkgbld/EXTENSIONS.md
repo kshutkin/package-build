@@ -34,7 +34,7 @@ A registry file is JSON shaped like this:
   "extensions": [
     {
       "name": "biome",
-      "package": "pkgbld-plugin-biome",
+      "package": "create-pkgbld-extension-biome",
       "description": "Biome linter and formatter",
       "tags": ["linter", "formatter"]
     }
@@ -46,11 +46,21 @@ A registry file is JSON shaped like this:
 |---|---|---|
 | `name` | yes | Unique CLI handle (`create-pkgbld add <name>`). |
 | `package` | yes | Module specifier or subpath import (`my-pkg/extension`). |
+| `version` | no | Version range used when an official extension is downloaded to the shared cache. Defaults to `latest`. |
 | `description` | yes | Short one-liner shown in `list` / TUI. |
 | `tags` | no | Optional tags for grouping/filtering. |
 
 The shape is validated by `extensions-schema.json` (draft-07). Editors that
 respect `$schema` will autocomplete.
+
+Built-in registry entries are official extensions. `create-pkgbld` contains
+their metadata only. When an official extension is selected, its package is
+installed with npm into the platform-standard shared cache selected by
+`find-cache-directory`. It is not added to the target project's dependencies.
+Set `CREATE_PKGBLD_CACHE_DIR` to override the cache location.
+
+Extensions exposed by a project-local registry are resolved from that project's
+dependencies and are not downloaded automatically.
 
 ### Per-project registry
 
@@ -189,10 +199,10 @@ path.
 
 ---
 
-## Worked example: `pkgbld-plugin-biome`
+## Worked example: `create-pkgbld-extension-biome`
 
 ```js
-// pkgbld-plugin-biome/src/index.js
+// create-pkgbld-extension-biome/src/index.js
 export const manifest = {
     name: 'biome',
     description: 'Biome linter and formatter',
@@ -224,7 +234,7 @@ export function detect(tree) {
 Registry entry:
 
 ```json
-{ "name": "biome", "package": "pkgbld-plugin-biome", "description": "Biome linter and formatter", "tags": ["linter", "formatter"] }
+{ "name": "biome", "package": "create-pkgbld-extension-biome", "description": "Biome linter and formatter", "tags": ["linter", "formatter"] }
 ```
 
 That's the entire extension.
@@ -259,3 +269,16 @@ in mind and namespace files/scripts where it matters.
 - For declarative `files`, store templates as `.tpl.json` (or another
   `.tpl.*` extension) so that the workspace's own linters/formatters
   don't try to parse them.
+
+## Package naming
+
+Use `create-pkgbld-extension-<name>` for project setup extensions, such as
+`create-pkgbld-extension-biome` or `create-pkgbld-extension-dts-buddy`. These packages
+export the extension contract from their root. They are registered in
+`extensions.json` or `.pkgbld-extensions.json`; the prefix does not enable automatic discovery.
+
+Reserve `pkgbld-plugin-<name>` for build plugins automatically loaded by PKG BLD.
+A build plugin can additionally expose the extension contract at `/extension`,
+as `pkgbld-plugin-dts-buddy/extension` does. Both forms are supported by the registry resolver.
+CLI names can stay short: `dts-buddy` configures standalone use, while
+`pkgbld-dts-buddy` installs the build plugin.

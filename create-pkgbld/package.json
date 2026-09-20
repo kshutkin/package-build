@@ -10,7 +10,8 @@
         "src",
         "index.js",
         "extensions.json",
-        "extensions-schema.json"
+        "extensions-schema.json",
+        "lock-schema-v1.json"
     ],
     "engines": {
         "node": ">=20"
@@ -36,12 +37,11 @@
         "@niceties/node-parseargs-plus": "catalog:",
         "prompts": "2.4.2",
         "@niceties/ansi": "catalog:",
+        "find-cache-directory": "catalog:",
         "pkgbld": "workspace:*"
     },
     "devDependencies": {
         "@types/prompts": "2.4.9",
-        "pkgbld-plugin-swc": "workspace:*",
-        "pkgbld-plugin-dts-buddy": "workspace:*",
-        "pkgbld-plugin-biome": "workspace:*"
+        "dts-buddy": "catalog:"
     }
 }

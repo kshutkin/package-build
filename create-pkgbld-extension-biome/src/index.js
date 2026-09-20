@@ -3,7 +3,7 @@
  *
  * NOTE: Biome is a linter/formatter, not a rollup plugin. This package is
  * referenced by the create-pkgbld registry and only ever installed as a
- * devDependency of the extension system itself. The user project only gets
+ * dependency of create-pkgbld itself. The user project only gets
  * `@biomejs/biome` (see `setup.devDependencies` below).
  */
 

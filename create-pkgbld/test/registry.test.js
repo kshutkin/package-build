@@ -27,6 +27,7 @@ describe('loadRegistry', () => {
         const entries = await loadRegistry(builtinPath, dir);
         assert.strictEqual(entries.length, 1);
         assert.strictEqual(entries[0].name, 'a');
+        assert.strictEqual(entries[0].official, true);
     });
 
     test('local override wins on name collision and adds new entries', async () => {
@@ -53,6 +54,14 @@ describe('loadRegistry', () => {
         assert.strictEqual(byName.a, 'local-a');
         assert.strictEqual(byName.b, 'builtin-b');
         assert.strictEqual(byName.c, 'local-c');
+        assert.strictEqual(entries.find(entry => entry.name === 'a').official, false);
+        assert.strictEqual(entries.find(entry => entry.name === 'b').official, true);
+    });
+
+    test('marks a custom primary registry as unofficial', async () => {
+        await fs.writeFile(builtinPath, JSON.stringify({ extensions: [{ name: 'a', package: 'pkg-a', description: 'A' }] }));
+        const entries = await loadRegistry(builtinPath, dir, false);
+        assert.strictEqual(entries[0].official, false);
     });
 
     test('missing local file is fine', async () => {
