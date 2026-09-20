@@ -2,9 +2,9 @@ import semver from 'semver';
 
 import { runRemove, runSetup } from './engine.js';
 import { buildPackageInventory } from './inventory.js';
-import { assertPluginCompatible } from './plugin-compatibility.js';
 import { resolveInstalledPackage } from './package-resolution.js';
 import { resolvePublishedVersion } from './package-version.js';
+import { assertPluginCompatible } from './plugin-compatibility.js';
 import { resolveExtension } from './registry.js';
 import { Tree } from './tree.js';
 import { runExtensionUpdate } from './update-engine.js';
@@ -37,6 +37,7 @@ import { runExtensionUpdate } from './update-engine.js';
  *   }>
  * }} PreparedPackageOperation
  */
+/** @typedef {import('./inventory.js').PackageItem & { previousExtension?: import('./registry.js').Extension | null }} PreparedPackageItem */
 
 export class PackageOperationError extends Error {
     /** @param {'PACKAGE_NOT_FOUND' | 'PACKAGE_UNAVAILABLE' | 'VERSION_UNRESOLVED' | 'UPDATE_UNAVAILABLE' | 'PLUGIN_INCOMPATIBLE'} code @param {string} message */
@@ -89,7 +90,8 @@ export async function openPackageOperations({ projectRoot, registry, resolveVers
                         `Cannot adopt "${item.packageName}": install project dependencies first so its exact version can be resolved`
                     );
                 }
-                if (item.kind === 'plugin') assertCompatible(item.packageName, resolveInstalledPackage(item.packageName, projectRoot)?.manifest, projectRoot);
+                if (item.kind === 'plugin')
+                    assertCompatible(item.packageName, resolveInstalledPackage(item.packageName, projectRoot)?.manifest, projectRoot);
             } else if (effect === 'update') {
                 if (!item.entry.official || !item.lockedVersion || !item.entry.version || !item.hasExtensionContract) {
                     throw new PackageOperationError(
@@ -107,7 +109,10 @@ export async function openPackageOperations({ projectRoot, registry, resolveVers
                     );
                 }
                 if (!semver.valid(targetVersion)) {
-                    throw new PackageOperationError('VERSION_UNRESOLVED', `Cannot update "${item.packageName}": target version is not exact`);
+                    throw new PackageOperationError(
+                        'VERSION_UNRESOLVED',
+                        `Cannot update "${item.packageName}": target version is not exact`
+                    );
                 }
                 if (semver.lt(targetVersion, item.lockedVersion)) {
                     throw new PackageOperationError(
@@ -126,11 +131,11 @@ export async function openPackageOperations({ projectRoot, registry, resolveVers
                         projectRoot,
                         { install: true, exactVersion: item.lockedVersion, resolveVersion }
                     );
-                    extension = await resolveExtension(
-                        { ...item.entry, version: targetVersion, official: true },
-                        projectRoot,
-                        { install: true, exactVersion: targetVersion, resolveVersion }
-                    );
+                    extension = await resolveExtension({ ...item.entry, version: targetVersion, official: true }, projectRoot, {
+                        install: true,
+                        exactVersion: targetVersion,
+                        resolveVersion,
+                    });
                 } catch (/** @type {any} */ cause) {
                     throw new PackageOperationError(
                         'UPDATE_UNAVAILABLE',
@@ -197,7 +202,7 @@ function requiresExtension(item, effect) {
 /**
  * @param {{
  *   effect: PackageEffect,
- *   item: import('./inventory.js').PackageItem,
+ *   item: PreparedPackageItem,
  *   questions: import('./types.js').Option[],
  *   target: PackageTarget,
  *   view: PackageView,
@@ -256,7 +261,7 @@ async function ensurePackageExtension(item, projectRoot, resolveVersion) {
 }
 
 /**
- * @param {import('./inventory.js').PackageItem & { intent: PackageIntent, options: import('./types.js').OptionsValue }} item
+ * @param {PreparedPackageItem & { intent: PackageIntent, options: import('./types.js').OptionsValue }} item
  * @param {import('./tree.js').Tree} tree
  * @param {{ set(packageName: string, version: string): void, remove(packageName: string): void }} projectLock
  * @param {(conflict: any) => void} reportConflict
@@ -271,11 +276,6 @@ async function applyPackageIntent(item, tree, projectLock, reportConflict) {
     }
 
     if (item.intent === 'setup') {
-        if (!item.hasExtensionContract && item.kind === 'plugin' && item.lockedVersion) {
-            tree.addDependency(item.packageName, item.lockedVersion, 'devDependencies');
-            projectLock.set(item.packageName, item.lockedVersion);
-            return;
-        }
         const ext = item.ext;
         if (!ext) throw new Error(`Package "${item.packageName}" extension was not prepared`);
         await runSetup(ext, tree, item.options);

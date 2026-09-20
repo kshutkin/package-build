@@ -265,7 +265,7 @@ async function runAddOrRemove(mode, version, argv) {
 
 /** @param {{ changes: readonly import('./tree.js').FileChange[], projectRoot: string, beforePkg: any, installFlag: boolean, quiet: boolean, yes: boolean }} params */
 async function maybeInstallDependencies({ changes, projectRoot, beforePkg, installFlag, quiet, yes }) {
-    if (!changesAffectDependencies(changes, projectRoot, beforePkg)) return;
+    if (!changesAffectDependencies(changes, beforePkg)) return;
     const pm = detectPackageManager(projectRoot);
     let shouldInstall = installFlag;
     if (!shouldInstall && !yes && !quiet) {

@@ -91,19 +91,14 @@ export class Tree {
         const existing = /** @type {Entry} */ (this.entries.get(key));
         /** @type {ChangeAction} */
         let action;
-        if (existing) {
-            if (existing.action === 'CREATE') {
-                action = 'CREATE';
-            } else if (existing.action === 'DELETE') {
-                action = 'UPDATE';
-            } else if (existing.content === null) {
-                action = 'CREATE';
-            } else {
-                action = 'UPDATE';
-            }
+        if (existing.action === 'CREATE') {
+            action = 'CREATE';
+        } else if (existing.action === 'DELETE') {
+            action = 'UPDATE';
+        } else if (existing.content === null) {
+            action = 'CREATE';
         } else {
-            const diskContent = this._loadFromDisk(key);
-            action = diskContent === null ? 'CREATE' : 'UPDATE';
+            action = 'UPDATE';
         }
         this.entries.set(key, { content, action });
         this.onMutation?.({ path: key, before, after: content });

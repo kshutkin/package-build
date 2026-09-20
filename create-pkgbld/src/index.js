@@ -132,7 +132,7 @@ async function execute() {
         }
     }
 
-    if (changesAffectDependencies(changes, targetDir, beforePkg)) {
+    if (changesAffectDependencies(changes, beforePkg)) {
         const pm = detectPackageManager(targetDir);
         let shouldInstall = installFlag;
         if (!shouldInstall && !quiet) {

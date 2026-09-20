@@ -17,7 +17,7 @@ const ABSENT = Symbol('absent');
  * }} params
  */
 export async function runExtensionUpdate({ previous, target, tree, fromVersion, toVersion, options = {}, exclude = [], reportConflict }) {
-    const reconcileDeclarative = (reconcileOptions = {}) => {
+    const reconcileDeclarative = (/** @type {{ exclude?: string[] }} */ reconcileOptions = {}) => {
         if (!isDeclarative(previous.setup) || !isDeclarative(target.setup)) {
             throw new Error('Declarative reconciliation requires declarative setup in both package versions');
         }
@@ -27,11 +27,7 @@ export async function runExtensionUpdate({ previous, target, tree, fromVersion, 
     if (typeof target.update === 'function') {
         tree.setExtensionBase(target.__baseDir ?? null);
         try {
-            await target.update(
-                tree,
-                Object.freeze({ fromVersion, toVersion, reconcileDeclarative, reportConflict }),
-                options
-            );
+            await target.update(tree, Object.freeze({ fromVersion, toVersion, reconcileDeclarative, reportConflict }), options);
         } finally {
             tree.setExtensionBase(null);
         }

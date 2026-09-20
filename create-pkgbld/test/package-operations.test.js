@@ -150,7 +150,10 @@ export const prompts = () => [{ title: 'Answer', field: 'answer', initialValue: 
         const packageName = 'pkgbld-plugin-legacy';
         const packageDir = path.join(dir, 'node_modules', packageName);
         await fs.mkdir(packageDir, { recursive: true });
-        await fs.writeFile(path.join(packageDir, 'package.json'), JSON.stringify({ name: packageName, version: '1.0.0', main: 'index.js' }));
+        await fs.writeFile(
+            path.join(packageDir, 'package.json'),
+            JSON.stringify({ name: packageName, version: '1.0.0', main: 'index.js' })
+        );
         await fs.writeFile(path.join(packageDir, 'index.js'), 'module.exports = {};\n');
         await fs.writeFile(path.join(dir, 'package.json'), JSON.stringify({ devDependencies: { [packageName]: '1.0.0' } }));
 

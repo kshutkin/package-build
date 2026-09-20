@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 /**
@@ -12,20 +12,17 @@ import path from 'node:path';
 export function detectPackageManager(projectRoot) {
     if (existsSync(path.join(projectRoot, 'pnpm-lock.yaml'))) return 'pnpm';
     if (existsSync(path.join(projectRoot, 'yarn.lock'))) return 'yarn';
-    if (existsSync(path.join(projectRoot, 'package-lock.json'))) return 'npm';
     return 'npm';
 }
 
 /**
  * Return true if any of the given FileChanges touch dependency-related
- * fields in package.json. Compares against `beforePackageJson` if provided
- * (recommended: snapshot before commit), otherwise falls back to disk.
+ * fields in package.json. Compares against a snapshot taken before commit.
  *
  * @param {readonly import('./tree.js').FileChange[]} changes
- * @param {string} projectRoot
- * @param {any} [beforePackageJson]
+ * @param {any} beforePackageJson
  */
-export function changesAffectDependencies(changes, projectRoot, beforePackageJson) {
+export function changesAffectDependencies(changes, beforePackageJson) {
     for (const c of changes) {
         if (!c.path.endsWith('package.json') || c.type === 'DELETE' || typeof c.content !== 'string') continue;
         let after;
@@ -34,14 +31,7 @@ export function changesAffectDependencies(changes, projectRoot, beforePackageJso
         } catch {
             continue;
         }
-        let before = beforePackageJson ?? {};
-        if (beforePackageJson === undefined) {
-            try {
-                before = JSON.parse(readFileSync(path.join(projectRoot, c.path), 'utf8'));
-            } catch {
-                /* file didn't exist on disk */
-            }
-        }
+        const before = beforePackageJson ?? {};
         for (const group of ['dependencies', 'devDependencies', 'peerDependencies']) {
             if (JSON.stringify(/** @type {any} */ (before)[group] ?? {}) !== JSON.stringify(after[group] ?? {})) {
                 return true;

@@ -92,7 +92,9 @@ export class ProjectChanges {
                 this._recordBookkeeping(() => removeLockedPackage(this.#tree, packageName));
             },
         });
-        const reportConflict = (/** @type {{ resource: string, message: string, expected?: unknown, current?: unknown, proposed?: unknown }} */ conflict) => {
+        const reportConflict = (
+            /** @type {{ resource: string, message: string, expected?: unknown, current?: unknown, proposed?: unknown }} */ conflict
+        ) => {
             assertStageOpen();
             if (!conflict.resource || !conflict.message) throw new TypeError('Migration conflicts require a resource and message');
             this.activeStage?.conflicts.push({ kind: 'migration-conflict', sources: [source], ...conflict });
