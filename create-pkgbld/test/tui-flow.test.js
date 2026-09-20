@@ -6,8 +6,7 @@ import test, { afterEach, beforeEach, describe } from 'node:test';
 
 import prompts from 'prompts';
 
-import { buildPackageInventory } from '../src/inventory.js';
-import { applyPackageIntent } from '../src/package-operations.js';
+import { openPackageOperations } from '../src/package-operations.js';
 import { Tree } from '../src/tree.js';
 import { done, runInteractiveLoop } from '../src/tui.js';
 
@@ -45,14 +44,14 @@ afterEach(async () => {
 
 describe('interactive package management', () => {
     test('selecting an available extension collects options and stages setup', async () => {
-        const items = await buildPackageInventory([entry], dir);
-        prompts.inject(['__ext__:fixture', 'hello', done]);
-        await runInteractiveLoop({ extensionItems: items, projectRoot: dir });
-        assert.strictEqual(items[0].intent, 'setup');
-        assert.strictEqual(items[0].options.greeting, 'hello');
+        const packageOperations = await openPackageOperations({ projectRoot: dir, registry: [entry] });
+        prompts.inject([`__package__:${packageName}`, 'hello', done]);
+        const [pending] = await runInteractiveLoop({ packageOperations });
+        assert.strictEqual(pending.operation.effect, 'setup');
+        assert.strictEqual(pending.answers.greeting, 'hello');
 
         const tree = new Tree(dir);
-        await applyPackageIntent(items[0], tree, dir);
+        await pending.operation.stage(tree, pending.answers);
         await tree.commit();
         const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
         assert.strictEqual(pkg.devDependencies['fixture-tool'], '^1.0.0');
@@ -65,11 +64,11 @@ describe('interactive package management', () => {
             path.join(dir, 'package.json'),
             `${JSON.stringify({ name: 'host', devDependencies: { 'fixture-tool': '^1.0.0' } }, null, 2)}\n`
         );
-        const items = await buildPackageInventory([entry], dir);
-        assert.strictEqual(items[0].state, 'installed-unmanaged');
-        prompts.inject(['__ext__:fixture', 'adopt', done]);
-        await runInteractiveLoop({ extensionItems: items, projectRoot: dir });
-        assert.strictEqual(items[0].intent, 'adopt');
+        const packageOperations = await openPackageOperations({ projectRoot: dir, registry: [entry] });
+        assert.strictEqual(packageOperations.inventory[0].state, 'installed-unmanaged');
+        prompts.inject([`__package__:${packageName}`, 'managed', done]);
+        const [pending] = await runInteractiveLoop({ packageOperations });
+        assert.strictEqual(pending.operation.effect, 'adopt');
     });
 
     test('an unmanaged detected extension can be removed instead', async () => {
@@ -77,9 +76,9 @@ describe('interactive package management', () => {
             path.join(dir, 'package.json'),
             `${JSON.stringify({ name: 'host', devDependencies: { 'fixture-tool': '^1.0.0' } }, null, 2)}\n`
         );
-        const items = await buildPackageInventory([entry], dir);
-        prompts.inject(['__ext__:fixture', 'remove', done]);
-        await runInteractiveLoop({ extensionItems: items, projectRoot: dir });
-        assert.strictEqual(items[0].intent, 'remove');
+        const packageOperations = await openPackageOperations({ projectRoot: dir, registry: [entry] });
+        prompts.inject([`__package__:${packageName}`, 'absent', done]);
+        const [pending] = await runInteractiveLoop({ packageOperations });
+        assert.strictEqual(pending.operation.effect, 'remove');
     });
 });

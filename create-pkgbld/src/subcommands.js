@@ -9,17 +9,14 @@ import { parseArgsPlus } from '@niceties/node-parseargs-plus';
 import { help } from '@niceties/node-parseargs-plus/help';
 import { parameters } from '@niceties/node-parseargs-plus/parameters';
 
-import { detectConflicts, formatConflicts, recordOps } from './conflicts.js';
+import { detectConflicts, formatConflicts } from './conflicts.js';
 import { renderChanges } from './diff.js';
 import { changesAffectDependencies, detectPackageManager, runInstall } from './install.js';
-import { buildPackageInventory } from './inventory.js';
-import { applyPackageIntent, ensurePackageExtension } from './package-operations.js';
+import { openPackageOperations, PackageOperationError } from './package-operations.js';
 import { loadRegistry } from './registry.js';
 import { Tree } from './tree.js';
 
 /**
- * @typedef {import('./registry.js').Extension} Extension
- * @typedef {import('./types.js').Option} Option
  * @typedef {import('./types.js').OptionsValue} OptionsValue
  */
 
@@ -47,15 +44,14 @@ export async function runList(version, argv) {
     const projectRoot = process.cwd();
     if (!quiet) console.log(`create-pkgbld v${version}\n`);
 
-    const items = await buildPackageInventory(await loadRegistry(builtinRegistryPath), projectRoot);
+    const packages = await openPackageOperations({ projectRoot, registry: await loadRegistry(builtinRegistryPath) });
+    const items = packages.inventory;
     if (items.length === 0) {
         console.log(gray('No PKG BLD packages found.'));
         return;
     }
     for (const item of items) {
-        console.log(
-            `${white(pad16plus(item.entry.name))}${gray((item.entry.description ?? '').padEnd(40))}  ${formatState(item.state, item.error)}`
-        );
+        console.log(`${white(pad16plus(item.name))}${gray(item.description.padEnd(40))}  ${formatState(item.state, item.error)}`);
     }
 }
 
@@ -99,48 +95,39 @@ async function runAddOrRemove(mode, version, argv) {
     const projectRoot = process.cwd();
     if (!quiet) console.log(`create-pkgbld v${version}\n`);
 
-    const items = await buildPackageInventory(await loadRegistry(builtinRegistryPath), projectRoot);
-    const item = items.find(candidate => candidate.entry.name === requestedName || candidate.packageName === requestedName);
-    if (!item) {
-        console.error(red(`PKG BLD package "${requestedName}" not found.`));
-        process.exitCode = 1;
+    const packages = await openPackageOperations({ projectRoot, registry: await loadRegistry(builtinRegistryPath) });
+    const target = /** @type {import('./package-operations.js').PackageTarget} */ (mode === 'add' ? 'managed' : 'absent');
+    let operation;
+    try {
+        operation = await packages.prepare({ package: requestedName, target });
+    } catch (/** @type {any} */ error) {
+        if (error instanceof PackageOperationError) {
+            console.error(red(`${error.message}.`));
+            process.exitCode = 1;
+            return;
+        }
+        throw error;
+    }
+    if (operation.effect === 'none') {
+        if (target === 'absent') {
+            console.error(red(`PKG BLD package "${requestedName}" is not installed.`));
+            process.exitCode = 1;
+        } else if (!quiet) {
+            console.log(gray(`${operation.package.name} is already managed.`));
+        }
         return;
     }
 
-    if (mode === 'add') {
-        if (item.state === 'installed-managed') {
-            if (!quiet) console.log(gray(`${item.entry.name} is already managed.`));
-            return;
-        }
-        if (item.state === 'unavailable') {
-            console.error(red(`PKG BLD package "${requestedName}" is unavailable${item.error ? `: ${item.error}` : '.'}`));
-            process.exitCode = 1;
-            return;
-        }
-        item.intent = item.state === 'installed-unmanaged' ? 'adopt' : 'setup';
-    } else {
-        if (item.state === 'available') {
-            console.error(red(`PKG BLD package "${requestedName}" is not installed.`));
-            process.exitCode = 1;
-            return;
-        }
-        item.intent = 'remove';
-    }
-
     const tree = new Tree(projectRoot);
-    if (item.hasExtensionContract && (item.intent === 'setup' || item.intent === 'remove')) {
-        const ext = await ensurePackageExtension(item, projectRoot);
-        item.options = await collectExtensionOptions(ext, tree, yes);
-    }
-
-    const { ops } = await recordOps(tree, item.entry.name, () => applyPackageIntent(item, tree, projectRoot));
+    const answers = await collectAnswers(operation.questions, yes);
+    const { operations: ops } = await operation.stage(tree, answers);
 
     const changes = tree.listChanges();
-    const conflicts = detectConflicts(ops);
+    const conflicts = detectConflicts([...ops]);
 
     if (!quiet) {
         const verb = mode === 'add' ? 'Adding' : 'Removing';
-        console.log(`${gray(`${verb} ${item.entry.name}:`)}${dryRun ? ` ${blue('(dry-run)')}` : ''}`);
+        console.log(`${gray(`${verb} ${operation.package.name}:`)}${dryRun ? ` ${blue('(dry-run)')}` : ''}`);
         console.log(renderChanges(changes, { readDiskJson: p => readDiskJson(projectRoot, p) }));
         if (conflicts.length > 0) {
             console.log(yellow('\nConflicts detected:'));
@@ -186,17 +173,14 @@ function readDiskJson(projectRoot, relPath) {
 }
 
 /**
- * @param {Extension} ext
- * @param {Tree} tree
+ * @param {readonly import('./types.js').Option[]} questions
  * @param {boolean} yes
  * @returns {Promise<OptionsValue>}
  */
-async function collectExtensionOptions(ext, tree, yes) {
+async function collectAnswers(questions, yes) {
     /** @type {OptionsValue} */
     const out = {};
-    if (typeof ext.prompts !== 'function') return out;
-    const items = ext.prompts(tree) ?? [];
-    for (const opt of items) {
+    for (const opt of questions) {
         const initial = 'initialValue' in opt ? opt.initialValue : undefined;
         if (yes) {
             out[opt.field] = /** @type {any} */ (initial);

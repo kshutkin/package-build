@@ -302,6 +302,12 @@ lock, supports explicit adoption, restores locked extension code through the
 shared cache, and provides generic removal for plugins without extension
 behavior. `.pkgbld-extensions.json` is not read.
 
+Callers request a package target of `managed` or `absent`. Package operations
+derive setup, restoration, adoption, or removal from that target and the
+inventory state. Extension acquisition, lifecycle execution, and the matching
+project-lock mutation stay together behind that interface; interactive and
+subcommand callers retain prompting, rendering, commit, and installation.
+
 Direct addition of an unregistered third-party extension remains a future
 scenario. An unregistered plugin becomes visible after it is declared in the
 project manifest.

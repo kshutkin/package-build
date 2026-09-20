@@ -11,7 +11,6 @@ import { Tree } from './tree.js';
 
 /**
  * @typedef {'available' | 'applied' | 'installed-managed' | 'installed-unmanaged' | 'unavailable'} PackageState
- * @typedef {'setup' | 'remove' | 'adopt'} PackageIntent
  * @typedef {{
  *   entry: import('./registry.js').ExtensionEntry,
  *   packageName: string,
@@ -24,9 +23,7 @@ import { Tree } from './tree.js';
  *   ext: import('./registry.js').Extension | null,
  *   error: string | null,
  *   installed: boolean,
- *   managed: boolean,
- *   intent: PackageIntent | null,
- *   options: import('./types.js').OptionsValue
+ *   managed: boolean
  * }} PackageItem
  */
 
@@ -121,7 +118,7 @@ export async function buildPackageInventory(registry, projectRoot) {
         else if (installed) state = 'installed-unmanaged';
         else if (record.entry.official) state = 'available';
         else state = 'unavailable';
-        items.push({ ...record, state, resolvedVersion, ext, error, installed, managed, intent: null, options: {} });
+        items.push({ ...record, state, resolvedVersion, ext, error, installed, managed });
     }
     return items.sort((a, b) => a.entry.name.localeCompare(b.entry.name));
 }

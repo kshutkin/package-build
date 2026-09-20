@@ -12,15 +12,15 @@ import { parseArgsPlus } from '@niceties/node-parseargs-plus';
 import { help } from '@niceties/node-parseargs-plus/help';
 import { parameters } from '@niceties/node-parseargs-plus/parameters';
 
-import { detectConflicts, formatConflicts, recordOps } from './conflicts.js';
+import { detectConflicts, formatConflicts } from './conflicts.js';
 import { renderChanges } from './diff.js';
 import getGitRoot from './get-git-root.js';
 import { changesAffectDependencies, detectPackageManager, runInstall } from './install.js';
-import { applyPackageIntent } from './package-operations.js';
+import { openPackageOperations } from './package-operations.js';
 import { loadRegistry } from './registry.js';
 import { runAdd, runList, runRemoveCmd } from './subcommands.js';
 import { Tree } from './tree.js';
-import { buildExtensionMenuItems, pad16plus, runInteractiveLoop } from './tui.js';
+import { pad16plus, runInteractiveLoop } from './tui.js';
 
 const SUBCOMMANDS = new Set(['add', 'remove', 'list']);
 
@@ -76,14 +76,14 @@ async function execute() {
     const pkg = await readPackage(targetDir);
     if (pkg.mode === 'create') await initializePackage(pkg, targetDir);
 
-    /** @type {import('./tui.js').ExtensionMenuItem[]} */
-    let extensionItems = [];
+    /** @type {import('./tui.js').PendingPackageOperation[]} */
+    let pendingPackageOperations = [];
 
     if (!quiet && pkg.mode === 'update') {
         const registry = await loadRegistry(builtinRegistryPath);
-        extensionItems = await buildExtensionMenuItems(registry, targetDir);
+        const packageOperations = await openPackageOperations({ projectRoot: targetDir, registry });
         try {
-            await runInteractiveLoop({ extensionItems, projectRoot: targetDir });
+            pendingPackageOperations = await runInteractiveLoop({ packageOperations });
         } catch (/** @type {any} */ err) {
             if (err && err.message === 'cancelled') process.exit(-1);
             throw err;
@@ -97,12 +97,9 @@ async function execute() {
 
     /** @type {import('./conflicts.js').RecordedOp[]} */
     const allOps = [];
-    for (const item of extensionItems) {
-        if (!item.intent) continue;
-        const { ops } = await recordOps(tree, item.entry.name, async () => {
-            await applyPackageIntent(item, tree, targetDir);
-        });
-        allOps.push(...ops);
+    for (const pending of pendingPackageOperations) {
+        const result = await pending.operation.stage(tree, pending.answers);
+        allOps.push(...result.operations);
     }
 
     const changes = tree.listChanges();
@@ -126,10 +123,10 @@ async function execute() {
     }
 
     if (!quiet) {
-        const applied = extensionItems.filter(i => i.intent);
-        for (const item of applied) {
-            const verb = item.intent === 'setup' ? green('installed') : item.intent === 'adopt' ? green('adopted') : red('removed');
-            console.log(`${gray('Package')} ${white(item.entry.name)} ${verb}`);
+        for (const pending of pendingPackageOperations) {
+            const { effect, package: item } = pending.operation;
+            const verb = effect === 'adopt' ? green('adopted') : effect === 'remove' ? red('removed') : green('installed');
+            console.log(`${gray('Package')} ${white(item.name)} ${verb}`);
         }
     }
 
