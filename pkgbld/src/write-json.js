@@ -11,5 +11,11 @@ import { toFormattedJson } from './options/index.js';
  * @param {JsonObject} json
  */
 export async function writeJson(path, json) {
-    await fs.writeFile(path, toFormattedJson(json));
+    let current;
+    try {
+        current = await fs.readFile(path, 'utf8');
+    } catch (/** @type {any} */ error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
+    await fs.writeFile(path, toFormattedJson(json, current));
 }

@@ -158,8 +158,7 @@ export class Tree {
         const current = this.read(p);
         const data = current === null ? {} : JSON.parse(current);
         const updated = updater(data) ?? data;
-        const isPkgJson = path.basename(this._key(p)) === 'package.json';
-        const formatted = isPkgJson ? toFormattedJson(updated) : `${JSON.stringify(updated, null, 2)}\n`;
+        const formatted = toFormattedJson(updated, current);
         if (formatted === current) return;
         this.write(p, formatted);
     }

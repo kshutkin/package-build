@@ -231,3 +231,26 @@ describe('Tree no-op + traversal guards', () => {
         assert.throws(() => tree.write('/tmp/definitely-outside-pkgbld-root.txt', 'x'), /escapes project root/);
     });
 });
+
+for (const filename of ['package.json', 'tsconfig.json']) {
+    for (const indent of ['  ', '    ', '\t']) {
+        test(`updateJson preserves ${JSON.stringify(indent)} indentation in ${filename}`, async () => {
+            const original = { name: 'example', nested: { enabled: true } };
+            await fs.writeFile(path.join(dir, filename), `${JSON.stringify(original, null, indent)}\n`);
+            const tree = new Tree(dir);
+            tree.updateJson(filename, data => data);
+            assert.deepStrictEqual(tree.listChanges(), []);
+            tree.updateJson(filename, data => {
+                data.nested.enabled = false;
+            });
+            tree.updateJson(filename, data => {
+                data.nested.added = true;
+            });
+            await tree.commit();
+            assert.strictEqual(
+                await fs.readFile(path.join(dir, filename), 'utf8'),
+                `${JSON.stringify({ name: 'example', nested: { enabled: false, added: true } }, null, indent)}\n`
+            );
+        });
+    }
+}

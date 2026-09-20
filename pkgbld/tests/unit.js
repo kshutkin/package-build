@@ -204,3 +204,27 @@ async function withTempDir(callback) {
         await fs.rm(tempDir, { recursive: true, force: true });
     }
 }
+
+describe('JSON indentation', () => {
+    for (const indent of ['  ', '    ', '\t']) {
+        test(`writeJson preserves ${JSON.stringify(indent)} indentation`, async () => {
+            const { writeJson } = await import('../src/write-json.js');
+            const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pkgbld-json-'));
+            try {
+                const file = path.join(dir, 'package.json');
+                await fs.writeFile(file, `${JSON.stringify({ name: 'old' }, null, indent)}\n`);
+                const data = { name: 'new', nested: { value: true } };
+                await writeJson(file, data);
+                assert.equal(await fs.readFile(file, 'utf8'), `${JSON.stringify(data, null, indent)}\n`);
+            } finally {
+                await fs.rm(dir, { recursive: true, force: true });
+            }
+        });
+    }
+    test('formatter defaults to two spaces without detectable indentation', async () => {
+        const { toFormattedJson } = await import('../src/options/index.js');
+        for (const current of [undefined, null, '', '{}', '{"name":"old"}']) {
+            assert.equal(toFormattedJson({ name: 'new' }, current), '{\n  "name": "new"\n}\n');
+        }
+    });
+});

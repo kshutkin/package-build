@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { toFormattedJson } from 'pkgbld/options';
+
 import { isLockPackageName } from './package-names.js';
 
 export const LOCK_FILE = '.pkgbld-lock.json';
@@ -51,7 +53,7 @@ export function readProjectLockFromTree(tree) {
 /** @param {import('./tree.js').Tree} tree @param {Record<string, string>} packages */
 export function writeProjectLock(tree, packages) {
     const sorted = Object.fromEntries(Object.entries(packages).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
-    tree.write(LOCK_FILE, `${JSON.stringify({ $schema: LOCK_SCHEMA, packages: sorted }, null, 2)}\n`);
+    tree.write(LOCK_FILE, toFormattedJson({ $schema: LOCK_SCHEMA, packages: sorted }, tree.read(LOCK_FILE)));
 }
 
 /** @param {import('./tree.js').Tree} tree @param {string} packageName @param {string} version */

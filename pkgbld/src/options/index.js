@@ -247,8 +247,10 @@ export function processPackageJson(pkg, needTreatment, treatKey) {
 /**
  * @template {object | null | number | string | boolean} T
  * @param {T} json
+ * @param {string | null} [current] Existing file contents used to detect indentation.
  * @returns {string}
  */
-export function toFormattedJson(json) {
-    return `${JSON.stringify(json, null, 2)}\n`;
+export function toFormattedJson(json, current) {
+    const indent = current?.match(/^[ \t]+(?=\S)/m)?.[0] ?? 2;
+    return `${JSON.stringify(json, null, indent)}\n`;
 }
