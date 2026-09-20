@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test, { afterEach, beforeEach, describe } from 'node:test';
 
+import { LOCK_FILE } from '../src/project-lock.js';
 import { Tree } from '../src/tree.js';
 
 /** @type {string} */
@@ -132,6 +133,19 @@ describe('Tree commit', () => {
         const content = await fs.readFile(path.join(dir, 'package.json'), 'utf8');
         assert.ok(content.endsWith('\n'));
         assert.deepStrictEqual(JSON.parse(content), { dependencies: { foo: '1' } });
+    });
+
+    test('writes the project lock only after all other project changes succeed', async () => {
+        const previousLock = '{"packages":{"old":"1.0.0"}}\n';
+        await fs.writeFile(path.join(dir, LOCK_FILE), previousLock);
+        await fs.mkdir(path.join(dir, 'blocked'));
+
+        const tree = new Tree(dir);
+        tree.write(LOCK_FILE, '{"packages":{"next":"2.0.0"}}\n');
+        tree.write('blocked', 'cannot replace a directory');
+
+        await assert.rejects(tree.commit(), { code: 'EISDIR' });
+        assert.strictEqual(await fs.readFile(path.join(dir, LOCK_FILE), 'utf8'), previousLock);
     });
 
     test('resolveExtensionFile resolves relative to set base', () => {

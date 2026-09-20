@@ -4,6 +4,8 @@ import path from 'node:path';
 
 import { toFormattedJson } from 'pkgbld/options';
 
+import { LOCK_FILE } from './project-lock.js';
+
 /**
  * @typedef {'CREATE' | 'UPDATE' | 'DELETE'} ChangeAction
  * @typedef {{ path: string, type: ChangeAction, content?: string }} FileChange
@@ -249,7 +251,11 @@ export class Tree {
 
     async commit() {
         const changes = this.listChanges();
-        for (const change of changes) {
+        const orderedChanges = [
+            ...changes.filter(change => change.path !== LOCK_FILE),
+            ...changes.filter(change => change.path === LOCK_FILE),
+        ];
+        for (const change of orderedChanges) {
             const abs = this._abs(change.path);
             if (change.type === 'DELETE') {
                 try {
