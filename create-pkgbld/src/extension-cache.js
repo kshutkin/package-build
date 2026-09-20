@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import findCacheDirectory from 'find-cache-directory';
@@ -48,12 +48,7 @@ export async function installCachedExtension(entry, cacheDir = getExtensionCache
     const requestedVersion = entry.version ?? 'latest';
     const packageManifest = path.join(cacheDir, 'node_modules', packageName, 'package.json');
     if (manifest.dependencies[packageName] === requestedVersion) {
-        try {
-            await access(packageManifest);
-            return cacheDir;
-        } catch {
-            // Repair an incomplete cache entry.
-        }
+        if (await hasCachedPackage(packageManifest, requestedVersion)) return cacheDir;
     }
     const previousVersion = manifest.dependencies[packageName];
     manifest.dependencies[packageName] = requestedVersion;
@@ -66,12 +61,21 @@ export async function installCachedExtension(entry, cacheDir = getExtensionCache
         await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
         throw new Error(`Failed to cache extension package "${packageName}" (npm install exited with code ${code})`);
     }
-    try {
-        await access(packageManifest);
-    } catch {
+    if (!(await hasCachedPackage(packageManifest, requestedVersion))) {
         throw new Error(`npm install completed without caching extension package "${packageName}"`);
     }
     return cacheDir;
+}
+
+/** @param {string} manifestPath @param {string} requestedVersion */
+async function hasCachedPackage(manifestPath, requestedVersion) {
+    try {
+        const installed = JSON.parse(await readFile(manifestPath, 'utf8'));
+        const exact = /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(requestedVersion);
+        return !exact || installed.version === requestedVersion;
+    } catch {
+        return false;
+    }
 }
 
 /** @param {string} command @param {string[]} args @param {string} cwd */

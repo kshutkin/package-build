@@ -24,13 +24,13 @@ afterEach(async () => {
 describe('loadRegistry', () => {
     test('loads built-in registry', async () => {
         await fs.writeFile(builtinPath, JSON.stringify({ extensions: [{ name: 'a', package: 'pkg-a', description: 'A' }] }));
-        const entries = await loadRegistry(builtinPath, dir);
+        const entries = await loadRegistry(builtinPath);
         assert.strictEqual(entries.length, 1);
         assert.strictEqual(entries[0].name, 'a');
         assert.strictEqual(entries[0].official, true);
     });
 
-    test('local override wins on name collision and adds new entries', async () => {
+    test('does not read the removed project registry file', async () => {
         await fs.writeFile(
             builtinPath,
             JSON.stringify({
@@ -49,24 +49,24 @@ describe('loadRegistry', () => {
                 ],
             })
         );
-        const entries = await loadRegistry(builtinPath, dir);
+        const entries = await loadRegistry(builtinPath);
         const byName = Object.fromEntries(entries.map(e => [e.name, e.package]));
-        assert.strictEqual(byName.a, 'local-a');
+        assert.strictEqual(byName.a, 'builtin-a');
         assert.strictEqual(byName.b, 'builtin-b');
-        assert.strictEqual(byName.c, 'local-c');
-        assert.strictEqual(entries.find(entry => entry.name === 'a').official, false);
+        assert.strictEqual(byName.c, undefined);
+        assert.strictEqual(entries.find(entry => entry.name === 'a').official, true);
         assert.strictEqual(entries.find(entry => entry.name === 'b').official, true);
     });
 
     test('marks a custom primary registry as unofficial', async () => {
         await fs.writeFile(builtinPath, JSON.stringify({ extensions: [{ name: 'a', package: 'pkg-a', description: 'A' }] }));
-        const entries = await loadRegistry(builtinPath, dir, false);
+        const entries = await loadRegistry(builtinPath, false);
         assert.strictEqual(entries[0].official, false);
     });
 
-    test('missing local file is fine', async () => {
+    test('accepts an empty built-in registry', async () => {
         await fs.writeFile(builtinPath, JSON.stringify({ extensions: [] }));
-        const entries = await loadRegistry(builtinPath, dir);
+        const entries = await loadRegistry(builtinPath);
         assert.deepStrictEqual(entries, []);
     });
 });

@@ -44,7 +44,7 @@ afterEach(async () => {
 
 describe('built-in extensions registry', () => {
     test('all built-ins resolve and expose manifest/setup/remove/detect', async () => {
-        const entries = await loadRegistry(builtinRegistryPath, dir);
+        const entries = await loadRegistry(builtinRegistryPath);
         assert.deepStrictEqual(entries.map(e => e.name).sort(), ['biome', 'dts-buddy', 'pkgbld-dts-buddy', 'pkgbld-swc']);
         for (const entry of entries) {
             const ext = await resolveExtension(entry, dir);
@@ -56,7 +56,7 @@ describe('built-in extensions registry', () => {
     });
 
     test('biome: setup adds biome dep + scripts + biome.json; remove reverses; detect flips', async () => {
-        const entries = await loadRegistry(builtinRegistryPath, dir);
+        const entries = await loadRegistry(builtinRegistryPath);
         const entry = entries.find(e => e.name === 'biome');
         const ext = await resolveExtension(entry, dir);
 
@@ -81,7 +81,7 @@ describe('built-in extensions registry', () => {
     });
 
     test('pkgbld-swc: setup adds devDep; remove reverses; detect flips', async () => {
-        const entries = await loadRegistry(builtinRegistryPath, dir);
+        const entries = await loadRegistry(builtinRegistryPath);
         const entry = entries.find(e => e.name === 'pkgbld-swc');
         const ext = await resolveExtension(entry, dir);
 
@@ -100,7 +100,7 @@ describe('built-in extensions registry', () => {
     });
 
     test('pkgbld-dts-buddy: setup adds devDep; remove reverses; detect flips', async () => {
-        const entries = await loadRegistry(builtinRegistryPath, dir);
+        const entries = await loadRegistry(builtinRegistryPath);
         const entry = entries.find(e => e.name === 'pkgbld-dts-buddy');
         const ext = await resolveExtension(entry, dir);
 
@@ -130,7 +130,7 @@ describe('built-in extensions registry', () => {
                 exports: { '.': { types: './types/index.d.ts', default: './src/index.ts' } },
             })
         );
-        const entries = await loadRegistry(builtinRegistryPath, dir);
+        const entries = await loadRegistry(builtinRegistryPath);
         const entry = entries.find(e => e.name === 'dts-buddy');
         assert.strictEqual(entry.package, 'create-pkgbld-extension-dts-buddy');
         const ext = await resolveExtension(entry, dir);

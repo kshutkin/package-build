@@ -2,25 +2,15 @@ import prompts from 'prompts';
 
 import { blue, gray, green, red } from '@niceties/ansi';
 
-import { detectExtension } from './engine.js';
-import { resolveExtension } from './registry.js';
+import { buildPackageInventory } from './inventory.js';
+import { ensurePackageExtension } from './package-operations.js';
 import { Tree } from './tree.js';
 
 /**
  * @typedef {import('prompts').PromptObject} PromptObject
  * @typedef {import('./types.js').Option} Option
  * @typedef {import('./types.js').OptionsValue} OptionsValue
- * @typedef {import('./registry.js').ExtensionEntry} ExtensionEntry
- * @typedef {import('./registry.js').Extension} Extension
- *
- * @typedef {{
- *   entry: ExtensionEntry,
- *   ext: Extension | null,
- *   error: string | null,
- *   installed: boolean,
- *   intent: null | 'setup' | 'remove',
- *   options: OptionsValue
- * }} ExtensionMenuItem
+ * @typedef {import('./inventory.js').PackageItem} ExtensionMenuItem
  */
 
 export const done = Symbol('done');
@@ -78,36 +68,14 @@ export function getPromptOption(option, mutateObject) {
 }
 
 /**
- * Resolve every registry entry and compute its current install status against
- * a fresh Tree. Official packages not yet present in the shared cache remain
- * selectable and are downloaded only when selected.
+ * Build menu items from registry, project lock, and project dependencies.
  *
- * @param {ExtensionEntry[]} registry
+ * @param {import('./registry.js').ExtensionEntry[]} registry
  * @param {string} projectRoot
  * @returns {Promise<ExtensionMenuItem[]>}
  */
 export async function buildExtensionMenuItems(registry, projectRoot) {
-    /** @type {ExtensionMenuItem[]} */
-    const result = [];
-    for (const entry of registry) {
-        try {
-            const ext = await resolveExtension(entry, projectRoot);
-            const tree = new Tree(projectRoot);
-            const installed = detectExtension(ext, tree);
-            result.push({ entry, ext, error: null, installed, intent: null, options: {} });
-        } catch (/** @type {any} */ err) {
-            const available = entry.official && !entry.package.startsWith('.') && !entry.package.startsWith('/');
-            result.push({
-                entry,
-                ext: null,
-                error: available ? null : /** @type {string} */ (err.message ?? String(err)),
-                installed: false,
-                intent: null,
-                options: {},
-            });
-        }
-    }
-    return result;
+    return buildPackageInventory(registry, projectRoot);
 }
 
 /**
@@ -117,24 +85,31 @@ export async function buildExtensionMenuItems(registry, projectRoot) {
  */
 function renderExtensionLabel(item) {
     const left = pad16plus(item.entry.name);
-    if (item.error) {
+    if (item.state === 'unavailable') {
         return `${left}${red('[Unavailable]')} ${gray(item.error)}`;
     }
-    if (!item.ext) return `${left}${gray('[Available]')}`;
     if (item.intent === 'setup') {
         return `${left}${blue('[Pending setup]')}`;
+    }
+    if (item.intent === 'adopt') {
+        return `${left}${blue('[Pending adoption]')}`;
     }
     if (item.intent === 'remove') {
         return `${left}${blue('[Pending remove]')}`;
     }
-    return `${left}${item.installed ? green('[Installed]') : gray('[Not installed]')}`;
+    if (item.state === 'available') return `${left}${gray('[Available]')}`;
+    if (item.state === 'applied') return `${left}${blue('[Applied]')}`;
+    if (item.state === 'installed-managed') return `${left}${green('[Installed, managed]')}`;
+    if (item.state === 'installed-unmanaged') return `${left}${blue('[Installed, unmanaged]')}`;
+    return `${left}${red('[Unavailable]')}`;
 }
 
 /**
  * Toggle pending intent for an extension menu item. Mirrors the spec:
  *   - if there's already a pending intent → clear it
- *   - else if currently installed → mark for remove
- *   - else → mark for setup
+ *   - managed installed packages are removed
+ *   - unmanaged installed packages are adopted by default
+ *   - available/applied packages are set up
  *
  * @param {ExtensionMenuItem} item
  */
@@ -144,7 +119,9 @@ export function toggleExtensionIntent(item) {
         item.options = {};
         return;
     }
-    item.intent = item.installed ? 'remove' : 'setup';
+    if (item.state === 'installed-managed') item.intent = 'remove';
+    else if (item.state === 'installed-unmanaged') item.intent = 'adopt';
+    else item.intent = 'setup';
 }
 
 /**
@@ -167,7 +144,7 @@ export async function runInteractiveLoop({ extensionItems, projectRoot }) {
             {
                 type: 'select',
                 name: 'value',
-                message: 'Select a plugin to add or remove, Done to execute, Escape to cancel',
+                message: 'Select a PKG BLD package, Done to execute, Escape to cancel',
                 choices: [
                     { title: green('Done'), value: /** @type {any} */ (done) },
                     ...extensionItems.map(item => ({ title: renderExtensionLabel(item), value: `${EXT_PREFIX}${item.entry.name}` })),
@@ -183,20 +160,42 @@ export async function runInteractiveLoop({ extensionItems, projectRoot }) {
             const name = pluginAction.value.slice(EXT_PREFIX.length);
             const item = extensionItems.find(i => i.entry.name === name);
             if (!item) continue;
-            if (!item.ext && !item.error) {
-                try {
-                    item.ext = await resolveExtension(item.entry, projectRoot, { install: true });
-                    item.installed = detectExtension(item.ext, new Tree(projectRoot));
-                } catch (/** @type {any} */ err) {
-                    item.error = err.message ?? String(err);
-                }
-            }
-            if (item.error || !item.ext) {
-                console.log(red(`Extension "${name}" is unavailable: ${item.error ?? 'not resolvable'}`));
+            if (item.state === 'unavailable') {
+                console.log(red(`Package "${name}" is unavailable: ${item.error ?? 'not resolvable'}`));
                 continue;
             }
-            toggleExtensionIntent(item);
-            if (item.intent === 'setup' && typeof item.ext.prompts === 'function') {
+            if (item.state === 'installed-unmanaged' && item.intent === null) {
+                const action = await prompts(
+                    {
+                        type: 'select',
+                        name: 'value',
+                        message: `Manage ${item.entry.name}`,
+                        choices: [
+                            { title: 'Adopt', value: 'adopt' },
+                            { title: 'Remove', value: 'remove' },
+                            { title: 'Cancel', value: null },
+                        ],
+                    },
+                    { onCancel }
+                );
+                if (cancelled) throw new Error('cancelled');
+                if (action.value === null || action.value === undefined) continue;
+                item.intent = action.value;
+            } else {
+                toggleExtensionIntent(item);
+            }
+            if (item.intent === 'setup' && item.hasExtensionContract && !item.ext) {
+                try {
+                    await ensurePackageExtension(item, projectRoot);
+                } catch (/** @type {any} */ err) {
+                    item.intent = null;
+                    item.error = err.message ?? String(err);
+                    item.state = 'unavailable';
+                    console.log(red(`Package "${name}" is unavailable: ${item.error}`));
+                    continue;
+                }
+            }
+            if (item.intent === 'setup' && typeof item.ext?.prompts === 'function') {
                 const promptDefs = item.ext.prompts(new Tree(projectRoot)) ?? [];
                 for (const promptDef of promptDefs) {
                     const answer = await prompts(getPromptOption(promptDef, item.options), { onCancel });

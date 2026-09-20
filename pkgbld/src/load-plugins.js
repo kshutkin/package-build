@@ -2,6 +2,8 @@
  * @typedef {import('type-fest').PackageJson} PackageJson
  */
 
+import { isPluginPackageName } from './plugin-name.js';
+
 /**
  * @param {PackageJson} pkg
  * @param {Set<string>} loaded
@@ -16,7 +18,7 @@ export async function loadPlugins(pkg, loaded) {
                     ...Object.keys(pkg.peerDependencies || {}),
                 ]),
             ]
-                .filter(packageName => /^(?:@[^/]+\/)?pkgbld-plugin-/.test(packageName) && !loaded.has(packageName))
+                .filter(packageName => isPluginPackageName(packageName) && !loaded.has(packageName))
                 .map(async packageName => {
                     loaded.add(packageName);
                     const pluginFactory = await import(packageName);

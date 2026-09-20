@@ -92,6 +92,12 @@ describe('extensions-schema.json', () => {
         );
     });
 
+    test('rejects registry packages outside the ecosystem naming contract', () => {
+        const invalid = structuredClone(registry);
+        invalid.extensions[0].package = 'some-extension';
+        assert.ok(validate(invalid, schema, schema).some(error => error.includes('pattern')));
+    });
+
     test('rejects unknown top-level property', () => {
         const bad = { extensions: [], somethingElse: true };
         const errs = validate(bad, schema, schema);

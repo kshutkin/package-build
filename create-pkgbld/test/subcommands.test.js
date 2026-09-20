@@ -4,21 +4,16 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test, { afterEach, beforeEach, describe } from 'node:test';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const cliEntry = path.resolve(__dirname, '..', 'index.js');
+const cliEntry = path.resolve(import.meta.dirname, '..', 'index.js');
+const biomePackage = 'create-pkgbld-extension-biome';
+const thirdPartyPlugin = '@author/pkgbld-plugin-example';
 
 /** @type {string} */
 let dir;
-/** @type {string} */
-let extPkgDir;
 const originalCacheDir = process.env.CREATE_PKGBLD_CACHE_DIR;
 
-/**
- * @param {string[]} argv
- * @param {string} cwd
- */
+/** @param {string[]} argv @param {string} cwd */
 function runCli(argv, cwd) {
     return new Promise((resolve, reject) => {
         const child = spawn(process.execPath, [cliEntry, ...argv], {
@@ -27,11 +22,11 @@ function runCli(argv, cwd) {
         });
         let stdout = '';
         let stderr = '';
-        child.stdout.on('data', d => {
-            stdout += d.toString();
+        child.stdout.on('data', data => {
+            stdout += data.toString();
         });
-        child.stderr.on('data', d => {
-            stderr += d.toString();
+        child.stderr.on('data', data => {
+            stderr += data.toString();
         });
         child.on('error', reject);
         child.on('close', code => resolve({ code, stdout, stderr }));
@@ -39,39 +34,13 @@ function runCli(argv, cwd) {
 }
 
 beforeEach(async () => {
-    dir = path.join(os.tmpdir(), `subcmd-test-${Math.random().toString(36).slice(2)}`);
-    extPkgDir = path.join(dir, 'fixture-ext');
-    await fs.mkdir(dir, { recursive: true });
-    await fs.mkdir(extPkgDir, { recursive: true });
-    process.env.CREATE_PKGBLD_CACHE_DIR = path.join(dir, 'extension-cache');
-
-    await fs.writeFile(path.join(extPkgDir, 'package.json'), JSON.stringify({ name: 'fixture-ext', main: 'index.js' }));
-    await fs.writeFile(
-        path.join(extPkgDir, 'index.js'),
-        `export const manifest = { name: 'fixture', description: 'Fixture extension' };
-export const setup = {
-    devDependencies: { 'fixture-pkg': '^1.0.0' },
-    scripts: { 'fixture:run': 'fixture run' },
-    files: { 'fixture.config.json': 'inline:{"ok":true}\\n' },
-};
-export const remove = {
-    devDependencies: ['fixture-pkg'],
-    scripts: ['fixture:run'],
-    files: ['fixture.config.json'],
-};
-export function detect(tree) {
-    const pkg = tree.readJson('package.json');
-    return Boolean(pkg && pkg.devDependencies && pkg.devDependencies['fixture-pkg']);
-}
-`
-    );
-
-    await fs.writeFile(
-        path.join(dir, '.pkgbld-extensions.json'),
-        JSON.stringify({
-            extensions: [{ name: 'fixture', package: './fixture-ext/index.js', description: 'Fixture' }],
-        })
-    );
+    dir = await fs.mkdtemp(path.join(os.tmpdir(), 'subcmd-test-'));
+    const cacheDir = path.join(dir, 'extension-cache');
+    const packageDir = path.join(cacheDir, 'node_modules', biomePackage);
+    await fs.mkdir(path.dirname(packageDir), { recursive: true });
+    await fs.symlink(path.resolve(import.meta.dirname, '../..', biomePackage), packageDir);
+    await fs.writeFile(path.join(cacheDir, 'package.json'), JSON.stringify({ private: true, dependencies: { [biomePackage]: '^0.1.0' } }));
+    process.env.CREATE_PKGBLD_CACHE_DIR = cacheDir;
     await fs.writeFile(path.join(dir, 'package.json'), `${JSON.stringify({ name: 'host', version: '0.0.1' }, null, 2)}\n`);
 });
 
@@ -82,75 +51,129 @@ afterEach(async () => {
 });
 
 describe('CLI subcommands', () => {
-    test('list shows built-in and local entries with status', async () => {
+    test('list shows official packages and ignores .pkgbld-extensions.json', async () => {
+        await fs.writeFile(
+            path.join(dir, '.pkgbld-extensions.json'),
+            JSON.stringify({ extensions: [{ name: 'legacy', package: 'create-pkgbld-extension-legacy', description: 'Legacy' }] })
+        );
         const { code, stdout } = await runCli(['list', '--quiet'], dir);
         assert.strictEqual(code, 0, stdout);
-        assert.match(stdout, /biome/);
-        assert.match(stdout, /pkgbld-swc/);
-        assert.match(stdout, /pkgbld-dts-buddy/);
-        assert.match(stdout, /fixture/);
         assert.match(stdout, /biome.*\[Available\]/);
-        assert.match(stdout, /\[Not installed\]/);
+        assert.doesNotMatch(stdout, /legacy/);
     });
 
-    test('add --dry-run prints CREATE/UPDATE but writes nothing', async () => {
+    test('add --dry-run includes the project lock but writes nothing', async () => {
         const before = await fs.readFile(path.join(dir, 'package.json'), 'utf8');
-        const { code, stdout } = await runCli(['add', 'fixture', '--yes', '--dry-run'], dir);
-        assert.strictEqual(code, 0, stdout);
-        assert.match(stdout, /UPDATE.*package\.json/);
-        assert.match(stdout, /CREATE.*fixture\.config\.json/);
-        const after = await fs.readFile(path.join(dir, 'package.json'), 'utf8');
-        assert.strictEqual(after, before);
-        await assert.rejects(() => fs.access(path.join(dir, 'fixture.config.json')));
+        const { code, stdout, stderr } = await runCli(['add', 'biome', '--yes', '--dry-run'], dir);
+        assert.strictEqual(code, 0, stdout + stderr);
+        assert.match(stdout, /CREATE.*\.pkgbld-lock\.json/);
+        assert.match(stdout, /CREATE.*biome\.json/);
+        assert.strictEqual(await fs.readFile(path.join(dir, 'package.json'), 'utf8'), before);
+        await assert.rejects(() => fs.access(path.join(dir, '.pkgbld-lock.json')));
     });
 
-    test('add --yes writes changes to disk', async () => {
-        const { code, stdout } = await runCli(['add', 'fixture', '--yes'], dir);
-        assert.strictEqual(code, 0, stdout);
-        const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
-        assert.strictEqual(pkg.devDependencies['fixture-pkg'], '^1.0.0');
-        assert.strictEqual(pkg.scripts['fixture:run'], 'fixture run');
-        const cfg = await fs.readFile(path.join(dir, 'fixture.config.json'), 'utf8');
-        assert.strictEqual(cfg, '{"ok":true}\n');
-
-        const list = await runCli(['list', '--quiet'], dir);
-        assert.match(list.stdout, /fixture.*\[Installed\]/);
-    });
-
-    test('official extension code comes from the shared cache and is not added to the project', async () => {
-        const cacheDir = /** @type {string} */ (process.env.CREATE_PKGBLD_CACHE_DIR);
-        const packageName = 'create-pkgbld-extension-biome';
-        const packageDir = path.join(cacheDir, 'node_modules', packageName);
-        await fs.mkdir(path.dirname(packageDir), { recursive: true });
-        await fs.symlink(path.resolve(import.meta.dirname, '../..', packageName), packageDir);
-        await fs.writeFile(
-            path.join(cacheDir, 'package.json'),
-            JSON.stringify({ private: true, dependencies: { [packageName]: '^0.1.0' } })
-        );
-
+    test('add writes extension changes and its exact resolved version to the lock', async () => {
         const { code, stdout, stderr } = await runCli(['add', 'biome', '--yes'], dir);
         assert.strictEqual(code, 0, stdout + stderr);
         const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
         assert.ok(pkg.devDependencies['@biomejs/biome']);
-        assert.strictEqual(pkg.devDependencies[packageName], undefined);
-        assert.strictEqual(pkg.dependencies?.[packageName], undefined);
-        assert.match(await fs.readFile(path.join(dir, 'biome.json'), 'utf8'), /"linter"/);
+        assert.strictEqual(pkg.devDependencies[biomePackage], undefined);
+        const lock = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));
+        assert.strictEqual(lock.packages[biomePackage], '0.1.0');
+
+        const list = await runCli(['list', '--quiet'], dir);
+        assert.match(list.stdout, /biome.*\[Installed, managed\]/);
     });
 
-    test('remove --yes reverses changes', async () => {
-        let res = await runCli(['add', 'fixture', '--yes', '--quiet'], dir);
-        assert.strictEqual(res.code, 0, res.stdout + res.stderr);
-        res = await runCli(['remove', 'fixture', '--yes', '--quiet'], dir);
-        assert.strictEqual(res.code, 0, res.stdout + res.stderr);
+    test('remove reverses extension changes and removes its lock entry', async () => {
+        let result = await runCli(['add', 'biome', '--yes', '--quiet'], dir);
+        assert.strictEqual(result.code, 0, result.stdout + result.stderr);
+        result = await runCli(['remove', 'biome', '--yes', '--quiet'], dir);
+        assert.strictEqual(result.code, 0, result.stdout + result.stderr);
         const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
-        assert.ok(!pkg.devDependencies || !pkg.devDependencies['fixture-pkg']);
-        assert.ok(!pkg.scripts || !pkg.scripts['fixture:run']);
-        await assert.rejects(() => fs.access(path.join(dir, 'fixture.config.json')));
+        assert.strictEqual(pkg.devDependencies?.['@biomejs/biome'], undefined);
+        await assert.rejects(() => fs.access(path.join(dir, 'biome.json')));
+        const lock = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));
+        assert.deepStrictEqual(lock.packages, {});
     });
 
-    test('add unknown extension exits non-zero', async () => {
-        const { code, stderr } = await runCli(['add', 'does-not-exist', '--yes'], dir);
+    test('discovers and adopts an installed scoped third-party plugin', async () => {
+        const pluginDir = path.join(dir, 'node_modules', '@author', 'pkgbld-plugin-example');
+        await fs.mkdir(pluginDir, { recursive: true });
+        await fs.writeFile(
+            path.join(pluginDir, 'package.json'),
+            JSON.stringify({ name: thirdPartyPlugin, version: '1.2.3', type: 'module', main: 'index.js' })
+        );
+        await fs.writeFile(path.join(pluginDir, 'index.js'), 'export function create() { return {}; }\n');
+        await fs.writeFile(
+            path.join(dir, 'package.json'),
+            `${JSON.stringify({ name: 'host', version: '0.0.1', devDependencies: { [thirdPartyPlugin]: '^1.2.0' } }, null, 2)}\n`
+        );
+
+        const listed = await runCli(['list', '--quiet'], dir);
+        assert.match(listed.stdout, /@author\/pkgbld-plugin-example.*\[Installed, unmanaged\]/);
+
+        const adopted = await runCli(['add', thirdPartyPlugin, '--yes', '--quiet'], dir);
+        assert.strictEqual(adopted.code, 0, adopted.stdout + adopted.stderr);
+        const lock = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));
+        assert.strictEqual(lock.packages[thirdPartyPlugin], '1.2.3');
+
+        const removed = await runCli(['remove', thirdPartyPlugin, '--yes', '--quiet'], dir);
+        assert.strictEqual(removed.code, 0, removed.stdout + removed.stderr);
+        const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
+        assert.strictEqual(pkg.devDependencies, undefined);
+        const afterRemove = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));
+        assert.deepStrictEqual(afterRemove.packages, {});
+    });
+
+    test('generic plugin removal clears every dependency field', async () => {
+        await fs.writeFile(
+            path.join(dir, 'package.json'),
+            `${JSON.stringify(
+                {
+                    name: 'host',
+                    dependencies: { [thirdPartyPlugin]: '1.2.3' },
+                    devDependencies: { [thirdPartyPlugin]: '1.2.3' },
+                    peerDependencies: { [thirdPartyPlugin]: '1.2.3' },
+                },
+                null,
+                2
+            )}\n`
+        );
+        const removed = await runCli(['remove', thirdPartyPlugin, '--yes', '--quiet'], dir);
+        assert.strictEqual(removed.code, 0, removed.stdout + removed.stderr);
+        const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
+        assert.strictEqual(pkg.dependencies, undefined);
+        assert.strictEqual(pkg.devDependencies, undefined);
+        assert.strictEqual(pkg.peerDependencies, undefined);
+    });
+
+    test('adoption requires a resolvable exact package version', async () => {
+        await fs.writeFile(
+            path.join(dir, 'package.json'),
+            `${JSON.stringify({ name: 'host', devDependencies: { [thirdPartyPlugin]: '^1.2.0' } }, null, 2)}\n`
+        );
+        const { code, stderr } = await runCli(['add', thirdPartyPlugin, '--yes'], dir);
         assert.notStrictEqual(code, 0);
-        assert.match(stderr, /not found/);
+        assert.match(stderr, /install project dependencies first/);
+        await assert.rejects(() => fs.access(path.join(dir, '.pkgbld-lock.json')));
+    });
+
+    test('reapplies a locked third-party plugin without assuming an extension export', async () => {
+        await fs.writeFile(
+            path.join(dir, '.pkgbld-lock.json'),
+            `${JSON.stringify(
+                {
+                    $schema: 'https://unpkg.com/create-pkgbld/lock-schema-v1.json',
+                    packages: { [thirdPartyPlugin]: '1.2.3' },
+                },
+                null,
+                2
+            )}\n`
+        );
+        const result = await runCli(['add', thirdPartyPlugin, '--yes', '--quiet'], dir);
+        assert.strictEqual(result.code, 0, result.stdout + result.stderr);
+        const pkg = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
+        assert.strictEqual(pkg.devDependencies[thirdPartyPlugin], '1.2.3');
     });
 });

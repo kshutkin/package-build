@@ -15,6 +15,7 @@ import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
 import { camelCase } from '../src/helpers.js';
 import { runPluginBuildEnd } from '../src/load-plugins.js';
+import { isPluginPackageName } from '../src/plugin-name.js';
 import { processPackage } from '../src/process-pkg.js';
 import { checkTsConfig } from '../src/process-ts-config.js';
 
@@ -25,7 +26,9 @@ describe('plugin discovery', () => {
     test('loads scoped and unscoped plugins once across dependency fields and ignores other names', async () => {
         const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pkgbld-scoped-plugins-'));
         try {
+            await fs.writeFile(path.join(dir, 'package.json'), JSON.stringify({ type: 'module' }));
             await fs.copyFile(path.join(packageRoot, 'src/load-plugins.js'), path.join(dir, 'load-plugins.mjs'));
+            await fs.copyFile(path.join(packageRoot, 'src/plugin-name.js'), path.join(dir, 'plugin-name.js'));
             const names = ['pkgbld-plugin-demo', '@author/pkgbld-plugin-demo', '@other/pkgbld-plugin-demo'];
             for (const name of names) {
                 const moduleDir = path.join(dir, 'node_modules', name);
@@ -64,6 +67,13 @@ describe('plugin discovery', () => {
         } finally {
             await fs.rm(dir, { recursive: true, force: true });
         }
+    });
+
+    test('uses the scoped and unscoped package-name contract', () => {
+        assert.equal(isPluginPackageName('pkgbld-plugin-demo'), true);
+        assert.equal(isPluginPackageName('@author/pkgbld-plugin-demo'), true);
+        assert.equal(isPluginPackageName('@author/create-pkgbld-extension-demo'), false);
+        assert.equal(isPluginPackageName('@author/other-pkgbld-plugin-demo'), false);
     });
 });
 

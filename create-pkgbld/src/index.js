@@ -14,9 +14,9 @@ import { parameters } from '@niceties/node-parseargs-plus/parameters';
 
 import { detectConflicts, formatConflicts, recordOps } from './conflicts.js';
 import { renderChanges } from './diff.js';
-import { runRemove, runSetup } from './engine.js';
 import getGitRoot from './get-git-root.js';
 import { changesAffectDependencies, detectPackageManager, runInstall } from './install.js';
+import { applyPackageIntent } from './package-operations.js';
 import { loadRegistry } from './registry.js';
 import { runAdd, runList, runRemoveCmd } from './subcommands.js';
 import { Tree } from './tree.js';
@@ -80,7 +80,7 @@ async function execute() {
     let extensionItems = [];
 
     if (!quiet && pkg.mode === 'update') {
-        const registry = await loadRegistry(builtinRegistryPath, targetDir);
+        const registry = await loadRegistry(builtinRegistryPath);
         extensionItems = await buildExtensionMenuItems(registry, targetDir);
         try {
             await runInteractiveLoop({ extensionItems, projectRoot: targetDir });
@@ -98,10 +98,9 @@ async function execute() {
     /** @type {import('./conflicts.js').RecordedOp[]} */
     const allOps = [];
     for (const item of extensionItems) {
-        if (!item.intent || !item.ext) continue;
+        if (!item.intent) continue;
         const { ops } = await recordOps(tree, item.entry.name, async () => {
-            if (item.intent === 'setup') await runSetup(/** @type {any} */ (item.ext), tree, item.options);
-            else await runRemove(/** @type {any} */ (item.ext), tree, item.options);
+            await applyPackageIntent(item, tree, targetDir);
         });
         allOps.push(...ops);
     }
@@ -129,8 +128,8 @@ async function execute() {
     if (!quiet) {
         const applied = extensionItems.filter(i => i.intent);
         for (const item of applied) {
-            const verb = item.intent === 'setup' ? green('installed') : red('removed');
-            console.log(`${gray('Extension')} ${white(item.entry.name)} ${verb}`);
+            const verb = item.intent === 'setup' ? green('installed') : item.intent === 'adopt' ? green('adopted') : red('removed');
+            console.log(`${gray('Package')} ${white(item.entry.name)} ${verb}`);
         }
     }
 

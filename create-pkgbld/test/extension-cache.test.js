@@ -56,4 +56,19 @@ describe('extension cache', () => {
         const manifest = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8'));
         assert.equal(manifest.dependencies['create-pkgbld-extension-demo'], undefined);
     });
+
+    test('repairs an exact-version cache entry when installed code has another version', async () => {
+        const packageName = 'create-pkgbld-extension-demo';
+        const packageDir = path.join(dir, 'node_modules', packageName);
+        await fs.mkdir(packageDir, { recursive: true });
+        await fs.writeFile(path.join(packageDir, 'package.json'), JSON.stringify({ name: packageName, version: '2.0.0' }));
+        await fs.writeFile(path.join(dir, 'package.json'), JSON.stringify({ private: true, dependencies: { [packageName]: '1.0.0' } }));
+        let calls = 0;
+        await installCachedExtension({ package: packageName, version: '1.0.0' }, dir, async () => {
+            calls += 1;
+            await fs.writeFile(path.join(packageDir, 'package.json'), JSON.stringify({ name: packageName, version: '1.0.0' }));
+            return 0;
+        });
+        assert.strictEqual(calls, 1);
+    });
 });

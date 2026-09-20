@@ -8,8 +8,7 @@ user's project. This document is the contract.
 
 An extension is an ESM npm package that exports a manifest plus two
 operations — `setup` and `remove` — and is referenced by name from a
-**registry** JSON file. The registry is shipped with `create-pkgbld`
-itself, and may be augmented per-project via `.pkgbld-extensions.json`.
+**registry** JSON file shipped with `create-pkgbld`.
 
 ```
 ┌──────────────┐      ┌────────────────────┐      ┌──────────────────┐
@@ -45,7 +44,7 @@ A registry file is JSON shaped like this:
 | Field | Required | Description |
 |---|---|---|
 | `name` | yes | Unique CLI handle (`create-pkgbld add <name>`). |
-| `package` | yes | Module specifier or subpath import (`my-pkg/extension`). |
+| `package` | yes | Canonically named extension package, or a PKG BLD plugin with an optional `/extension` subpath. |
 | `version` | no | Version range used when an official extension is downloaded to the shared cache. Defaults to `latest`. |
 | `description` | yes | Short one-liner shown in `list` / TUI. |
 | `tags` | no | Optional tags for grouping/filtering. |
@@ -59,15 +58,8 @@ installed with npm into the platform-standard shared cache selected by
 `find-cache-directory`. It is not added to the target project's dependencies.
 Set `CREATE_PKGBLD_CACHE_DIR` to override the cache location.
 
-Extensions exposed by a project-local registry are resolved from that project's
-dependencies and are not downloaded automatically.
-
-### Per-project registry
-
-If a project root contains `.pkgbld-extensions.json` (same shape), its
-entries are merged on top of the built-in registry. Local entries win on
-name collision, so you can locally override a built-in or add extensions
-that aren't yet published.
+The registry is official package metadata. Project state is stored separately
+in `.pkgbld-lock.json`; the lock is not an extension catalog.
 
 ---
 
@@ -143,8 +135,10 @@ export async function setup(tree, options) {
 
 ### `detect(tree) -> boolean`
 
-Used by `list` and the TUI to decide whether to show `[Installed]` or
-`[Not installed]`. Typical implementation inspects `package.json`:
+Used by `list` and the TUI to distinguish an available extension from an
+installed integration. An installed integration without a lock entry is shown
+as unmanaged and can be explicitly adopted. Typical implementation inspects
+`package.json`:
 
 ```js
 export function detect(tree) {
@@ -275,10 +269,16 @@ in mind and namespace files/scripts where it matters.
 Use `create-pkgbld-extension-<name>` for project setup extensions, such as
 `create-pkgbld-extension-biome` or `create-pkgbld-extension-dts-buddy`. These packages
 export the extension contract from their root. They are registered in
-`extensions.json` or `.pkgbld-extensions.json`; the prefix does not enable automatic discovery.
+the official `extensions.json`; the prefix does not enable automatic discovery.
 
 Reserve `pkgbld-plugin-<name>` for build plugins automatically loaded by PKG BLD.
 A build plugin can additionally expose the extension contract at `/extension`,
 as `pkgbld-plugin-dts-buddy/extension` does. Both forms are supported by the registry resolver.
 CLI names can stay short: `dts-buddy` configures standalone use, while
 `pkgbld-dts-buddy` installs the build plugin.
+
+Build plugins do not need registry metadata or an extension export to run.
+`create-pkgbld` discovers their scoped and unscoped names from all project
+dependency fields without importing them. Such plugins can be generically
+removed or adopted into `.pkgbld-lock.json` when their exact installed version
+can be resolved.

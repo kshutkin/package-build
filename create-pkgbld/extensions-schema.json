@@ -30,7 +30,8 @@
                 "package": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "Module specifier or path to the extension package implementing the contract."
+                    "pattern": "^(?:@[a-z0-9][a-z0-9._~-]*/)?(?:create-pkgbld-extension-|pkgbld-plugin-)[a-z0-9][a-z0-9._~-]*(?:/extension)?$",
+                    "description": "Canonical create-pkgbld extension package or PKG BLD plugin, optionally with /extension."
                 },
                 "version": {
                     "type": "string",

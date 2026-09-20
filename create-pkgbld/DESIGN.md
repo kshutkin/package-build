@@ -1,6 +1,6 @@
 # Create PKG BLD Package Management Design
 
-**Status:** Draft  
+**Status:** Initial lock stage implemented
 **Scope:** `create-pkgbld` package discovery and management  
 **Last updated:** 2026-09-20
 
@@ -63,15 +63,6 @@ Metadata bundled with `create-pkgbld` describing packages that the project
 officially offers for installation. The registry contains names, package
 specifiers, versions, descriptions, and tags. Extension implementation code is
 downloaded to the internal cache only when it is selected.
-
-### Legacy project registry
-
-The optional `.pkgbld-extensions.json` file in a project. It registers
-additional extensions or overrides official entries. Project-registry packages
-must already be resolvable from the project and are not downloaded to the
-internal cache automatically. This file exists in the current implementation;
-the target design replaces it with direct package addition and the project lock
-file described below.
 
 ### Project lock
 
@@ -296,23 +287,24 @@ designed.
 | Situation | State | Operations |
 |---|---|---|
 | Official package is not installed | `Available` | Add |
-| Locked extension is not cached locally | `Applied` | Rehydrate, remove, check update |
-| Registered package is installed | `Installed, managed` | Remove, check update |
+| Locked extension is not cached locally | `Applied` | Rehydrate, remove |
+| Registered package is installed | `Installed, managed` | Remove |
 | Unregistered plugin is declared in the project | `Installed, unmanaged` | Remove, adopt |
 | Registry package cannot be resolved | `Unavailable` | None |
 | Package name does not match the plugin pattern and has no registry entry | Hidden | None |
 
-## Current implementation gap
+## Current implementation
 
-`pkgbld` already discovers scoped and unscoped plugin names from all three
-dependency fields. `create-pkgbld` currently builds its package-management list
-from registry entries only and supports `.pkgbld-extensions.json`; it does not
-read or write `.pkgbld-lock.json`. Both scenarios therefore describe proposed
-behavior that still needs implementation.
+`pkgbld` and `create-pkgbld` share the same scoped/unscoped plugin-name
+predicate. `create-pkgbld` combines the official registry, project lock, and all
+three dependency fields into one inventory. It reads and writes the versioned
+lock, supports explicit adoption, restores locked extension code through the
+shared cache, and provides generic removal for plugins without extension
+behavior. `.pkgbld-extensions.json` is not read.
 
-The implementation should introduce one shared plugin-name predicate or tests
-that enforce identical behavior in both packages. It should synthesize generic
-remove-only records before merging them with registry records.
+Direct addition of an unregistered third-party extension remains a future
+scenario. An unregistered plugin becomes visible after it is declared in the
+project manifest.
 
 ## Future scenarios
 

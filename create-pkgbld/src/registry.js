@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { getExtensionCacheDir, getPackageName, installCachedExtension } from './extension-cache.js';
+import { readResolvedPackage } from './package-resolution.js';
 
 /**
  * @typedef {{ name: string, package: string, version?: string, description: string, tags?: string[], official?: boolean }} ExtensionEntry
@@ -31,44 +32,29 @@ import { getExtensionCacheDir, getPackageName, installCachedExtension } from './
  *   remove?: RemoveDeclarative | ((tree: Tree, options: OptionsValue) => Promise<void>),
  *   detect?: (tree: Tree) => boolean,
  *   prompts?: (tree: Tree) => Option[],
- *   __baseDir?: string
+ *   __baseDir?: string,
+ *   __packageVersion?: string
  * }} Extension
  */
 
 /**
- * Load and merge built-in + optional local registries.
- * Local entries win on `name` collision.
+ * Load a registry file.
  *
  * @param {string} builtinPath - absolute path to the built-in registry JSON
- * @param {string} projectRoot - project root that may contain `.pkgbld-extensions.json`
  * @param {boolean} [builtinOfficial] - whether the primary registry is maintained by create-pkgbld
  * @returns {Promise<ExtensionEntry[]>}
  */
-export async function loadRegistry(builtinPath, projectRoot, builtinOfficial = true) {
+export async function loadRegistry(builtinPath, builtinOfficial = true) {
     const builtin = await readRegistryFile(builtinPath);
-    const localPath = path.join(projectRoot, '.pkgbld-extensions.json');
-    const local = await readRegistryFile(localPath, true);
-
-    /** @type {Map<string, ExtensionEntry>} */
-    const byName = new Map();
-    for (const entry of builtin) byName.set(entry.name, { ...entry, official: builtinOfficial });
-    for (const entry of local) byName.set(entry.name, { ...entry, official: false });
-    return [...byName.values()];
+    return builtin.map(entry => ({ ...entry, official: builtinOfficial }));
 }
 
 /**
  * @param {string} file
- * @param {boolean} [optional]
  * @returns {Promise<ExtensionEntry[]>}
  */
-async function readRegistryFile(file, optional = false) {
-    let raw;
-    try {
-        raw = await readFile(file, 'utf8');
-    } catch (/** @type {any} */ err) {
-        if (optional && err.code === 'ENOENT') return [];
-        throw err;
-    }
+async function readRegistryFile(file) {
+    const raw = await readFile(file, 'utf8');
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.extensions)) {
         throw new Error(`Invalid registry file ${file}: missing "extensions" array`);
@@ -83,20 +69,22 @@ async function readRegistryFile(file, optional = false) {
  *
  * @param {ExtensionEntry} entry
  * @param {string} projectRoot
- * @param {{ install?: boolean }} [options]
+ * @param {{ install?: boolean, exactVersion?: string }} [options]
  * @returns {Promise<Extension>}
  */
 export async function resolveExtension(entry, projectRoot, options = {}) {
     const specifier = entry.package;
+    const packageName = getPackageName(specifier);
     let resolved;
     const projectManifest = path.join(projectRoot, 'package.json');
     try {
         resolved = createRequire(projectManifest).resolve(specifier);
+        if (!hasExpectedVersion(resolved, packageName, options.exactVersion)) resolved = undefined;
     } catch {
         // Fall back to the shared cache and create-pkgbld's dependencies.
     }
 
-    if (!resolved && options.install && entry.official && getPackageName(specifier)) {
+    if (!resolved && options.install && entry.official && packageName) {
         await installCachedExtension(entry);
     }
 
@@ -104,22 +92,30 @@ export async function resolveExtension(entry, projectRoot, options = {}) {
         if (resolved) break;
         try {
             resolved = createRequire(root).resolve(specifier);
+            if (!hasExpectedVersion(resolved, packageName, options.exactVersion)) resolved = undefined;
         } catch {
             // Try the next resolution root.
         }
     }
     if (!resolved) {
-        const hint = entry.official && getPackageName(specifier) ? ' Select it to download it to the shared cache.' : '';
+        const hint = entry.official && packageName ? ' Select it to download it to the shared cache.' : '';
         throw new Error(`Cannot resolve extension package "${specifier}" for "${entry.name}".${hint}`);
     }
 
     const mod = await import(resolved);
     const ext = normalizeModule(mod);
     ext.__baseDir = path.dirname(resolved);
+    if (packageName) ext.__packageVersion = readResolvedPackage(resolved, packageName)?.version;
     if (!ext.manifest) {
         throw new Error(`Extension "${entry.name}" (${specifier}) does not export a "manifest"`);
     }
     return ext;
+}
+
+/** @param {string} resolved @param {string | null} packageName @param {string | undefined} exactVersion */
+function hasExpectedVersion(resolved, packageName, exactVersion) {
+    if (!packageName || !exactVersion) return true;
+    return readResolvedPackage(resolved, packageName)?.version === exactVersion;
 }
 
 /**

@@ -18,8 +18,8 @@ npm init pkgbld <folder name>
 The project mode is detected automatically and its workflow starts directly:
 
 - A new project is created from detected defaults.
-- An existing project opens extension management, where you can add or remove
-  extensions from the registry shipped with `create-pkgbld`.
+- An existing project opens package management, where you can add official
+  packages or manage PKG BLD plugins declared by the project.
 
 Pending changes are diffed once before commit.
 
@@ -34,15 +34,16 @@ Pending changes are diffed once before commit.
 
 ### `create-pkgbld list`
 
-List all extensions in the registry (built-in + project-local
-`.pkgbld-extensions.json`), with `[Available]` / `[Installed]` /
-`[Not installed]` / `[Unresolved: …]` status. Listing does not download packages.
+List official packages, locked integrations, and PKG BLD plugins discovered in
+the project's dependency fields. States include `[Available]`, `[Applied]`,
+`[Installed, managed]`, `[Installed, unmanaged]`, and `[Unavailable]`. Listing
+does not download packages or change the project lock.
 
 ### `create-pkgbld add <extension>`
 
-Run the extension's `setup` against the current directory. Prints a
-colored diff of pending changes (with `package.json` key-level diff),
-then commits.
+Run an available package's setup or explicitly adopt an installed unmanaged
+plugin. Prints a colored diff of pending changes (with `package.json` key-level
+diff), then commits it together with `.pkgbld-lock.json`.
 
 ### `create-pkgbld remove <extension>`
 
@@ -55,7 +56,6 @@ Reverse of `add`.
 | `--yes`, `-y` | Skip prompts; use defaults for any extension-provided prompts. |
 | `--dry-run` | Print the diff but write nothing. Implies no install. |
 | `--quiet`, `-q` | Suppress informational output. |
-| `--registry <path>` | Use a custom registry JSON file in place of the built-in. |
 | `--install` | After commit, run `<pm> install` if dependencies changed. In interactive mode (no `--yes`) you will also be prompted. In `--yes` mode, install only runs when `--install` is also passed. |
 
 ### Examples
@@ -87,16 +87,22 @@ packages are not added to the target project's dependencies. Build plugins and
 tools requested by an extension are still added to the project when needed.
 Set `CREATE_PKGBLD_CACHE_DIR` to override the cache location.
 
-To add your own, ship a per-project `.pkgbld-extensions.json`:
+Applied integrations are recorded by canonical package name and exact version
+in the committed `.pkgbld-lock.json` file:
 
 ```json
 {
-  "$schema": "node_modules/create-pkgbld/extensions-schema.json",
-  "extensions": [
-    { "name": "my-ext", "package": "my-ext-pkg", "description": "My extension" }
-  ]
+  "$schema": "https://unpkg.com/create-pkgbld/lock-schema-v1.json",
+  "packages": {
+    "create-pkgbld-extension-biome": "0.1.0",
+    "@author/pkgbld-plugin-example": "1.2.3"
+  }
 }
 ```
+
+Plugins named `pkgbld-plugin-*` or `@scope/pkgbld-plugin-*` are discovered
+from `dependencies`, `devDependencies`, and `peerDependencies`. An installed
+plugin that is absent from the lock can be removed or explicitly adopted.
 
 For the contract that extension packages must implement, see
 [EXTENSIONS.md](./EXTENSIONS.md). Package discovery and management behavior is
