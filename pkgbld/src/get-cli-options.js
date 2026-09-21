@@ -28,12 +28,13 @@ export function getCliOptions(plugins, pkg) {
     const flags = cliOptions.values;
 
     const options = {
-        umdInputs: flags.umd ?? defaults.umd,
-        compressFormats: flags.compress ?? defaults.compress,
-        sourcemapFormats: flags.sourcemaps ?? defaults.sourcemaps,
-        formats: flags.formats ?? defaults.formats,
+        umdInputs: [...(flags.umd ?? defaults.umd)],
+        umdOverridden: flags.umd != null,
+        compressFormats: [...(flags.compress ?? defaults.compress)],
+        sourcemapFormats: [...(flags.sourcemaps ?? defaults.sourcemaps)],
+        formats: [...(flags.formats ?? defaults.formats)],
         formatsOverridden: flags.formats != null,
-        preprocess: flags.preprocess ?? defaults.preprocess,
+        preprocess: [...(flags.preprocess ?? defaults.preprocess)],
         dir: flags.dest,
         sourceDir: flags.src,
         bin: flags.bin,
@@ -52,11 +53,22 @@ export function getCliOptions(plugins, pkg) {
         removeLegalComments: flags.removeLegalComments,
     };
 
+    const formatsBeforePlugins = options.formats;
+    const formatValuesBeforePlugins = [...formatsBeforePlugins];
+
     for (const plugin of plugins) {
         plugin.options?.(flags, options);
     }
 
-    return /** @type {{umdInputs: string[], compressFormats: string[], sourcemapFormats: string[], formats: string[], formatsOverridden: boolean, preprocess: string[], dir: string, sourceDir: string, bin?: string[], includeExternals: boolean | string[], eject: boolean, tsConfig: boolean, updatePackageJson: boolean, commonjsPattern: string, esPattern: string, umdPattern: string, formatPackageJson: boolean, pack: boolean, exports: boolean, clean: boolean, bundle: boolean, removeLegalComments: boolean}} */ (
+    if (
+        options.formats !== formatsBeforePlugins ||
+        options.formats.length !== formatValuesBeforePlugins.length ||
+        options.formats.some((format, index) => format !== formatValuesBeforePlugins[index])
+    ) {
+        options.formatsOverridden = true;
+    }
+
+    return /** @type {{umdInputs: string[], umdOverridden: boolean, compressFormats: string[], sourcemapFormats: string[], formats: string[], formatsOverridden: boolean, preprocess: string[], dir: string, sourceDir: string, bin?: string[], includeExternals: boolean | string[], eject: boolean, tsConfig: boolean, updatePackageJson: boolean, commonjsPattern: string, esPattern: string, umdPattern: string, formatPackageJson: boolean, pack: boolean, exports: boolean, clean: boolean, bundle: boolean, removeLegalComments: boolean}} */ (
         options
     );
 }

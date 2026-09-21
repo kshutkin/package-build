@@ -195,6 +195,7 @@ describe('format precedence', () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
             await fs.writeFile('src/index.js', 'export const value = 1;');
+            await fs.writeFile('src/core.js', 'export const core = 1;');
 
             const explicitEs = getOptions('--formats=es');
             const explicitEsPackage = createLegacyUmdPackage();
@@ -212,6 +213,22 @@ describe('format precedence', () => {
             assert.equal(explicitUmdPackage.umd, './dist/index.umd.js');
             assert.equal(explicitUmdPackage.unpkg, './dist/index.umd.js');
 
+            const explicitCoreUmd = getOptions('--umd=core');
+            const explicitCoreUmdPackage = createLegacyUmdPackage();
+            await processPackage(explicitCoreUmdPackage, explicitCoreUmd, []);
+            assert.deepEqual(explicitCoreUmd.formats, ['es', 'cjs', 'umd']);
+            assert.deepEqual(explicitCoreUmd.umdInputs, ['core']);
+            assert.equal(explicitCoreUmdPackage.umd, './legacy.umd.js');
+            assert.equal(explicitCoreUmdPackage.unpkg, undefined);
+
+            const disabledUmd = getOptions('--umd=');
+            const disabledUmdPackage = createLegacyUmdPackage();
+            await processPackage(disabledUmdPackage, disabledUmd, []);
+            assert.deepEqual(disabledUmd.formats, ['es', 'cjs']);
+            assert.deepEqual(disabledUmd.umdInputs, []);
+            assert.equal(disabledUmdPackage.umd, './legacy.umd.js');
+            assert.equal(disabledUmdPackage.unpkg, undefined);
+
             const packageDefaults = getOptions();
             const defaultPackage = createLegacyUmdPackage();
             await processPackage(defaultPackage, packageDefaults, []);
@@ -219,19 +236,73 @@ describe('format precedence', () => {
             assert.deepEqual(packageDefaults.umdInputs, ['index']);
             assert.equal(defaultPackage.umd, './dist/index.umd.js');
             assert.equal(defaultPackage.unpkg, './dist/index.umd.js');
+
+            const freshDefaults = getOptions();
+            assert.deepEqual(freshDefaults.formats, ['es', 'cjs']);
+            assert.deepEqual(freshDefaults.umdInputs, []);
+        });
+    });
+
+    test('plugin format changes override package format inference', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+
+            const plugin = {
+                options(_flags, options) {
+                    options.formats.splice(0, options.formats.length, 'es');
+                },
+            };
+            const options = getOptionsWithPlugins([plugin]);
+            const pkg = createLegacyUmdPackage();
+            await processPackage(pkg, options, []);
+
+            assert.equal(options.formatsOverridden, true);
+            assert.deepEqual(options.formats, ['es']);
+            assert.deepEqual(options.umdInputs, []);
+            assert.equal(pkg.main, './dist/index.mjs');
+            assert.equal(pkg.module, undefined);
+            assert.equal(pkg.unpkg, undefined);
+            assert.equal(pkg.exports['.'].require, undefined);
+            assert.equal(pkg.exports['.'].default, './dist/index.mjs');
+        });
+    });
+});
+
+describe('bin inference', () => {
+    test('preserves nested entry paths from package.json bin', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src/folder', { recursive: true });
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+            await fs.writeFile('src/folder/cli.js', 'console.log("cli");');
+
+            for (const bin of ['./dist/folder/cli.cjs', { fixture: './dist/folder/cli.cjs' }]) {
+                const options = getOptions('--formats=cjs');
+                const pkg = {
+                    bin,
+                    exports: { '.': {}, './folder/cli': {} },
+                };
+                await processPackage(pkg, options, []);
+
+                assert.deepEqual(options.bin, ['./dist/folder/cli.cjs']);
+            }
         });
     });
 });
 
 function createLegacyUmdPackage() {
-    return { name: 'fixture', umd: './legacy.umd.js', scripts: {}, exports: { '.': {} } };
+    return { name: 'fixture', umd: './legacy.umd.js', scripts: {}, exports: { '.': {}, './core': {} } };
 }
 
 function getOptions(...args) {
+    return getOptionsWithPlugins([], ...args);
+}
+
+function getOptionsWithPlugins(plugins, ...args) {
     const originalArgv = process.argv;
     process.argv = [process.execPath, 'pkgbld', ...args];
     try {
-        return getCliOptions([], {});
+        return getCliOptions(plugins, {});
     } finally {
         process.argv = originalArgv;
     }

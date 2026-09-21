@@ -73,9 +73,11 @@ export async function processPackage(pkg, config, plugins) {
     ]);
 
     if (allowUmd && typeof pkg.umd === 'string') {
-        pkg.umd = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
-        if (!config.umdInputs.includes(indexId)) {
+        if (!config.umdOverridden && !config.umdInputs.includes(indexId)) {
             config.umdInputs.push(indexId);
+        }
+        if (config.umdInputs.includes(indexId)) {
+            pkg.umd = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
         }
     }
 
@@ -174,24 +176,13 @@ export async function processPackage(pkg, config, plugins) {
         }
     } else if (allowCjs && inputs.length > 0) {
         if (typeof pkg.bin === 'string') {
-            if (
-                inputs.some(
-                    input =>
-                        pkg.bin === `./${config.dir}/${patternToName(config.commonjsPattern, path.basename(input, path.extname(input)))}`
-                )
-            ) {
+            if (inputs.some(input => pkg.bin === getCommonjsOutputPath(input))) {
                 config.bin = [pkg.bin];
             }
         } else if (typeof pkg.bin === 'object' && pkg.bin !== null) {
             const executables = /** @type {string[]} */ (
                 Object.values(pkg.bin).filter(
-                    value =>
-                        typeof value === 'string' &&
-                        inputs.some(
-                            input =>
-                                value ===
-                                `./${config.dir}/${patternToName(config.commonjsPattern, path.basename(input, path.extname(input)))}`
-                        )
+                    value => typeof value === 'string' && inputs.some(input => value === getCommonjsOutputPath(input))
                 )
             );
             if (executables.length > 0) {
@@ -227,6 +218,15 @@ export async function processPackage(pkg, config, plugins) {
                 break;
             }
         }
+    }
+
+    /**
+     * @param {string} input
+     */
+    function getCommonjsOutputPath(input) {
+        const relativeInput = path.relative(config.sourceDir, input);
+        const entryName = relativeInput.slice(0, -path.extname(relativeInput).length);
+        return `./${config.dir}/${patternToName(config.commonjsPattern, entryName)}`;
     }
 }
 

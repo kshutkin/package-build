@@ -195,6 +195,9 @@ pkgbld --no-exports
 
 Do not add exports field in package.json.
 
+This also disables entry-point discovery from an existing `exports` field. Only the top-level `src/index` entry point is built
+unless a plugin provides additional inputs.
+
 ### prune (command)
 
 ```
