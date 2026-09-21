@@ -7,14 +7,15 @@ import { cliFlags, cliFlagsDefaults as defaults } from './options/index.js';
 
 /**
  * @typedef {import('type-fest').PackageJson} PackageJson
- * @typedef {import('./types.js').PkgbldPlugin} PkgbldPlugin
+ * @typedef {import('./types.js').CliOptions} CliOptions
+ * @typedef {ReturnType<typeof import('./build-plugin-lifecycle.js').createBuildPluginLifecycle>} BuildPluginLifecycle
  */
 
 /**
- * @param {Partial<PkgbldPlugin>[]} plugins
+ * @param {BuildPluginLifecycle} pluginLifecycle
  * @param {PackageJson} pkg
  */
-export function getCliOptions(plugins, pkg) {
+export function getCliOptions(pluginLifecycle, pkg) {
     const cliOptions = parseArgsPlus(
         {
             name: 'pkgbld',
@@ -53,22 +54,7 @@ export function getCliOptions(plugins, pkg) {
         removeLegalComments: flags.removeLegalComments,
     };
 
-    const formatsBeforePlugins = options.formats;
-    const formatValuesBeforePlugins = [...formatsBeforePlugins];
+    pluginLifecycle.applyOptions(flags, options);
 
-    for (const plugin of plugins) {
-        plugin.options?.(flags, options);
-    }
-
-    if (
-        options.formats !== formatsBeforePlugins ||
-        options.formats.length !== formatValuesBeforePlugins.length ||
-        options.formats.some((format, index) => format !== formatValuesBeforePlugins[index])
-    ) {
-        options.formatsOverridden = true;
-    }
-
-    return /** @type {{umdInputs: string[], umdOverridden: boolean, compressFormats: string[], sourcemapFormats: string[], formats: string[], formatsOverridden: boolean, preprocess: string[], dir: string, sourceDir: string, bin?: string[], includeExternals: boolean | string[], eject: boolean, tsConfig: boolean, updatePackageJson: boolean, commonjsPattern: string, esPattern: string, umdPattern: string, formatPackageJson: boolean, pack: boolean, exports: boolean, clean: boolean, bundle: boolean, removeLegalComments: boolean}} */ (
-        options
-    );
+    return /** @type {CliOptions} */ (options);
 }

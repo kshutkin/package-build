@@ -7,13 +7,14 @@ import { rollup } from 'rollup';
 import { green } from '@niceties/ansi';
 import { createLogger, LogLevel } from '@niceties/logger';
 
+import { createBuildPluginLifecycle } from './build-plugin-lifecycle.js';
 import { createEjectProvider, ejectConfig } from './eject.js';
 import { getCliOptions } from './get-cli-options.js';
 import { getJson } from './get-json.js';
 import { createProvider } from './get-plugins.js';
 import { getRollupConfigs } from './get-rollup-configs.js';
 import { formatInput, formatOutput, formatPackageJson, getHelpers, getTimeDiff, searchForWorkspaceRoot, toArray } from './helpers.js';
-import { loadPlugins, runPluginBuildEnd } from './load-plugins.js';
+import { loadPlugins } from './load-plugins.js';
 import { mainLoggerText } from './messages.js';
 import { processPackage } from './process-pkg.js';
 import { checkTsConfig } from './process-ts-config.js';
@@ -44,19 +45,20 @@ async function execute() {
         if (rootPackagePath !== pkgPath) {
             plugins.push(...(await loadPlugins(rootPkg, loadedPlugins)));
         }
+        const pluginLifecycle = createBuildPluginLifecycle(plugins);
         mainLogger.update('');
         process.stdout.moveCursor?.(0, -1);
-        const options = getCliOptions(plugins, pkg);
+        const options = getCliOptions(pluginLifecycle, pkg);
         process.stdout.moveCursor?.(0, 1);
         mainLogger.update('preparing...');
-        await checkTsConfig(options, mainLogger, plugins);
-        const [inputs, inputsExt] = await processPackage(pkg, options, plugins);
+        await checkTsConfig(options, mainLogger, pluginLifecycle);
+        const [inputs, inputsExt] = await processPackage(pkg, options, pluginLifecycle);
         if (options.formatPackageJson) {
             pkg = formatPackageJson(pkg);
         }
         const helpers = getHelpers(/** @type {{ name: string }} */ (pkg).name);
         const provider = options.eject ? await createEjectProvider() : createProvider();
-        const rollupConfigs = await getRollupConfigs(provider, inputs, inputsExt, options, helpers, plugins);
+        const rollupConfigs = await getRollupConfigs(provider, inputs, inputsExt, options, helpers, pluginLifecycle);
 
         if (!options.bundle) {
             rollupConfigs.length = 0;
@@ -77,7 +79,7 @@ async function execute() {
             if (options.updatePackageJson) {
                 await writeJson(pkgPath, pkg);
             }
-            await runPluginBuildEnd(plugins);
+            await pluginLifecycle.buildEnd();
 
             mainLogger.finish(updater(true));
         }

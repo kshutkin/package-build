@@ -9,7 +9,7 @@ import { isExists } from './helpers.js';
  * @typedef {import('type-fest').JsonValue} JsonValue
  * @typedef {import('type-fest').PackageJson} PackageJson
  * @typedef {import('./types.js').CliOptions} CliOptions
- * @typedef {import('./types.js').PkgbldPlugin} PkgbldPlugin
+ * @typedef {ReturnType<typeof import('./build-plugin-lifecycle.js').createBuildPluginLifecycle>} BuildPluginLifecycle
  */
 
 /** @type {Set<string>} */
@@ -19,10 +19,10 @@ const sourceFileSuffixes = /** @type {const} */ (['ts', 'tsx', 'js', 'jsx', 'cjs
 /**
  * @param {JsonObject} pkg
  * @param {CliOptions} config
- * @param {Partial<PkgbldPlugin>[]} plugins
+ * @param {BuildPluginLifecycle} pluginLifecycle
  * @returns {Promise<[string[], Map<string, (typeof sourceFileSuffixes)[number]>]>}
  */
-export async function processPackage(pkg, config, plugins) {
+export async function processPackage(pkg, config, pluginLifecycle) {
     const indexId = 'index';
 
     /** @type {string[]} */
@@ -160,9 +160,7 @@ export async function processPackage(pkg, config, plugins) {
         config.formats.push('umd');
     }
 
-    for (const plugin of plugins) {
-        plugin.processPackageJson?.(/** @type {PackageJson} */ (pkg), inputs);
-    }
+    pluginLifecycle.processPackageJson(/** @type {PackageJson} */ (pkg), inputs);
 
     if (config.bin) {
         if (config.bin.length > 0) {

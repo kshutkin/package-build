@@ -9,7 +9,7 @@ import { writeJson } from './write-json.js';
  * @typedef {import('@niceties/logger').Logger} Logger
  * @typedef {import('type-fest').JsonObject} JsonObject
  * @typedef {import('./types.js').CliOptions} CliOptions
- * @typedef {import('./types.js').PkgbldPlugin} PkgbldPlugin
+ * @typedef {ReturnType<typeof import('./build-plugin-lifecycle.js').createBuildPluginLifecycle>} BuildPluginLifecycle
  */
 
 /**
@@ -39,10 +39,10 @@ function createDefaultTsConfig(sourceDir) {
 /**
  * @param {CliOptions} options
  * @param {Logger} mainLogger
- * @param {Partial<PkgbldPlugin>[]} plugins
+ * @param {BuildPluginLifecycle} pluginLifecycle
  * @returns {Promise<JsonObject | undefined>}
  */
-export async function checkTsConfig(options, mainLogger, plugins) {
+export async function checkTsConfig(options, mainLogger, pluginLifecycle) {
     if (!options.tsConfig) {
         return;
     }
@@ -67,9 +67,7 @@ export async function checkTsConfig(options, mainLogger, plugins) {
         needWrite = true;
     }
     const originalConfig = structuredClone(config);
-    for (const plugin of plugins) {
-        plugin.processTsConfig?.(config);
-    }
+    pluginLifecycle.processTsConfig(config);
     if (!fastIsEqual(originalConfig, config)) {
         needWrite = true;
     }

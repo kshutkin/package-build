@@ -9,9 +9,9 @@ import { areSetsEqual, toArray } from './helpers.js';
  * @typedef {import('rollup').InternalModuleFormat} InternalModuleFormat
  * @typedef {import('rollup').OutputOptions} OutputOptions
  * @typedef {import('./types.js').CliOptions} CliOptions
- * @typedef {import('./types.js').PkgbldPlugin} PkgbldPlugin
  * @typedef {import('./types.js').PkgbldRollupPlugin} PkgbldRollupPlugin
  * @typedef {import('./types.js').Provider} Provider
+ * @typedef {ReturnType<typeof import('./build-plugin-lifecycle.js').createBuildPluginLifecycle>} BuildPluginLifecycle
  */
 
 /**
@@ -20,9 +20,9 @@ import { areSetsEqual, toArray } from './helpers.js';
  * @param {Map<string, string>} inputsExt
  * @param {CliOptions} config
  * @param {ReturnType<import('./helpers.js').getHelpers>} helpers
- * @param {Partial<PkgbldPlugin>[]} externalPlugins
+ * @param {BuildPluginLifecycle} pluginLifecycle
  */
-export async function getRollupConfigs([provider, plugins], inputs, inputsExt, config, helpers, externalPlugins) {
+export async function getRollupConfigs([provider, plugins], inputs, inputsExt, config, helpers, pluginLifecycle) {
     const factoryInProgress = [];
 
     const fileNamePatterns = /** @type {{ [key in InternalModuleFormat]: string }} */ ({
@@ -35,11 +35,7 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
         factoryInProgress.push(factory(provider, config, inputs, inputsExt));
     }
 
-    for (const ePlugin of externalPlugins) {
-        if (ePlugin.providePlugins) {
-            factoryInProgress.push(ePlugin.providePlugins(provider, config, inputs, inputsExt));
-        }
-    }
+    factoryInProgress.push(pluginLifecycle.provideRollupPlugins(provider, config, inputs, inputsExt));
 
     await Promise.all(factoryInProgress);
 
@@ -172,11 +168,7 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
                 };
                 break;
         }
-        for (const ePlugin of externalPlugins) {
-            if (ePlugin.getExtraOutputSettings) {
-                Object.assign(result, ePlugin.getExtraOutputSettings(format, inputs));
-            }
-        }
+        pluginLifecycle.extendOutputSettings(result, format, inputs);
         return result;
     }
 

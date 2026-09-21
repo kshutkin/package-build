@@ -9,18 +9,19 @@ import { promisify } from 'node:util';
 
 import { rollup } from 'rollup';
 
+import { createBuildPluginLifecycle } from '../src/build-plugin-lifecycle.js';
 import { curry } from '../src/builtin-plugins/externals.js';
 import { getCliOptions } from '../src/get-cli-options.js';
 import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
 import { camelCase } from '../src/helpers.js';
-import { runPluginBuildEnd } from '../src/load-plugins.js';
 import { isPluginPackageName } from '../src/plugin-name.js';
 import { processPackage } from '../src/process-pkg.js';
 import { checkTsConfig } from '../src/process-ts-config.js';
 
 const execFile = promisify(childProcess.execFile);
 const packageRoot = path.resolve(import.meta.dirname, '..');
+const emptyPluginLifecycle = createBuildPluginLifecycle([]);
 
 describe('plugin discovery', () => {
     test('loads scoped and unscoped plugins once across dependency fields and ignores other names', async () => {
@@ -155,36 +156,73 @@ describe('plugin lifecycle', () => {
                     calls.push(['buildEnd']);
                 },
             };
+            const secondPlugin = {
+                options() {
+                    calls.push(['options-2']);
+                },
+                processPackageJson() {
+                    calls.push(['package-2']);
+                },
+                processTsConfig() {
+                    calls.push(['tsconfig-2']);
+                },
+                async providePlugins(provider) {
+                    calls.push(['rollup-2']);
+                    provider.provide(() => ({ name: 'fixture-plugin-2' }), 501);
+                },
+                getExtraOutputSettings(format) {
+                    calls.push(['output-2', format]);
+                    return { banner: `/* ${format} second */` };
+                },
+                async buildEnd() {
+                    calls.push(['buildEnd-2']);
+                },
+            };
+            const pluginLifecycle = createBuildPluginLifecycle([plugin, secondPlugin]);
             const originalArgv = process.argv;
             process.argv = [process.execPath, 'pkgbld', '--formats=es'];
             let config;
             try {
-                config = getCliOptions([plugin], {});
+                config = getCliOptions(pluginLifecycle, {});
             } finally {
                 process.argv = originalArgv;
             }
             const logger = () => undefined;
-            const tsConfig = await checkTsConfig(config, logger, [plugin]);
+            const tsConfig = await checkTsConfig(config, logger, pluginLifecycle);
             const pkg = {};
-            const [inputs, inputsExt] = await processPackage(pkg, config, [plugin]);
+            const [inputs, inputsExt] = await processPackage(pkg, config, pluginLifecycle);
             const rollupConfigs = await getRollupConfigs(
                 createProvider(),
                 inputs,
                 inputsExt,
                 config,
                 { getGlobalName: String, getExternalGlobalName: String },
-                [plugin]
+                pluginLifecycle
             );
-            await runPluginBuildEnd([plugin]);
+            await pluginLifecycle.buildEnd();
 
             assert.equal(tsConfig.pluginOption, true);
             assert.equal(pkg.description, 'processed');
             assert.deepEqual(Object.keys(rollupConfigs[0].input), ['index']);
-            assert.equal(rollupConfigs[0].output[0].banner, '/* es */');
+            assert.equal(rollupConfigs[0].output[0].banner, '/* es second */');
             assert.ok(rollupConfigs[0].plugins.some(item => item.name === 'fixture-plugin'));
+            assert.ok(rollupConfigs[0].plugins.some(item => item.name === 'fixture-plugin-2'));
             assert.deepEqual(
                 calls.map(call => call[0]),
-                ['options', 'tsconfig', 'package', 'rollup', 'output', 'buildEnd']
+                [
+                    'options',
+                    'options-2',
+                    'tsconfig',
+                    'tsconfig-2',
+                    'package',
+                    'package-2',
+                    'rollup',
+                    'rollup-2',
+                    'output',
+                    'output-2',
+                    'buildEnd',
+                    'buildEnd-2',
+                ]
             );
         });
     });
@@ -199,7 +237,7 @@ describe('format precedence', () => {
 
             const explicitEs = getOptions('--formats=es');
             const explicitEsPackage = createLegacyUmdPackage();
-            await processPackage(explicitEsPackage, explicitEs, []);
+            await processPackage(explicitEsPackage, explicitEs, emptyPluginLifecycle);
             assert.deepEqual(explicitEs.formats, ['es']);
             assert.deepEqual(explicitEs.umdInputs, []);
             assert.equal(explicitEsPackage.umd, './legacy.umd.js');
@@ -207,7 +245,7 @@ describe('format precedence', () => {
 
             const explicitUmd = getOptions('--formats=es', '--umd=index');
             const explicitUmdPackage = createLegacyUmdPackage();
-            await processPackage(explicitUmdPackage, explicitUmd, []);
+            await processPackage(explicitUmdPackage, explicitUmd, emptyPluginLifecycle);
             assert.deepEqual(explicitUmd.formats, ['es', 'umd']);
             assert.deepEqual(explicitUmd.umdInputs, ['index']);
             assert.equal(explicitUmdPackage.umd, './dist/index.umd.js');
@@ -215,7 +253,7 @@ describe('format precedence', () => {
 
             const explicitCoreUmd = getOptions('--umd=core');
             const explicitCoreUmdPackage = createLegacyUmdPackage();
-            await processPackage(explicitCoreUmdPackage, explicitCoreUmd, []);
+            await processPackage(explicitCoreUmdPackage, explicitCoreUmd, emptyPluginLifecycle);
             assert.deepEqual(explicitCoreUmd.formats, ['es', 'cjs', 'umd']);
             assert.deepEqual(explicitCoreUmd.umdInputs, ['core']);
             assert.equal(explicitCoreUmdPackage.umd, './legacy.umd.js');
@@ -223,7 +261,7 @@ describe('format precedence', () => {
 
             const disabledUmd = getOptions('--umd=');
             const disabledUmdPackage = createLegacyUmdPackage();
-            await processPackage(disabledUmdPackage, disabledUmd, []);
+            await processPackage(disabledUmdPackage, disabledUmd, emptyPluginLifecycle);
             assert.deepEqual(disabledUmd.formats, ['es', 'cjs']);
             assert.deepEqual(disabledUmd.umdInputs, []);
             assert.equal(disabledUmdPackage.umd, './legacy.umd.js');
@@ -231,7 +269,7 @@ describe('format precedence', () => {
 
             const packageDefaults = getOptions();
             const defaultPackage = createLegacyUmdPackage();
-            await processPackage(defaultPackage, packageDefaults, []);
+            await processPackage(defaultPackage, packageDefaults, emptyPluginLifecycle);
             assert.deepEqual(packageDefaults.formats, ['es', 'cjs', 'umd']);
             assert.deepEqual(packageDefaults.umdInputs, ['index']);
             assert.equal(defaultPackage.umd, './dist/index.umd.js');
@@ -255,7 +293,7 @@ describe('format precedence', () => {
             };
             const options = getOptionsWithPlugins([plugin]);
             const pkg = createLegacyUmdPackage();
-            await processPackage(pkg, options, []);
+            await processPackage(pkg, options, emptyPluginLifecycle);
 
             assert.equal(options.formatsOverridden, true);
             assert.deepEqual(options.formats, ['es']);
@@ -282,7 +320,7 @@ describe('bin inference', () => {
                     bin,
                     exports: { '.': {}, './folder/cli': {} },
                 };
-                await processPackage(pkg, options, []);
+                await processPackage(pkg, options, emptyPluginLifecycle);
 
                 assert.deepEqual(options.bin, ['./dist/folder/cli.cjs']);
             }
@@ -299,10 +337,11 @@ function getOptions(...args) {
 }
 
 function getOptionsWithPlugins(plugins, ...args) {
+    const pluginLifecycle = createBuildPluginLifecycle(plugins);
     const originalArgv = process.argv;
     process.argv = [process.execPath, 'pkgbld', ...args];
     try {
-        return getCliOptions(plugins, {});
+        return getCliOptions(pluginLifecycle, {});
     } finally {
         process.argv = originalArgv;
     }

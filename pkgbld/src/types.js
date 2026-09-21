@@ -42,7 +42,31 @@
  */
 
 /**
- * @typedef {NonNullable<ReturnType<typeof import('./get-cli-options.js').getCliOptions>>} CliOptions
+ * @typedef {{
+ *   umdInputs: string[];
+ *   umdOverridden: boolean;
+ *   compressFormats: string[];
+ *   sourcemapFormats: string[];
+ *   formats: string[];
+ *   formatsOverridden: boolean;
+ *   preprocess: string[];
+ *   dir: string;
+ *   sourceDir: string;
+ *   bin?: string[];
+ *   includeExternals: boolean | string[];
+ *   eject: boolean;
+ *   tsConfig: boolean;
+ *   updatePackageJson: boolean;
+ *   commonjsPattern: string;
+ *   esPattern: string;
+ *   umdPattern: string;
+ *   formatPackageJson: boolean;
+ *   pack: boolean;
+ *   exports: boolean;
+ *   clean: boolean;
+ *   bundle: boolean;
+ *   removeLegalComments: boolean;
+ * }} CliOptions
  */
 
 /** @typedef {Record<string, string | number | string[] | number[] | boolean | undefined>} ParsedOptions */
