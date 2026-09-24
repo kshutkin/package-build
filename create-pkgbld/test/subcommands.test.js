@@ -10,6 +10,8 @@ import { LOCK_SCHEMA } from '../src/project-lock.js';
 
 const cliEntry = path.resolve(import.meta.dirname, '..', 'index.js');
 const biomePackage = 'create-pkgbld-extension-biome';
+const biomePackageDir = path.resolve(import.meta.dirname, '../..', biomePackage);
+const biomeVersion = JSON.parse(await fs.readFile(path.join(biomePackageDir, 'package.json'), 'utf8')).version;
 const thirdPartyPlugin = '@author/pkgbld-plugin-example';
 
 /** @type {string} */
@@ -41,8 +43,8 @@ beforeEach(async () => {
     const cacheDir = path.join(dir, 'extension-cache');
     const packageDir = path.join(cacheDir, 'node_modules', biomePackage);
     await fs.mkdir(path.dirname(packageDir), { recursive: true });
-    await fs.symlink(path.resolve(import.meta.dirname, '../..', biomePackage), packageDir);
-    await fs.writeFile(path.join(cacheDir, 'package.json'), JSON.stringify({ private: true, dependencies: { [biomePackage]: '^0.1.0' } }));
+    await fs.symlink(biomePackageDir, packageDir);
+    await fs.writeFile(path.join(cacheDir, 'package.json'), JSON.stringify({ private: true, dependencies: { [biomePackage]: biomeVersion } }));
     process.env.CREATE_PKGBLD_CACHE_DIR = cacheDir;
     await fs.writeFile(path.join(dir, 'package.json'), `${JSON.stringify({ name: 'host', version: '0.0.1' }, null, 2)}\n`);
 });
@@ -82,7 +84,7 @@ describe('CLI subcommands', () => {
         assert.ok(pkg.devDependencies['@biomejs/biome']);
         assert.strictEqual(pkg.devDependencies[biomePackage], undefined);
         const lock = JSON.parse(await fs.readFile(path.join(dir, '.pkgbld-lock.json'), 'utf8'));
-        assert.strictEqual(lock.packages[biomePackage], '0.1.0');
+        assert.strictEqual(lock.packages[biomePackage], biomeVersion);
 
         const list = await runCli(['list', '--quiet'], dir);
         assert.match(list.stdout, /biome.*\[Installed, managed\]/);
