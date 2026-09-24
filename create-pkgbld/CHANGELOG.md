@@ -1,5 +1,33 @@
 # Changelog
 
+## 2.0.0
+
+### Major Changes
+
+- cd164d9: Release `create-pkgbld` and the official build plugins on a new major version line for the modern PKG BLD plugin contract. The plugins declare the new `pkgbld` major range through their peer dependency, allowing compatible plugin generations to be identified from their published versions.
+  
+  Update the official plugins to the context-based lifecycle Interface and immutable Build configuration model.
+
+### Minor Changes
+
+- cd164d9: Add an extension system to `create-pkgbld` with interactive management and `list`, `add`, and `remove` subcommands. Extensions support dry runs, conflict detection, custom registries, optional dependency installation, and atomic file updates.
+  
+  Publish built-in integrations for Biome, the SWC build plugin, and the dts-buddy build plugin.
+  
+  Require modern PKG BLD plugins to declare their compatible `pkgbld` host range as a peer dependency.
+- cd164d9: Support the create-pkgbld-extension-* package naming convention, rename the Biome extension, and add standalone DTS Buddy setup. Keep only official extension metadata in create-pkgbld and download selected packages into its version-isolated shared cache instead of adding them as CLI or project dependencies. Record applied integrations in the versioned `.pkgbld-lock.json`, discover scoped and unscoped modern plugins from project dependency fields, and support explicit adoption and generic removal of third-party plugins. Add guarded single-package updates with declarative reconciliation, explicit migration hooks, conflict approval, plugin peer compatibility checks, and verified two-phase build plugin installation.
+
+### Patch Changes
+
+- cd164d9: Update runtime dependencies to their latest compatible versions and remove the vulnerable Git config parser.
+- cd164d9: Preserve existing JSON indentation when updating package manifests, TypeScript configs, extension-managed JSON files, and project locks. New files and files without detectable indentation continue to use two spaces.
+- cd164d9: Route directly into autodetected new-project setup or existing-project plugin management without an intermediate mode menu.
+- Updated dependencies [cd164d9]
+- Updated dependencies [cd164d9]
+- Updated dependencies [cd164d9]
+- Updated dependencies [cd164d9]
+  - pkgbld@2.0.0
+
 ## 1.8.2
 
 ### Patch Changes

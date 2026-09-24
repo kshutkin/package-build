@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.0.0
+
+### Major Changes
+
+- cd164d9: Modernize the build runtime and publish source-backed ESM and type entry points, including the new `pkgbld/options` export.
+  
+  Remove the `pkgbld prune` command in favor of the dedicated `pkgprn` package, remove the built-in TypeScript transform in favor of `pkgbld-plugin-swc`, and remove the `noSubpackages` option.
+  
+  Resolve Build configuration from package metadata, explicit CLI options, and Build plugin overrides before package processing. Plugins now configure a typed mutable draft, receive typed source provenance and build-scoped shared state, and consume a normalized, validated, deeply frozen configuration in later lifecycle phases.
+  
+  Replace correlated input paths and extension maps with immutable Build entries. Build plugins contribute additional entries through a dedicated lifecycle phase, and invalid UMD or preprocessing selections now fail before Rollup planning.
+  
+  Resolve Build plugins from the package that declares them and fail the build when a declared plugin cannot be loaded.
+
+### Minor Changes
+
+- cd164d9: Discover scoped build plugins named @scope/pkgbld-plugin-* while preserving the existing unscoped naming pattern and loading each package once. Centralize PKG BLD's name predicate and keep create-pkgbld's discovery behavior covered by parity tests.
+
+### Patch Changes
+
+- cd164d9: Update runtime dependencies to their latest compatible versions and remove the vulnerable Git config parser.
+- cd164d9: Preserve existing JSON indentation when updating package manifests, TypeScript configs, extension-managed JSON files, and project locks. New files and files without detectable indentation continue to use two spaces.
+
 ## 1.36.0
 
 ### Minor Changes

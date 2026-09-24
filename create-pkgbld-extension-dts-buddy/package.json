@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0",
+    "version": "0.1.1",
     "name": "create-pkgbld-extension-dts-buddy",
     "description": "create-pkgbld extension for standalone declaration bundling with dts-buddy",
     "license": "MIT",
