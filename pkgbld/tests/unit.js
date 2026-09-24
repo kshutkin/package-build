@@ -10,11 +10,13 @@ import { promisify } from 'node:util';
 import { rollup } from 'rollup';
 
 import { BuildConfigurationError, resolveBuildConfiguration } from '../src/build-configuration.js';
+import { BuildEntryError } from '../src/build-entries.js';
 import { createBuildPluginLifecycle } from '../src/build-plugin-lifecycle.js';
 import { curry } from '../src/builtin-plugins/externals.js';
 import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
 import { camelCase } from '../src/helpers.js';
+import { loadPlugins } from '../src/load-plugins.js';
 import { isPluginPackageName } from '../src/plugin-name.js';
 import { processPackage } from '../src/process-pkg.js';
 import { checkTsConfig } from '../src/process-ts-config.js';
@@ -27,9 +29,8 @@ describe('plugin discovery', () => {
     test('loads scoped and unscoped plugins once across dependency fields and ignores other names', async () => {
         const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pkgbld-scoped-plugins-'));
         try {
-            await fs.writeFile(path.join(dir, 'package.json'), JSON.stringify({ type: 'module' }));
-            await fs.copyFile(path.join(packageRoot, 'src/load-plugins.js'), path.join(dir, 'load-plugins.mjs'));
-            await fs.copyFile(path.join(packageRoot, 'src/plugin-name.js'), path.join(dir, 'plugin-name.js'));
+            const packageJsonPath = path.join(dir, 'package.json');
+            await fs.writeFile(packageJsonPath, JSON.stringify({ type: 'module' }));
             const names = ['pkgbld-plugin-demo', '@author/pkgbld-plugin-demo', '@other/pkgbld-plugin-demo'];
             for (const name of names) {
                 const moduleDir = path.join(dir, 'node_modules', name);
@@ -47,7 +48,6 @@ describe('plugin discovery', () => {
                     `export function create() { return { name: ${JSON.stringify(name)} }; }`
                 );
             }
-            const { loadPlugins } = await import(pathToFileURL(path.join(dir, 'load-plugins.mjs')).href);
             const loaded = new Set();
             const pkg = {
                 dependencies: { 'pkgbld-plugin-demo': '*', '@author/pkgbld-plugin-demo': '*' },
@@ -61,10 +61,15 @@ describe('plugin discovery', () => {
                 },
                 peerDependencies: { '@other/pkgbld-plugin-demo': '*' },
             };
-            const plugins = await loadPlugins(pkg, loaded);
+            const plugins = await loadPlugins(pkg, loaded, packageJsonPath);
             assert.deepEqual(plugins.map(plugin => plugin.name).sort(), [...names].sort());
             assert.deepEqual([...loaded].sort(), [...names].sort());
-            assert.deepEqual(await loadPlugins(pkg, loaded), []);
+            assert.deepEqual(await loadPlugins(pkg, loaded, packageJsonPath), []);
+
+            await assert.rejects(
+                () => loadPlugins({ devDependencies: { 'pkgbld-plugin-missing': '*' } }, new Set(), packageJsonPath),
+                /Failed to load Build plugin "pkgbld-plugin-missing"/
+            );
         } finally {
             await fs.rm(dir, { recursive: true, force: true });
         }
@@ -129,6 +134,7 @@ describe('plugin lifecycle', () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
             await fs.writeFile('src/index.js', 'export const value = 1;');
+            await fs.writeFile('src/worker.js', 'export const worker = 1;');
 
             const calls = [];
             const plugin = {
@@ -136,8 +142,12 @@ describe('plugin lifecycle', () => {
                     calls.push(['configure']);
                     draft.typescript.updateConfig = true;
                 },
-                processPackageJson({ packageJson, inputs }) {
-                    calls.push(['package', [...inputs]]);
+                contributeEntries({ entries }) {
+                    calls.push(['entries']);
+                    entries.add({ name: 'worker' });
+                },
+                processPackageJson({ packageJson, entries }) {
+                    calls.push(['package', entries.values.map(entry => entry.sourcePath)]);
                     packageJson.description = 'processed';
                 },
                 processTsConfig({ config }) {
@@ -159,6 +169,9 @@ describe('plugin lifecycle', () => {
             const secondPlugin = {
                 configure() {
                     calls.push(['configure-2']);
+                },
+                contributeEntries() {
+                    calls.push(['entries-2']);
                 },
                 processPackageJson() {
                     calls.push(['package-2']);
@@ -195,7 +208,7 @@ describe('plugin lifecycle', () => {
 
             assert.equal(tsConfig.pluginOption, true);
             assert.equal(pkg.description, 'processed');
-            assert.deepEqual(Object.keys(rollupConfigs[0].input), ['index']);
+            assert.deepEqual(Object.keys(rollupConfigs[0].input), ['index', 'worker']);
             assert.equal(rollupConfigs[0].output[0].banner, '/* es second */');
             assert.ok(rollupConfigs[0].plugins.some(item => item.name === 'fixture-plugin'));
             assert.ok(rollupConfigs[0].plugins.some(item => item.name === 'fixture-plugin-2'));
@@ -218,25 +231,32 @@ describe('plugin lifecycle', () => {
                     .slice(4, 6)
                     .map(call => call[0])
                     .sort(),
-                ['package', 'package-2']
+                ['entries', 'entries-2']
             );
             assert.deepEqual(
                 calls
                     .slice(6, 8)
                     .map(call => call[0])
                     .sort(),
-                ['rollup', 'rollup-2']
+                ['package', 'package-2']
             );
             assert.deepEqual(
                 calls
                     .slice(8, 10)
                     .map(call => call[0])
                     .sort(),
-                ['output', 'output-2']
+                ['rollup', 'rollup-2']
             );
             assert.deepEqual(
                 calls
                     .slice(10, 12)
+                    .map(call => call[0])
+                    .sort(),
+                ['output', 'output-2']
+            );
+            assert.deepEqual(
+                calls
+                    .slice(12, 14)
                     .map(call => call[0])
                     .sort(),
                 ['buildEnd', 'buildEnd-2']
@@ -264,8 +284,7 @@ describe('plugin lifecycle', () => {
         const pluginLifecycle = createBuildPluginLifecycle(plugins);
         const configuration = resolveBuildConfiguration({ argv: [], packageJson: {}, pluginLifecycle });
         const inProgress = pluginLifecycle.provideRollupPlugins(createProvider()[0], configuration, {
-            inputs: [],
-            inputsExt: new Map(),
+            entries: { values: [], require: () => assert.fail('no entries expected') },
             executableOutputs: [],
         });
 
@@ -337,6 +356,7 @@ describe('format precedence', () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
             await fs.writeFile('src/index.js', 'export const value = 1;');
+            await fs.writeFile('src/core.js', 'export const core = 1;');
 
             const plugin = {
                 configure({ draft }) {
@@ -355,6 +375,56 @@ describe('format precedence', () => {
             assert.equal(pkg.unpkg, undefined);
             assert.equal(pkg.exports['.'].require, undefined);
             assert.equal(pkg.exports['.'].default, './dist/index.mjs');
+        });
+    });
+});
+
+describe('build entries', () => {
+    test('rejects duplicate Build plugin contributions', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+
+            const pkg = { name: 'fixture' };
+            const configuration = resolveConfiguration({ argv: [], packageJson: pkg });
+            const pluginLifecycle = createBuildPluginLifecycle([
+                {
+                    contributeEntries({ entries }) {
+                        entries.add({ name: 'index' });
+                    },
+                },
+            ]);
+
+            await assert.rejects(
+                () => processPackage(pkg, configuration, pluginLifecycle),
+                error =>
+                    error instanceof BuildEntryError &&
+                    error.issues.some(
+                        issue => issue.code === 'DUPLICATE_BUILD_ENTRY' && issue.path === 'plugins.entries[0]' && issue.name === 'index'
+                    )
+            );
+        });
+    });
+
+    test('rejects configured selections that were not discovered', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+
+            const pkg = { name: 'fixture' };
+            const configuration = resolveConfiguration({ argv: ['--formats=umd', '--umd=core'], packageJson: pkg });
+
+            await assert.rejects(
+                () => processPackage(pkg, configuration, emptyPluginLifecycle),
+                error =>
+                    error instanceof BuildEntryError &&
+                    error.issues.some(
+                        issue =>
+                            issue.code === 'SELECTED_BUILD_ENTRY_NOT_FOUND' &&
+                            issue.path === 'outputs.umdEntries[0]' &&
+                            issue.name === 'core'
+                    )
+            );
         });
     });
 });
@@ -476,6 +546,23 @@ describe('bin inference', () => {
                 const packageResult = await processPackage(pkg, configuration, emptyPluginLifecycle);
 
                 assert.deepEqual(packageResult.executableOutputs, ['./dist/folder/cli.cjs']);
+                assert.deepEqual(
+                    packageResult.entries.values.map(entry => ({
+                        name: entry.name,
+                        sourcePath: entry.sourcePath,
+                        extension: entry.extension,
+                        cjs: entry.outputPaths.cjs,
+                    })),
+                    [
+                        { name: 'index', sourcePath: './src/index.js', extension: 'js', cjs: './dist/index.cjs' },
+                        {
+                            name: 'folder/cli',
+                            sourcePath: './src/folder/cli.js',
+                            extension: 'js',
+                            cjs: './dist/folder/cli.cjs',
+                        },
+                    ]
+                );
             }
         });
     });

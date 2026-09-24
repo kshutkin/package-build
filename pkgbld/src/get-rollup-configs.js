@@ -1,5 +1,3 @@
-import path from 'node:path';
-
 import refiner from '@slimlib/refine-partition';
 
 import { plugins as pluginFactories } from './get-plugins.js';
@@ -23,8 +21,8 @@ import { areSetsEqual, toArray } from './helpers.js';
  * @param {BuildPluginLifecycle} pluginLifecycle
  */
 export async function getRollupConfigs([provider, plugins], packageResult, configuration, helpers, pluginLifecycle) {
-    const inputs = [...packageResult.inputs];
-    const inputsExt = packageResult.inputsExt;
+    const inputs = packageResult.entries.values.map(entry => entry.sourcePath);
+    const entriesBySourcePath = new Map(packageResult.entries.values.map(entry => [entry.sourcePath, entry]));
     const factoryInProgress = [];
 
     const fileNamePatterns = /** @type {{ [key in InternalModuleFormat]: string }} */ ({
@@ -129,7 +127,7 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
     return partitions.map(({ formats, inputs }) => {
         return {
             input: Object.fromEntries(
-                inputs.map(input => [path.relative(configuration.paths.sourceDir, input).slice(0, -path.extname(input).length), input])
+                inputs.map(input => [/** @type {import('./types.js').BuildEntry} */ (entriesBySourcePath.get(input)).name, input])
             ),
 
             output: formats.map(format => ({
@@ -213,8 +211,8 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
                         expanded.push(`${format}.${input}`);
                     }
                 } else {
-                    for (const input of configuration.outputs.umdEntries) {
-                        expanded.push(`${format}../${configuration.paths.sourceDir}/${input}.${inputsExt.get(input)}`);
+                    for (const entryName of configuration.outputs.umdEntries) {
+                        expanded.push(`${format}.${packageResult.entries.require(entryName).sourcePath}`);
                     }
                 }
             } else {

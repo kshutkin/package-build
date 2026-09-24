@@ -13,7 +13,6 @@ import { Priority } from '../priorities.js';
  * @param {PackageProcessingResult} packageResult
  */
 export default async function (provider, configuration, packageResult) {
-    const { inputsExt } = packageResult;
     const filteredFormats = configuration.transforms.compress.filter(format => configuration.outputs.formats.includes(format));
 
     if (filteredFormats.length > 0) {
@@ -37,11 +36,12 @@ export default async function (provider, configuration, packageResult) {
             if (format !== 'umd') {
                 provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true });
             } else {
-                for (const currentInput of configuration.outputs.umdEntries) {
+                for (const entryName of configuration.outputs.umdEntries) {
+                    const currentInput = packageResult.entries.require(entryName).sourcePath;
                     provider.provide(() => pluginTerser(options), Priority.compress, {
                         format,
                         outputPlugin: true,
-                        inputs: [`./${configuration.paths.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
+                        inputs: [currentInput],
                     });
                 }
             }

@@ -40,10 +40,10 @@ async function execute() {
         [pkgPath, pkg] = /** @type {[string, PackageJson]} */ (await getJson('package.json'));
         /** @type {Set<string>} */
         const loadedPlugins = new Set();
-        const plugins = await loadPlugins(pkg, loadedPlugins);
+        const plugins = await loadPlugins(pkg, loadedPlugins, pkgPath);
         const [rootPackagePath, rootPkg] = await getJson(join(await searchForWorkspaceRoot(dirname(pkgPath)), 'package.json'));
         if (rootPackagePath !== pkgPath) {
-            plugins.push(...(await loadPlugins(rootPkg, loadedPlugins)));
+            plugins.push(...(await loadPlugins(rootPkg, loadedPlugins, rootPackagePath)));
         }
         const pluginLifecycle = createBuildPluginLifecycle(plugins);
         mainLogger.update('');
@@ -112,10 +112,16 @@ async function execute() {
 /** @typedef {import('./types.js').BuildFormat} BuildFormat */
 /** @typedef {import('./types.js').BuildConfigurationDraft} BuildConfigurationDraft */
 /** @typedef {import('./types.js').BuildConfigurationSources} BuildConfigurationSources */
+/** @typedef {import('./types.js').BuildEntry} BuildEntry */
+/** @typedef {import('./types.js').BuildEntries} BuildEntries */
+/** @typedef {import('./types.js').BuildEntryContribution} BuildEntryContribution */
+/** @typedef {import('./types.js').BuildEntryContributions} BuildEntryContributions */
+/** @typedef {import('./types.js').BuildEntryIssue} BuildEntryIssue */
 /** @typedef {import('./types.js').ParsedOptions} ParsedOptions */
 /** @typedef {import('./types.js').PackageProcessingResult} PackageProcessingResult */
 /** @typedef {import('./types.js').PluginSharedState} PluginSharedState */
 /** @typedef {import('./types.js').PluginConfigureContext} PluginConfigureContext */
+/** @typedef {import('./types.js').PluginContributeEntriesContext} PluginContributeEntriesContext */
 /** @typedef {import('./types.js').PluginPackageContext} PluginPackageContext */
 /** @typedef {import('./types.js').PluginTsConfigContext} PluginTsConfigContext */
 /** @typedef {import('./types.js').PluginRollupContext} PluginRollupContext */

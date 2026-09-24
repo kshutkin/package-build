@@ -43,6 +43,7 @@
 
 /** @typedef {'infer' | 'disabled' | 'explicit'} ExecutableMode */
 /** @typedef {'es' | 'cjs' | 'umd'} BuildFormat */
+/** @typedef {'ts' | 'tsx' | 'js' | 'jsx' | 'cjs' | 'mjs'} BuildEntryExtension */
 
 /**
  * @typedef {{
@@ -115,14 +116,34 @@
 
 /**
  * @typedef {Readonly<{
- *   inputs: readonly string[];
- *   inputsExt: ReadonlyMap<string, string>;
+ *   name: string;
+ *   sourcePath: string;
+ *   extension: BuildEntryExtension;
+ *   outputPaths: Readonly<Partial<Record<BuildFormat, string>>>;
+ * }>} BuildEntry
+ */
+
+/** @typedef {{ name: string; sourcePath?: string }} BuildEntryContribution */
+/** @typedef {{ add(contribution: BuildEntryContribution): void }} BuildEntryContributions */
+/** @typedef {{ code: 'INVALID_BUILD_ENTRY_NAME' | 'DUPLICATE_BUILD_ENTRY' | 'SOURCE_NOT_FOUND' | 'SELECTED_BUILD_ENTRY_NOT_FOUND' | 'OUTPUT_PATH_COLLISION'; path: string; message: string; name?: string }} BuildEntryIssue */
+
+/**
+ * @typedef {Readonly<{
+ *   values: readonly BuildEntry[];
+ *   require(name: string): BuildEntry;
+ * }>} BuildEntries
+ */
+
+/**
+ * @typedef {Readonly<{
+ *   entries: BuildEntries;
  *   executableOutputs: readonly string[];
  * }>} PackageProcessingResult
  */
 
 /** @typedef {{ draft: BuildConfigurationDraft; sources: BuildConfigurationSources; shared: PluginSharedState }} PluginConfigureContext */
-/** @typedef {{ packageJson: PackageJson; inputs: string[]; configuration: BuildConfiguration; shared: PluginSharedState }} PluginPackageContext */
+/** @typedef {{ entries: BuildEntryContributions; configuration: BuildConfiguration; shared: PluginSharedState }} PluginContributeEntriesContext */
+/** @typedef {{ packageJson: PackageJson; entries: BuildEntries; configuration: BuildConfiguration; shared: PluginSharedState }} PluginPackageContext */
 /** @typedef {{ config: JsonObject; configuration: BuildConfiguration; shared: PluginSharedState }} PluginTsConfigContext */
 /** @typedef {{ provider: Provider; configuration: BuildConfiguration; packageResult: PackageProcessingResult; shared: PluginSharedState }} PluginRollupContext */
 /** @typedef {{ format: InternalModuleFormat; inputs: string[]; configuration: BuildConfiguration; shared: PluginSharedState }} PluginOutputContext */
@@ -137,6 +158,7 @@
 /**
  * @typedef {{
  *   configure(context: PluginConfigureContext): void;
+ *   contributeEntries(context: PluginContributeEntriesContext): void;
  *   processPackageJson(context: PluginPackageContext): void;
  *   processTsConfig(context: PluginTsConfigContext): void;
  *   providePlugins(context: PluginRollupContext): Promise<void>;

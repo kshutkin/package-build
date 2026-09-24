@@ -13,8 +13,10 @@ export function create() {
      * @param {{ provider: Provider; configuration: BuildConfiguration; packageResult: PackageProcessingResult }} context
      */
     async function providePlugins({ provider, packageResult }) {
-        const inputs = [...packageResult.inputs];
-        const typescriptInputs = inputs.filter(input => input.endsWith('.ts') || input.endsWith('.tsx'));
+        const inputs = packageResult.entries.values.map(entry => entry.sourcePath);
+        const typescriptInputs = packageResult.entries.values
+            .filter(entry => entry.extension === 'ts' || entry.extension === 'tsx')
+            .map(entry => entry.sourcePath);
         if (typescriptInputs.length > 0) {
             provider.provide(
                 () =>

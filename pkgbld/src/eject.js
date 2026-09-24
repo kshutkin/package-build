@@ -78,13 +78,8 @@ export async function ejectConfig(config, pkgPath, configuration, packageResult,
     setup.add(generateGlobals());
 
     setup.add(`const configuration = ${generate(configuration)}`);
-    setup.add(
-        `const packageResult = { inputs: ${generate(packageResult.inputs)}, inputsExt: new Map(${generate(
-            Array.from(packageResult.inputsExt)
-        )}), executableOutputs: ${generate(packageResult.executableOutputs)} }`
-    );
-    setup.add('const inputs = packageResult.inputs');
-    setup.add('const inputsExt = packageResult.inputsExt');
+    setup.add(`const packageResult = { executableOutputs: ${generate(packageResult.executableOutputs)} }`);
+    setup.add(`const inputs = ${generate(packageResult.entries.values.map(entry => entry.sourcePath))}`);
 
     if (configuration.outputs.formats.includes('umd')) {
         imports.set('path', 'path');

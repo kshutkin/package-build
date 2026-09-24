@@ -254,7 +254,7 @@ pkgbld prune --remove-legal-comments --compress=es,cjs
 
 Removes all legal comments from the package. Only works with compress.
 
-## Plugin API
+## Build plugin interface
 
 `pkgbld` loads plugins named `pkgbld-plugin-*` or `@scope/pkgbld-plugin-*` from
 `dependencies`, `devDependencies`, and `peerDependencies`. The package name after
@@ -263,6 +263,8 @@ the optional scope must start with `pkgbld-plugin-`.
 Plugins implement one or more lifecycle methods on the object returned by the plugin module's `create()` function.
 
 Build configuration is resolved from defaults, package metadata, and explicit CLI options before `configure` runs. Plugins receive the effective mutable draft and have final authority. After all `configure` hooks finish, `pkgbld` normalizes, validates, and deeply freezes the configuration; every later hook receives that frozen value.
+
+Build entries are resolved after configuration. A plugin that needs to add a source module does so during `contributeEntries`; later phases receive immutable entries containing the canonical name, concrete source path, source extension, and enabled output paths. Configured UMD and preprocessing selections must resolve to discovered Build entries.
 
 `shared` is mutable state scoped to one build for coordination between plugins. Lifecycle phase boundaries are preserved, but plugin order within one phase is not guaranteed and asynchronous hooks in that phase may run in parallel. Plugins must not depend on the order of same-phase reads and writes. State owned by one plugin should remain in the closure created by `create()`.
 
@@ -273,6 +275,7 @@ interface PkgbldPlugin {
     sources: BuildConfigurationSources;
     shared: Map<unknown, unknown>;
   }): void;
+  contributeEntries(context: PluginContributeEntriesContext): void;
   processPackageJson(context: PluginPackageContext): void;
   processTsConfig(context: PluginTsConfigContext): void;
   providePlugins(context: PluginRollupContext): Promise<void>;

@@ -2,7 +2,7 @@ import path from 'node:path';
 
 import { createLogger, LogLevel } from '@niceties/logger';
 
-import { isExists } from './helpers.js';
+import { resolveBuildEntries } from './build-entries.js';
 
 /**
  * @typedef {import('type-fest').JsonObject} JsonObject
@@ -15,8 +15,6 @@ import { isExists } from './helpers.js';
 
 /** @type {Set<string>} */
 const emptySet = new Set();
-const sourceFileSuffixes = /** @type {const} */ (['ts', 'tsx', 'js', 'jsx', 'cjs', 'mjs']);
-
 /**
  * @param {JsonObject} pkg
  * @param {BuildConfiguration} configuration
@@ -27,10 +25,6 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
     const indexId = 'index';
     const { outputs, packageJson, paths } = configuration;
 
-    /** @type {string[]} */
-    const inputs = [];
-    /** @type {Map<string, (typeof sourceFileSuffixes)[number]>} */
-    const inputsExt = new Map();
     const logger = createLogger();
     /** @type {string[]} */
     let executableOutputs = [];
@@ -64,6 +58,24 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         /** @type {Record<string, JsonValue>} */ (pkg.scripts).prepack = 'pkgprn';
     }
 
+    /** @type {string[]} */
+    const entryNames = [];
+    if (packageJson.exports) {
+        if (typeof pkg.exports === 'object' && pkg.exports != null && !Array.isArray(pkg.exports)) {
+            for (const id in pkg.exports) {
+                if (id !== './package.json') entryNames.push(exportIdToEntryName(id));
+            }
+        }
+        if (!entryNames.includes(indexId)) entryNames.unshift(indexId);
+    } else {
+        entryNames.push(indexId);
+    }
+
+    const entries = await resolveBuildEntries(entryNames, configuration, contributions =>
+        pluginLifecycle.contributeEntries(contributions, configuration)
+    );
+    const indexEntry = entries.require(indexId);
+
     if (allowEsm && !allowCjs && typeof pkg.type !== 'string') {
         pkg.type = 'module';
     }
@@ -77,35 +89,33 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
 
     if (allowUmd && typeof pkg.umd === 'string') {
         if (outputs.umdEntries.includes(indexId)) {
-            pkg.umd = `./${paths.outputDir}/${patternToName(outputs.patterns.umd, indexId)}`;
+            pkg.umd = /** @type {string} */ (indexEntry.outputPaths.umd);
         }
     }
 
     if (allowCjs) {
-        pkg.main = `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, indexId)}`;
+        pkg.main = /** @type {string} */ (indexEntry.outputPaths.cjs);
     }
 
     if (allowEsm && !allowCjs) {
-        pkg.main = `./${paths.outputDir}/${patternToName(outputs.patterns.es, indexId)}`;
+        pkg.main = /** @type {string} */ (indexEntry.outputPaths.es);
     }
 
     if (allowCjs && allowEsm && typeof pkg.module !== 'string') {
-        pkg.module = `./${paths.outputDir}/${patternToName(outputs.patterns.es, indexId)}`;
+        pkg.module = /** @type {string} */ (indexEntry.outputPaths.es);
     }
 
     if (allowUmd && outputs.umdEntries.includes(indexId)) {
-        pkg.unpkg = `./${paths.outputDir}/${patternToName(outputs.patterns.umd, indexId)}`;
+        pkg.unpkg = /** @type {string} */ (indexEntry.outputPaths.umd);
     }
 
     if (packageJson.exports) {
-        if (typeof pkg.exports !== 'object' && pkg.exports !== null) {
+        if (typeof pkg.exports !== 'object' || pkg.exports == null || Array.isArray(pkg.exports)) {
             pkg.exports = {};
         }
-
         if (/** @type {Record<string, JsonValue>} */ (pkg.exports)['.'] == null) {
             /** @type {Record<string, JsonValue>} */ (pkg.exports)['.'] = {};
         }
-
         /** @type {Record<string, JsonValue>} */ (pkg.exports)['./package.json'] = './package.json';
 
         if (
@@ -126,7 +136,8 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         for (const id in /** @type {object} */ (pkg.exports)) {
             if (id === './package.json') continue;
 
-            const basename = id === '.' ? indexId : path.join(path.dirname(id), path.basename(id));
+            const basename = exportIdToEntryName(id);
+            const entry = entries.require(basename);
 
             if (typeof (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id]) !== 'object') {
                 /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = {};
@@ -137,41 +148,37 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
 
             if (allowEsm) {
                 /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])[esmFieldName] =
-                    `./${paths.outputDir}/${patternToName(outputs.patterns.es, basename)}`;
+                    /** @type {string} */ (entry.outputPaths.es);
             }
 
             if (allowCjs) {
                 /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])[cjsFieldName] =
-                    `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, basename)}`;
+                    /** @type {string} */ (entry.outputPaths.cjs);
             }
 
             /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = orderFields(
                 exportsFields,
                 /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])
             );
-
-            await updateExtensions(basename);
         }
-    } else {
-        await updateExtensions(indexId);
     }
 
-    pluginLifecycle.processPackageJson(/** @type {PackageJson} */ (pkg), inputs, configuration);
+    pluginLifecycle.processPackageJson(/** @type {PackageJson} */ (pkg), entries, configuration);
 
     if (packageJson.executables.mode === 'explicit') {
         executableOutputs = [...packageJson.executables.values];
         if (executableOutputs.length > 0) {
             pkg.bin = /** @type {string} */ (executableOutputs[0]);
         }
-    } else if (packageJson.executables.mode === 'infer' && allowCjs && inputs.length > 0) {
+    } else if (packageJson.executables.mode === 'infer' && allowCjs && entries.values.length > 0) {
         if (typeof pkg.bin === 'string') {
-            if (inputs.some(input => pkg.bin === getCommonjsOutputPath(input))) {
+            if (entries.values.some(entry => pkg.bin === entry.outputPaths.cjs)) {
                 executableOutputs = [pkg.bin];
             }
         } else if (typeof pkg.bin === 'object' && pkg.bin !== null) {
             executableOutputs = /** @type {string[]} */ (
                 Object.values(pkg.bin).filter(
-                    value => typeof value === 'string' && inputs.some(input => value === getCommonjsOutputPath(input))
+                    value => typeof value === 'string' && entries.values.some(entry => value === entry.outputPaths.cjs)
                 )
             );
         }
@@ -182,47 +189,20 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
             typeof pkg.directories.bin === 'string'
         ) {
             if (path.resolve(pkg.directories.bin) === path.resolve(paths.outputDir)) {
-                executableOutputs.push(...inputs.map(input => `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, input)}`));
+                executableOutputs.push(...entries.values.flatMap(entry => (entry.outputPaths.cjs == null ? [] : [entry.outputPaths.cjs])));
                 executableOutputs = Array.from(new Set(executableOutputs));
             }
         }
     }
 
-    return { inputs, inputsExt, executableOutputs };
-
-    /**
-     * @param {string} id
-     */
-    async function updateExtensions(id) {
-        const sourceFileWithoutSuffix = `./${paths.sourceDir}/${id}.`;
-
-        for (const suffix of sourceFileSuffixes) {
-            const file = sourceFileWithoutSuffix + suffix;
-            if (await isExists(file)) {
-                inputs.push(file);
-                inputsExt.set(id, suffix);
-                break;
-            }
-        }
-    }
-
-    /**
-     * @param {string} input
-     */
-    function getCommonjsOutputPath(input) {
-        const relativeInput = path.relative(paths.sourceDir, input);
-        const entryName = relativeInput.slice(0, -path.extname(relativeInput).length);
-        return `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, entryName)}`;
-    }
+    return { entries, executableOutputs };
 }
 
 /**
- * @param {string} pattern
- * @param {string} input
- * @returns {string}
+ * @param {string} id
  */
-function patternToName(pattern, input) {
-    return pattern.replace('[name]', input);
+function exportIdToEntryName(id) {
+    return id === '.' ? 'index' : id.replace(/^\.\//, '').replaceAll('\\', '/');
 }
 
 /**

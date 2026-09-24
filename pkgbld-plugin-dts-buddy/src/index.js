@@ -31,12 +31,12 @@ export function create() {
     }
 
     /**
-     * @param {{ packageJson: PackageJson; inputs: string[] }} context
+     * @param {{ packageJson: PackageJson; entries: import('pkgbld').BuildEntries }} context
      */
-    function processPackageJson({ packageJson, inputs }) {
+    function processPackageJson({ packageJson, entries }) {
         pkgName = packageJson.name ?? '';
-        for (const input of inputs) {
-            config.modules[getOutputName(input)] = input;
+        for (const entry of entries.values) {
+            config.modules[getOutputName(entry.name)] = entry.sourcePath;
         }
         if (typeof packageJson.typings === 'string') {
             packageJson.typings = undefined;
@@ -79,13 +79,13 @@ export function create() {
     };
 
     /**
-     * @param {string} input
+     * @param {string} entryName
      */
-    function getOutputName(input) {
-        if (path.basename(input, path.extname(input)) === 'index') {
+    function getOutputName(entryName) {
+        if (entryName === 'index') {
             return pkgName;
         }
-        return `${pkgName}/${path.basename(input, path.extname(input))}`;
+        return `${pkgName}/${entryName}`;
     }
 }
 

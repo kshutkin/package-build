@@ -26,7 +26,7 @@ export function curry(fn, ...args) {
  * @param {PackageProcessingResult} packageResult
  */
 export default async function (provider, configuration, packageResult) {
-    const { inputs, inputsExt } = packageResult;
+    const inputs = packageResult.entries.values.map(entry => entry.sourcePath);
     if (configuration.transforms.includeExternals === true) {
         return;
     }
@@ -56,20 +56,19 @@ export default async function (provider, configuration, packageResult) {
 
     if (!allowGenericUmd && configuration.outputs.umdEntries.length > 0) {
         const curryForConfig = /** @type {typeof curry} */ (provider.globalSetup(curry) ?? curry);
-        for (const currentInput of configuration.outputs.umdEntries) {
+        for (const entryName of configuration.outputs.umdEntries) {
+            const currentInput = packageResult.entries.require(entryName).sourcePath;
             const isExternal = curryForConfig(
                 (
                     /** @type {string} */ currentInput,
                     /** @type {string} */ id,
                     /** @type {boolean} */ external,
                     /** @type {string} */ importer
-                ) =>
-                    includeExternals(importer, external, id, configuration) ||
-                    isExternalInput(currentInput, inputs, inputsExt, id, configuration)
+                ) => includeExternals(importer, external, id, configuration) || isExternalInput(currentInput, inputs, id)
             )(currentInput);
             provider.provide(() => pluginExternals(isExternal), Priority.externals, {
                 format: 'umd',
-                inputs: [`./${configuration.paths.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
+                inputs: [currentInput],
             });
         }
         if (configuration.outputs.formats.length === 0) {
@@ -99,14 +98,10 @@ function includeExternals(_importer, external, id, configuration) {
 /**
  * @param {string} currentInput
  * @param {string | readonly string[]} inputs
- * @param {ReadonlyMap<string, string>} inputsExt
  * @param {string} id
- * @param {BuildConfiguration} configuration
  */
-function isExternalInput(currentInput, inputs, inputsExt, id, configuration) {
-    const normalizedPath = path.isAbsolute(currentInput)
-        ? `./${path.relative(process.cwd(), `${currentInput}.${inputsExt.get(currentInput)}`)}`
-        : `./${path.join(configuration.paths.sourceDir, `${currentInput}.${inputsExt.get(currentInput)}`)}`;
+function isExternalInput(currentInput, inputs, id) {
+    const normalizedPath = path.isAbsolute(currentInput) ? `./${path.relative(process.cwd(), currentInput)}` : currentInput;
     const normalizedId = path.isAbsolute(id) ? `./${path.relative(process.cwd(), id)}` : id;
     return normalizedPath !== normalizedId && inputs.includes(normalizedPath);
 }

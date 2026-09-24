@@ -26,6 +26,10 @@ An npm package discovered by its PKG BLD plugin name and loaded by `pkgbld` duri
 The finalized build choices resolved from defaults, package metadata, explicit CLI options, and Build plugin overrides before package.json is updated.
 _Avoid_: Options, config
 
+**Build entry**:
+A named source module discovered for a package and used as a concrete build input.
+_Avoid_: Input, entry point
+
 **Cross-plugin coordination state**:
 Mutable values shared by Build plugins for one build without becoming part of the Build configuration.
 _Avoid_: Shared configuration, global plugin state
@@ -40,6 +44,7 @@ The committed record of integrations that the project acknowledges as successful
 
 - A **Package inventory** describes zero or more **Build plugins** and **Extensions**.
 - A **Build configuration** is resolved in ascending authority from defaults, package metadata, explicit CLI options, and **Build plugins**.
+- A **Build configuration** may select **Build entries** for format-specific output and transforms.
 - **Cross-plugin coordination state** is owned by one build and shared across its **Build plugin** lifecycle phases without same-phase ordering guarantees.
 - A **Package operation** derives its behavior from one inventory entry and one **Package target**.
 - **Project changes** apply **Package operations** sequentially and retain each operation's claims for conflict review.

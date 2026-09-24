@@ -6,6 +6,8 @@
  * @typedef {import('./types.js').BuildConfiguration} BuildConfiguration
  * @typedef {import('./types.js').BuildConfigurationDraft} BuildConfigurationDraft
  * @typedef {import('./types.js').BuildConfigurationSources} BuildConfigurationSources
+ * @typedef {import('./types.js').BuildEntries} BuildEntries
+ * @typedef {import('./types.js').BuildEntryContributions} BuildEntryContributions
  * @typedef {import('./types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {import('./types.js').PkgbldPlugin} PkgbldPlugin
  * @typedef {import('./types.js').PluginSharedState} PluginSharedState
@@ -37,6 +39,16 @@ export function createBuildPluginLifecycle(plugins) {
         },
 
         /**
+         * @param {BuildEntryContributions} entries
+         * @param {BuildConfiguration} configuration
+         */
+        contributeEntries(entries, configuration) {
+            for (const plugin of plugins) {
+                plugin.contributeEntries?.({ entries, configuration, shared });
+            }
+        },
+
+        /**
          * @param {JsonObject} config
          * @param {BuildConfiguration} configuration
          */
@@ -48,12 +60,12 @@ export function createBuildPluginLifecycle(plugins) {
 
         /**
          * @param {PackageJson} packageJson
-         * @param {string[]} inputs
+         * @param {BuildEntries} entries
          * @param {BuildConfiguration} configuration
          */
-        processPackageJson(packageJson, inputs, configuration) {
+        processPackageJson(packageJson, entries, configuration) {
             for (const plugin of plugins) {
-                plugin.processPackageJson?.({ packageJson, inputs, configuration, shared });
+                plugin.processPackageJson?.({ packageJson, entries, configuration, shared });
             }
         },
 
