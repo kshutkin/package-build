@@ -14,9 +14,7 @@ pkgbld will automatically detect the plugin and generate declaration files.
 
 ## Behavior
 
-This plugin automatically sets the `noSubpackages` option to `true` when loaded. This means that pkgbld will not create subpackage directories with `package.json` files for non-index entry points.
-
-This is the recommended approach when using `dts-buddy`, as it bundles type definitions in a way that provides proper module resolution without requiring separate subpackage directories.
+The plugin enables declaration generation in `tsconfig.json`, updates the package `types` and export metadata, and runs `dts-buddy` after the JavaScript build completes. Each PKG BLD entry is exposed as a module in the generated declaration bundle.
 
 # License
 

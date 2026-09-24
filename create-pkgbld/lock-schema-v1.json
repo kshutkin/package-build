@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://unpkg.com/create-pkgbld/lock-schema-v1.json",
+    "title": "create-pkgbld lock file, version 1",
+    "description": "Records PKG BLD integrations acknowledged as applied to a project.",
+    "type": "object",
+    "required": ["$schema", "packages"],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://unpkg.com/create-pkgbld/lock-schema-v1.json"
+        },
+        "packages": {
+            "type": "object",
+            "description": "Canonical npm package names mapped to exact applied versions.",
+            "propertyNames": {
+                "type": "string",
+                "pattern": "^(?:@[a-z0-9][a-z0-9._~-]*/)?(?:create-pkgbld-extension-|pkgbld-plugin-)[a-z0-9][a-z0-9._~-]*$"
+            },
+            "additionalProperties": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+            }
+        }
+    }
+}
