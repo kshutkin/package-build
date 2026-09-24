@@ -11,7 +11,7 @@ packages:
 
 catalog:
   "dts-buddy": "^0.8.3"
-  "typescript": "^6.0.3"
+  "typescript": "^7.0.0"
   rollup: ^4.63.1
   c8: ^12.0.0
   "type-fest": ^5.9.0
