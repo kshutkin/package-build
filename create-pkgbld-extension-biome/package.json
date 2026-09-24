@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0",
+    "version": "0.1.1",
     "name": "create-pkgbld-extension-biome",
     "description": "create-pkgbld extension that wires Biome (linter/formatter) into a project",
     "license": "MIT",

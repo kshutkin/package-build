@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.6
+
+### Patch Changes
+
+- cd164d9: Replace the removed `pkgbld prune` prepack command with `pkgprn` so the package can be published again.
+
 ## 0.0.5
 
 ### Patch Changes
