@@ -1,16 +1,16 @@
 import { Priority } from '../priorities.js';
 
 /**
- * @typedef {import('../types.js').CliOptions} CliOptions
+ * @typedef {import('../types.js').BuildConfiguration} BuildConfiguration
  * @typedef {import('../types.js').Provider} Provider
  */
 
 /**
  * @param {Provider} provider
- * @param {CliOptions} config
+ * @param {BuildConfiguration} configuration
  */
-export default async function (provider, config) {
-    if (!config.clean) {
+export default async function (provider, configuration) {
+    if (!configuration.execution.clean) {
         return;
     }
 

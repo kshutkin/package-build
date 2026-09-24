@@ -8,7 +8,7 @@ import { writeJson } from './write-json.js';
 /**
  * @typedef {import('@niceties/logger').Logger} Logger
  * @typedef {import('type-fest').JsonObject} JsonObject
- * @typedef {import('./types.js').CliOptions} CliOptions
+ * @typedef {import('./types.js').BuildConfiguration} BuildConfiguration
  * @typedef {ReturnType<typeof import('./build-plugin-lifecycle.js').createBuildPluginLifecycle>} BuildPluginLifecycle
  */
 
@@ -37,13 +37,13 @@ function createDefaultTsConfig(sourceDir) {
 }
 
 /**
- * @param {CliOptions} options
+ * @param {BuildConfiguration} configuration
  * @param {Logger} mainLogger
  * @param {BuildPluginLifecycle} pluginLifecycle
  * @returns {Promise<JsonObject | undefined>}
  */
-export async function checkTsConfig(options, mainLogger, pluginLifecycle) {
-    if (!options.tsConfig) {
+export async function checkTsConfig(configuration, mainLogger, pluginLifecycle) {
+    if (!configuration.typescript.updateConfig) {
         return;
     }
     /** @type {JsonObject | undefined} */
@@ -63,11 +63,11 @@ export async function checkTsConfig(options, mainLogger, pluginLifecycle) {
         /*ignore*/
     }
     if (!config) {
-        config = /** @type {JsonObject} */ (createDefaultTsConfig(options.sourceDir || 'src'));
+        config = /** @type {JsonObject} */ (createDefaultTsConfig(configuration.paths.sourceDir || 'src'));
         needWrite = true;
     }
     const originalConfig = structuredClone(config);
-    pluginLifecycle.processTsConfig(config);
+    pluginLifecycle.processTsConfig(config, configuration);
     if (!fastIsEqual(originalConfig, config)) {
         needWrite = true;
     }

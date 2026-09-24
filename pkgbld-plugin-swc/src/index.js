@@ -2,19 +2,18 @@ import swc from '@rollup/plugin-swc';
 
 /**
  * @typedef {import('pkgbld').Provider} Provider
- * @typedef {import('pkgbld').ParsedOptions} ParsedOptions
+ * @typedef {import('pkgbld').BuildConfiguration} BuildConfiguration
+ * @typedef {import('pkgbld').PackageProcessingResult} PackageProcessingResult
  */
 
 const TRANSPILE_PRIORITY = 6000;
 
 export function create() {
     /**
-     * @param {Provider} provider
-     * @param {ParsedOptions} _config
-     * @param {string[]} inputs
-     * @param {Map<string, string>} _inputsExt
+     * @param {{ provider: Provider; configuration: BuildConfiguration; packageResult: PackageProcessingResult }} context
      */
-    async function providePlugins(provider, _config, inputs, _inputsExt) {
+    async function providePlugins({ provider, packageResult }) {
+        const inputs = [...packageResult.inputs];
         const typescriptInputs = inputs.filter(input => input.endsWith('.ts') || input.endsWith('.tsx'));
         if (typescriptInputs.length > 0) {
             provider.provide(

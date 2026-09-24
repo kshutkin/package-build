@@ -3,10 +3,9 @@ import path from 'node:path';
 import { createBundle } from 'dts-buddy';
 
 /**
- * @typedef {import('pkgbld').CliOptions} CliOptions
+ * @typedef {import('pkgbld').BuildConfigurationDraft} BuildConfigurationDraft
  * @typedef {import('pkgbld').Json} Json
  * @typedef {import('pkgbld').PackageJson} PackageJson
- * @typedef {import('pkgbld').ParsedOptions} ParsedOptions
  */
 
 export function create() {
@@ -23,20 +22,18 @@ export function create() {
     let pkgName;
 
     /**
-     * @param {ParsedOptions} _parsedArgs
-     * @param {CliOptions} options
+     * @param {{ draft: BuildConfigurationDraft }} context
      */
-    function options(_parsedArgs, options) {
-        dir = options.dir;
+    function configure({ draft }) {
+        dir = draft.paths.outputDir;
         config.output = path.join(dir, 'index.d.ts');
-        options.tsConfig = true;
+        draft.typescript.updateConfig = true;
     }
 
     /**
-     * @param {PackageJson} packageJson
-     * @param {string[]} inputs
+     * @param {{ packageJson: PackageJson; inputs: string[] }} context
      */
-    function processPackageJson(packageJson, inputs) {
+    function processPackageJson({ packageJson, inputs }) {
         pkgName = packageJson.name ?? '';
         for (const input of inputs) {
             config.modules[getOutputName(input)] = input;
@@ -60,9 +57,9 @@ export function create() {
     }
 
     /**
-     * @param {Json} config
+     * @param {{ config: Json }} context
      */
-    function processTsConfig(config) {
+    function processTsConfig({ config }) {
         isDeclarationsEnabled = getIsDeclarationsEnabled(config);
     }
 
@@ -75,7 +72,7 @@ export function create() {
     }
 
     return {
-        options,
+        configure,
         processPackageJson,
         processTsConfig,
         buildEnd,

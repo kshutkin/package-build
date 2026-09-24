@@ -2,16 +2,18 @@ import { Priority } from '../priorities.js';
 
 /**
  * @typedef {import('rollup').OutputChunk} OutputChunk
- * @typedef {import('../types.js').CliOptions} CliOptions
+ * @typedef {import('../types.js').BuildConfiguration} BuildConfiguration
+ * @typedef {import('../types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {import('../types.js').Provider} Provider
  */
 
 /**
  * @param {Provider} provider
- * @param {CliOptions} config
+ * @param {BuildConfiguration} configuration
+ * @param {PackageProcessingResult} packageResult
  */
-export default async function (provider, config) {
-    if (config.bin != null && config.bin.length > 0) {
+export default async function (provider, configuration, packageResult) {
+    if (packageResult.executableOutputs.length > 0) {
         const pluginBinify = await provider.import('@rollup-extras/plugin-binify');
 
         provider.provide(
@@ -20,7 +22,7 @@ export default async function (provider, config) {
                     filter: (/** @type {OutputChunk} */ item) =>
                         item.type === 'chunk' &&
                         item.isEntry &&
-                        /** @type {string[]} */ (config.bin).some(input => input === `./${config.dir}/${item.fileName}`),
+                        packageResult.executableOutputs.some(input => input === `./${configuration.paths.outputDir}/${item.fileName}`),
                 }),
             Priority.finalize,
             { outputPlugin: true, format: 'cjs' }

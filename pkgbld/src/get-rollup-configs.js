@@ -8,7 +8,8 @@ import { areSetsEqual, toArray } from './helpers.js';
 /**
  * @typedef {import('rollup').InternalModuleFormat} InternalModuleFormat
  * @typedef {import('rollup').OutputOptions} OutputOptions
- * @typedef {import('./types.js').CliOptions} CliOptions
+ * @typedef {import('./types.js').BuildConfiguration} BuildConfiguration
+ * @typedef {import('./types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {import('./types.js').PkgbldRollupPlugin} PkgbldRollupPlugin
  * @typedef {import('./types.js').Provider} Provider
  * @typedef {ReturnType<typeof import('./build-plugin-lifecycle.js').createBuildPluginLifecycle>} BuildPluginLifecycle
@@ -16,26 +17,27 @@ import { areSetsEqual, toArray } from './helpers.js';
 
 /**
  * @param {[Provider, PkgbldRollupPlugin[]]} providerAndPlugins
- * @param {string[]} inputs
- * @param {Map<string, string>} inputsExt
- * @param {CliOptions} config
+ * @param {PackageProcessingResult} packageResult
+ * @param {BuildConfiguration} configuration
  * @param {ReturnType<import('./helpers.js').getHelpers>} helpers
  * @param {BuildPluginLifecycle} pluginLifecycle
  */
-export async function getRollupConfigs([provider, plugins], inputs, inputsExt, config, helpers, pluginLifecycle) {
+export async function getRollupConfigs([provider, plugins], packageResult, configuration, helpers, pluginLifecycle) {
+    const inputs = [...packageResult.inputs];
+    const inputsExt = packageResult.inputsExt;
     const factoryInProgress = [];
 
     const fileNamePatterns = /** @type {{ [key in InternalModuleFormat]: string }} */ ({
-        es: config.esPattern,
-        cjs: config.commonjsPattern,
-        umd: config.umdPattern,
+        es: configuration.outputs.patterns.es,
+        cjs: configuration.outputs.patterns.cjs,
+        umd: configuration.outputs.patterns.umd,
     });
 
     for (const factory of pluginFactories) {
-        factoryInProgress.push(factory(provider, config, inputs, inputsExt));
+        factoryInProgress.push(factory(provider, configuration, packageResult));
     }
 
-    factoryInProgress.push(pluginLifecycle.provideRollupPlugins(provider, config, inputs, inputsExt));
+    factoryInProgress.push(pluginLifecycle.provideRollupPlugins(provider, configuration, packageResult));
 
     await Promise.all(factoryInProgress);
 
@@ -52,7 +54,7 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
 
     const refineNext = refiner();
 
-    refineNext(doExpandInputs(/** @type {InternalModuleFormat[]} */ (toArray(config.formats))));
+    refineNext(doExpandInputs(/** @type {InternalModuleFormat[]} */ ([...configuration.outputs.formats])));
 
     for (const plugin of plugins) {
         if (plugin.format && !plugin.outputPlugin) {
@@ -127,15 +129,15 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
     return partitions.map(({ formats, inputs }) => {
         return {
             input: Object.fromEntries(
-                inputs.map(input => [path.relative(config.sourceDir, input).slice(0, -path.extname(input).length), input])
+                inputs.map(input => [path.relative(configuration.paths.sourceDir, input).slice(0, -path.extname(input).length), input])
             ),
 
             output: formats.map(format => ({
                 format,
-                dir: config.dir,
+                dir: configuration.paths.outputDir,
                 entryFileNames: fileNamePatterns[format],
                 plugins: getPlugins([format], inputs, true),
-                sourcemap: config.sourcemapFormats.includes(format),
+                sourcemap: configuration.outputs.sourcemaps.some(value => value === format),
                 ...getExtraOutputSettings(format, inputs),
             })),
 
@@ -168,7 +170,7 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
                 };
                 break;
         }
-        pluginLifecycle.extendOutputSettings(result, format, inputs);
+        pluginLifecycle.extendOutputSettings(result, format, inputs, configuration);
         return result;
     }
 
@@ -211,8 +213,8 @@ export async function getRollupConfigs([provider, plugins], inputs, inputsExt, c
                         expanded.push(`${format}.${input}`);
                     }
                 } else {
-                    for (const input of config.umdInputs) {
-                        expanded.push(`${format}../${config.sourceDir}/${input}.${inputsExt.get(input)}`);
+                    for (const input of configuration.outputs.umdEntries) {
+                        expanded.push(`${format}../${configuration.paths.sourceDir}/${input}.${inputsExt.get(input)}`);
                     }
                 }
             } else {

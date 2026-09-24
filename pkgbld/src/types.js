@@ -41,35 +41,92 @@
  * }} PkgbldRollupPlugin
  */
 
+/** @typedef {'infer' | 'disabled' | 'explicit'} ExecutableMode */
+/** @typedef {'es' | 'cjs' | 'umd'} BuildFormat */
+
 /**
  * @typedef {{
- *   umdInputs: string[];
- *   umdOverridden: boolean;
- *   compressFormats: string[];
- *   sourcemapFormats: string[];
- *   formats: string[];
- *   formatsOverridden: boolean;
- *   preprocess: string[];
- *   dir: string;
- *   sourceDir: string;
- *   bin?: string[];
- *   includeExternals: boolean | string[];
- *   eject: boolean;
- *   tsConfig: boolean;
- *   updatePackageJson: boolean;
- *   commonjsPattern: string;
- *   esPattern: string;
- *   umdPattern: string;
- *   formatPackageJson: boolean;
- *   pack: boolean;
- *   exports: boolean;
- *   clean: boolean;
- *   bundle: boolean;
- *   removeLegalComments: boolean;
- * }} CliOptions
+ *   paths: { sourceDir: string; outputDir: string };
+ *   outputs: {
+ *     formats: BuildFormat[];
+ *     patterns: { es: string; cjs: string; umd: string };
+ *     umdEntries: string[];
+ *     sourcemaps: BuildFormat[];
+ *   };
+ *   transforms: {
+ *     compress: BuildFormat[];
+ *     preprocess: string[];
+ *     includeExternals: boolean | string[];
+ *     removeLegalComments: boolean;
+ *   };
+ *   packageJson: {
+ *     update: boolean;
+ *     format: boolean;
+ *     exports: boolean;
+ *     pack: boolean;
+ *     executables: { mode: ExecutableMode; values: string[] };
+ *   };
+ *   typescript: { updateConfig: boolean };
+ *   execution: { clean: boolean; bundle: boolean; eject: boolean };
+ * }} BuildConfigurationDraft
+ */
+
+/**
+ * @typedef {Readonly<{
+ *   paths: Readonly<{ sourceDir: string; outputDir: string }>;
+ *   outputs: Readonly<{
+ *     formats: readonly BuildFormat[];
+ *     patterns: Readonly<{ es: string; cjs: string; umd: string }>;
+ *     umdEntries: readonly string[];
+ *     sourcemaps: readonly BuildFormat[];
+ *   }>;
+ *   transforms: Readonly<{
+ *     compress: readonly BuildFormat[];
+ *     preprocess: readonly string[];
+ *     includeExternals: boolean | readonly string[];
+ *     removeLegalComments: boolean;
+ *   }>;
+ *   packageJson: Readonly<{
+ *     update: boolean;
+ *     format: boolean;
+ *     exports: boolean;
+ *     pack: boolean;
+ *     executables: Readonly<{ mode: ExecutableMode; values: readonly string[] }>;
+ *   }>;
+ *   typescript: Readonly<{ updateConfig: boolean }>;
+ *   execution: Readonly<{ clean: boolean; bundle: boolean; eject: boolean }>;
+ * }>} BuildConfiguration
  */
 
 /** @typedef {Record<string, string | number | string[] | number[] | boolean | undefined>} ParsedOptions */
+
+/**
+ * @typedef {Readonly<{
+ *   defaults: BuildConfiguration;
+ *   package: Readonly<PackageJson>;
+ *   cli: Readonly<{
+ *     values: Readonly<ParsedOptions>;
+ *     provided: Readonly<Record<string, boolean>>;
+ *   }>;
+ * }>} BuildConfigurationSources
+ */
+
+/** @typedef {Map<unknown, unknown>} PluginSharedState */
+
+/**
+ * @typedef {Readonly<{
+ *   inputs: readonly string[];
+ *   inputsExt: ReadonlyMap<string, string>;
+ *   executableOutputs: readonly string[];
+ * }>} PackageProcessingResult
+ */
+
+/** @typedef {{ draft: BuildConfigurationDraft; sources: BuildConfigurationSources; shared: PluginSharedState }} PluginConfigureContext */
+/** @typedef {{ packageJson: PackageJson; inputs: string[]; configuration: BuildConfiguration; shared: PluginSharedState }} PluginPackageContext */
+/** @typedef {{ config: JsonObject; configuration: BuildConfiguration; shared: PluginSharedState }} PluginTsConfigContext */
+/** @typedef {{ provider: Provider; configuration: BuildConfiguration; packageResult: PackageProcessingResult; shared: PluginSharedState }} PluginRollupContext */
+/** @typedef {{ format: InternalModuleFormat; inputs: string[]; configuration: BuildConfiguration; shared: PluginSharedState }} PluginOutputContext */
+/** @typedef {{ configuration: BuildConfiguration; shared: PluginSharedState }} PluginBuildEndContext */
 
 /**
  * @typedef {{
@@ -79,12 +136,12 @@
 
 /**
  * @typedef {{
- *   options(parsedArgs: ParsedOptions, options: CliOptions): void;
- *   processPackageJson(packageJson: PackageJson, inputs: string[]): void;
- *   processTsConfig(config: JsonObject): void;
- *   providePlugins(provider: Provider, config: ParsedOptions, inputs: string[], inputsExt: Map<string, string>): Promise<void>;
- *   getExtraOutputSettings(format: InternalModuleFormat, inputs: string[]): Partial<OutputOptions>;
- *   buildEnd(): Promise<void>;
+ *   configure(context: PluginConfigureContext): void;
+ *   processPackageJson(context: PluginPackageContext): void;
+ *   processTsConfig(context: PluginTsConfigContext): void;
+ *   providePlugins(context: PluginRollupContext): Promise<void>;
+ *   getExtraOutputSettings(context: PluginOutputContext): Partial<OutputOptions>;
+ *   buildEnd(context: PluginBuildEndContext): Promise<void>;
  * }} PkgbldPlugin
  */
 

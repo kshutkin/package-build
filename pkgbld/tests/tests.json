@@ -18,7 +18,7 @@
             "args": "--umd=index",
             "output": "package.json\n|{}\nsrc\n  index.ts\n|export const test = 0;",
             "exitCode": 255,
-            "stdout": "preparing..\n\npreparing...\n✕ expecting name to be a string in package.json\n",
+            "stdout": "preparing..\n\n✕ BuildConfigurationError: Invalid Build configuration:\n- package.name: a package name is required for UMD entries\n",
             "stderr": ""
         },
         {

@@ -2,18 +2,19 @@ import { Priority } from '../priorities.js';
 
 /**
  * @typedef {import('rollup').InternalModuleFormat} InternalModuleFormat
- * @typedef {import('../types.js').CliOptions} CliOptions
+ * @typedef {import('../types.js').BuildConfiguration} BuildConfiguration
+ * @typedef {import('../types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {import('../types.js').Provider} Provider
  */
 
 /**
  * @param {Provider} provider
- * @param {CliOptions} config
- * @param {string[]} _inputs
- * @param {Map<string, string>} inputsExt
+ * @param {BuildConfiguration} configuration
+ * @param {PackageProcessingResult} packageResult
  */
-export default async function (provider, config, _inputs, inputsExt) {
-    const filteredFormats = config.compressFormats.filter(format => config.formats.includes(format));
+export default async function (provider, configuration, packageResult) {
+    const { inputsExt } = packageResult;
+    const filteredFormats = configuration.transforms.compress.filter(format => configuration.outputs.formats.includes(format));
 
     if (filteredFormats.length > 0) {
         const pluginTerser = await provider.import('@rollup/plugin-terser');
@@ -26,7 +27,7 @@ export default async function (provider, config, _inputs, inputsExt) {
             },
         };
 
-        if (config.removeLegalComments) {
+        if (configuration.transforms.removeLegalComments) {
             /** @type {any} */ (options).output = {
                 comments: false,
             };
@@ -36,11 +37,11 @@ export default async function (provider, config, _inputs, inputsExt) {
             if (format !== 'umd') {
                 provider.provide(() => pluginTerser(options), Priority.compress, { format, outputPlugin: true });
             } else {
-                for (const currentInput of config.umdInputs) {
+                for (const currentInput of configuration.outputs.umdEntries) {
                     provider.provide(() => pluginTerser(options), Priority.compress, {
                         format,
                         outputPlugin: true,
-                        inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
+                        inputs: [`./${configuration.paths.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
                     });
                 }
             }

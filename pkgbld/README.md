@@ -260,30 +260,24 @@ Removes all legal comments from the package. Only works with compress.
 `dependencies`, `devDependencies`, and `peerDependencies`. The package name after
 the optional scope must start with `pkgbld-plugin-`.
 
-Plugins suppose to implement one or more of the following interface methods on an object that returned by `create()` function exported by the plugin module.
+Plugins implement one or more lifecycle methods on the object returned by the plugin module's `create()` function.
+
+Build configuration is resolved from defaults, package metadata, and explicit CLI options before `configure` runs. Plugins receive the effective mutable draft and have final authority. After all `configure` hooks finish, `pkgbld` normalizes, validates, and deeply freezes the configuration; every later hook receives that frozen value.
+
+`shared` is mutable state scoped to one build for coordination between plugins. Lifecycle phase boundaries are preserved, but plugin order within one phase is not guaranteed and asynchronous hooks in that phase may run in parallel. Plugins must not depend on the order of same-phase reads and writes. State owned by one plugin should remain in the closure created by `create()`.
 
 ```typescript
 interface PkgbldPlugin {
-  options(
-    parsedArgs: { [key: string]: string | number },
-    options: ReturnType<typeof getCliOptions>
-  ): void;
-  processPackageJson(
-    packageJson: PackageJson,
-    inputs: string[],
-    logger: Logger
-  ): void;
-  processTsConfig(config: Json): void;
-  providePlugins(
-    provider: Provider,
-    config: Record<string, string | string[] | boolean>,
-    inputs: string[]
-  ): Promise<void>;
-  getExtraOutputSettings(
-    format: InternalModuleFormat,
-    inputs: string[]
-  ): Partial<OutputOptions>;
-  buildEnd(): Promise<void>;
+  configure(context: {
+    draft: BuildConfigurationDraft;
+    sources: BuildConfigurationSources;
+    shared: Map<unknown, unknown>;
+  }): void;
+  processPackageJson(context: PluginPackageContext): void;
+  processTsConfig(context: PluginTsConfigContext): void;
+  providePlugins(context: PluginRollupContext): Promise<void>;
+  getExtraOutputSettings(context: PluginOutputContext): Partial<OutputOptions>;
+  buildEnd(context: PluginBuildEndContext): Promise<void>;
 }
 ```
 

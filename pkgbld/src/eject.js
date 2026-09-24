@@ -7,7 +7,8 @@ import { camelCase } from './helpers.js';
 /**
  * @typedef {import('rollup').RollupOptions} RollupOptions
  * @typedef {import('type-fest').PackageJson} PackageJson
- * @typedef {import('./types.js').CliOptions} CliOptions
+ * @typedef {import('./types.js').BuildConfiguration} BuildConfiguration
+ * @typedef {import('./types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {import('./types.js').PkgbldRollupPlugin} PkgbldRollupPlugin
  * @typedef {import('./types.js').Provider} Provider
  */
@@ -65,23 +66,27 @@ export async function createEjectProvider() {
 /**
  * @param {RollupOptions[]} config
  * @param {string} pkgPath
- * @param {CliOptions} options
- * @param {string[]} inputs
- * @param {Map<string, string>} inputsExt
+ * @param {BuildConfiguration} configuration
+ * @param {PackageProcessingResult} packageResult
  * @param {ReturnType<import('./helpers.js').getHelpers>} helpers
  * @param {PackageJson} pkg
  */
-export async function ejectConfig(config, pkgPath, options, inputs, inputsExt, helpers, pkg) {
+export async function ejectConfig(config, pkgPath, configuration, packageResult, helpers, pkg) {
     const pkgName = /** @type {{ name: string }} */ (pkg).name;
 
     const text = generate(config);
     setup.add(generateGlobals());
 
-    setup.add(`const config = ${generate(options)}`);
-    setup.add(`const inputs = ${generate(inputs)}`);
-    setup.add(`const inputsExt = new Map(${generate(Array.from(inputsExt))})`);
+    setup.add(`const configuration = ${generate(configuration)}`);
+    setup.add(
+        `const packageResult = { inputs: ${generate(packageResult.inputs)}, inputsExt: new Map(${generate(
+            Array.from(packageResult.inputsExt)
+        )}), executableOutputs: ${generate(packageResult.executableOutputs)} }`
+    );
+    setup.add('const inputs = packageResult.inputs');
+    setup.add('const inputsExt = packageResult.inputsExt');
 
-    if (options.formats.includes('umd')) {
+    if (configuration.outputs.formats.includes('umd')) {
         imports.set('path', 'path');
         imports.set('url', 'url');
         setup.add(`const pkgName = ${generate(/** @type {never} */ (pkgName))}`);

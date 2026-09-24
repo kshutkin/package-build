@@ -7,9 +7,9 @@ import { rollup } from 'rollup';
 import { green } from '@niceties/ansi';
 import { createLogger, LogLevel } from '@niceties/logger';
 
+import { resolveBuildConfiguration } from './build-configuration.js';
 import { createBuildPluginLifecycle } from './build-plugin-lifecycle.js';
 import { createEjectProvider, ejectConfig } from './eject.js';
-import { getCliOptions } from './get-cli-options.js';
 import { getJson } from './get-json.js';
 import { createProvider } from './get-plugins.js';
 import { getRollupConfigs } from './get-rollup-configs.js';
@@ -48,38 +48,38 @@ async function execute() {
         const pluginLifecycle = createBuildPluginLifecycle(plugins);
         mainLogger.update('');
         process.stdout.moveCursor?.(0, -1);
-        const options = getCliOptions(pluginLifecycle, pkg);
+        const configuration = resolveBuildConfiguration({ packageJson: pkg, pluginLifecycle });
         process.stdout.moveCursor?.(0, 1);
         mainLogger.update('preparing...');
-        await checkTsConfig(options, mainLogger, pluginLifecycle);
-        const [inputs, inputsExt] = await processPackage(pkg, options, pluginLifecycle);
-        if (options.formatPackageJson) {
+        await checkTsConfig(configuration, mainLogger, pluginLifecycle);
+        const packageResult = await processPackage(pkg, configuration, pluginLifecycle);
+        if (configuration.packageJson.format) {
             pkg = formatPackageJson(pkg);
         }
         const helpers = getHelpers(/** @type {{ name: string }} */ (pkg).name);
-        const provider = options.eject ? await createEjectProvider() : createProvider();
-        const rollupConfigs = await getRollupConfigs(provider, inputs, inputsExt, options, helpers, pluginLifecycle);
+        const provider = configuration.execution.eject ? await createEjectProvider() : createProvider();
+        const rollupConfigs = await getRollupConfigs(provider, packageResult, configuration, helpers, pluginLifecycle);
 
-        if (!options.bundle) {
+        if (!configuration.execution.bundle) {
             rollupConfigs.length = 0;
         }
 
-        if (options.eject) {
-            await ejectConfig(rollupConfigs, pkgPath, options, inputs, inputsExt, helpers, pkg);
+        if (configuration.execution.eject) {
+            await ejectConfig(rollupConfigs, pkgPath, configuration, packageResult, helpers, pkg);
             mainLogger.finish(`ejected config in ${getTimeDiff(time)}`);
-            if (options.updatePackageJson) {
+            if (configuration.packageJson.update) {
                 await writeJson(pkgPath, pkg);
             }
         } else {
-            const updater = mainLoggerText(options.sourceDir, options.dir, rollupConfigs.length, time);
+            const updater = mainLoggerText(configuration.paths.sourceDir, configuration.paths.outputDir, rollupConfigs.length, time);
             mainLogger.start(updater());
 
             await Promise.all(rollupConfigs.map(config => buildConfig(config, updater)));
 
-            if (options.updatePackageJson) {
+            if (configuration.packageJson.update) {
                 await writeJson(pkgPath, pkg);
             }
-            await pluginLifecycle.buildEnd();
+            await pluginLifecycle.buildEnd(configuration);
 
             mainLogger.finish(updater(true));
         }
@@ -108,8 +108,19 @@ async function execute() {
 }
 
 /** @typedef {import('./types.js').Json} Json */
-/** @typedef {import('./types.js').CliOptions} CliOptions */
+/** @typedef {import('./types.js').BuildConfiguration} BuildConfiguration */
+/** @typedef {import('./types.js').BuildFormat} BuildFormat */
+/** @typedef {import('./types.js').BuildConfigurationDraft} BuildConfigurationDraft */
+/** @typedef {import('./types.js').BuildConfigurationSources} BuildConfigurationSources */
 /** @typedef {import('./types.js').ParsedOptions} ParsedOptions */
+/** @typedef {import('./types.js').PackageProcessingResult} PackageProcessingResult */
+/** @typedef {import('./types.js').PluginSharedState} PluginSharedState */
+/** @typedef {import('./types.js').PluginConfigureContext} PluginConfigureContext */
+/** @typedef {import('./types.js').PluginPackageContext} PluginPackageContext */
+/** @typedef {import('./types.js').PluginTsConfigContext} PluginTsConfigContext */
+/** @typedef {import('./types.js').PluginRollupContext} PluginRollupContext */
+/** @typedef {import('./types.js').PluginOutputContext} PluginOutputContext */
+/** @typedef {import('./types.js').PluginBuildEndContext} PluginBuildEndContext */
 /** @typedef {import('./types.js').PkgbldPluginFactory} PkgbldPluginFactory */
 /** @typedef {import('./types.js').Provider} Provider */
 /** @typedef {import('./types.js').ProvideFunction} ProvideFunction */

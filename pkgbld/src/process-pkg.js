@@ -8,7 +8,8 @@ import { isExists } from './helpers.js';
  * @typedef {import('type-fest').JsonObject} JsonObject
  * @typedef {import('type-fest').JsonValue} JsonValue
  * @typedef {import('type-fest').PackageJson} PackageJson
- * @typedef {import('./types.js').CliOptions} CliOptions
+ * @typedef {import('./types.js').BuildConfiguration} BuildConfiguration
+ * @typedef {import('./types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {ReturnType<typeof import('./build-plugin-lifecycle.js').createBuildPluginLifecycle>} BuildPluginLifecycle
  */
 
@@ -18,29 +19,31 @@ const sourceFileSuffixes = /** @type {const} */ (['ts', 'tsx', 'js', 'jsx', 'cjs
 
 /**
  * @param {JsonObject} pkg
- * @param {CliOptions} config
+ * @param {BuildConfiguration} configuration
  * @param {BuildPluginLifecycle} pluginLifecycle
- * @returns {Promise<[string[], Map<string, (typeof sourceFileSuffixes)[number]>]>}
+ * @returns {Promise<PackageProcessingResult>}
  */
-export async function processPackage(pkg, config, pluginLifecycle) {
+export async function processPackage(pkg, configuration, pluginLifecycle) {
     const indexId = 'index';
+    const { outputs, packageJson, paths } = configuration;
 
     /** @type {string[]} */
     const inputs = [];
     /** @type {Map<string, (typeof sourceFileSuffixes)[number]>} */
     const inputsExt = new Map();
     const logger = createLogger();
-    const allowEsm = (config.formatsOverridden && config.formats.includes('es')) || !config.formatsOverridden;
-    const allowCjs = (config.formatsOverridden && config.formats.includes('cjs')) || !config.formatsOverridden;
-    const allowUmd =
-        (config.formatsOverridden && config.formats.includes('umd')) || !config.formatsOverridden || config.umdInputs.length > 0;
+    /** @type {string[]} */
+    let executableOutputs = [];
+    const allowEsm = outputs.formats.includes('es');
+    const allowCjs = outputs.formats.includes('cjs');
+    const allowUmd = outputs.formats.includes('umd');
 
     if (typeof pkg !== 'object' || Array.isArray(pkg) || pkg == null) {
         logger.finish('expecting object on top level of package.json', LogLevel.error);
         process.exit(-1);
     }
 
-    if (typeof pkg.name !== 'string' && config.umdInputs.length > 0) {
+    if (typeof pkg.name !== 'string' && outputs.umdEntries.length > 0) {
         logger.finish('expecting name to be a string in package.json', LogLevel.error);
         process.exit(-1);
     }
@@ -49,15 +52,15 @@ export async function processPackage(pkg, config, pluginLifecycle) {
         pkg.files = [];
     }
 
-    if (!pkg.files.includes(config.dir)) {
-        /** @type {string[]} */ (pkg.files).push(config.dir);
+    if (!pkg.files.includes(paths.outputDir)) {
+        /** @type {string[]} */ (pkg.files).push(paths.outputDir);
     }
 
     if (typeof pkg.scripts !== 'object' && pkg.scripts !== null) {
         pkg.scripts = {};
     }
 
-    if (config.pack && !('prepack' in /** @type {Record<string, JsonObject>} */ (pkg.scripts))) {
+    if (packageJson.pack && !('prepack' in /** @type {Record<string, JsonObject>} */ (pkg.scripts))) {
         /** @type {Record<string, JsonValue>} */ (pkg.scripts).prepack = 'pkgprn';
     }
 
@@ -73,31 +76,28 @@ export async function processPackage(pkg, config, pluginLifecycle) {
     ]);
 
     if (allowUmd && typeof pkg.umd === 'string') {
-        if (!config.umdOverridden && !config.umdInputs.includes(indexId)) {
-            config.umdInputs.push(indexId);
-        }
-        if (config.umdInputs.includes(indexId)) {
-            pkg.umd = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
+        if (outputs.umdEntries.includes(indexId)) {
+            pkg.umd = `./${paths.outputDir}/${patternToName(outputs.patterns.umd, indexId)}`;
         }
     }
 
     if (allowCjs) {
-        pkg.main = `./${config.dir}/${patternToName(config.commonjsPattern, indexId)}`;
+        pkg.main = `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, indexId)}`;
     }
 
     if (allowEsm && !allowCjs) {
-        pkg.main = `./${config.dir}/${patternToName(config.esPattern, indexId)}`;
+        pkg.main = `./${paths.outputDir}/${patternToName(outputs.patterns.es, indexId)}`;
     }
 
     if (allowCjs && allowEsm && typeof pkg.module !== 'string') {
-        pkg.module = `./${config.dir}/${patternToName(config.esPattern, indexId)}`;
+        pkg.module = `./${paths.outputDir}/${patternToName(outputs.patterns.es, indexId)}`;
     }
 
-    if (allowUmd && config.umdInputs.includes(indexId)) {
-        pkg.unpkg = `./${config.dir}/${patternToName(config.umdPattern, indexId)}`;
+    if (allowUmd && outputs.umdEntries.includes(indexId)) {
+        pkg.unpkg = `./${paths.outputDir}/${patternToName(outputs.patterns.umd, indexId)}`;
     }
 
-    if (config.exports) {
+    if (packageJson.exports) {
         if (typeof pkg.exports !== 'object' && pkg.exports !== null) {
             pkg.exports = {};
         }
@@ -137,12 +137,12 @@ export async function processPackage(pkg, config, pluginLifecycle) {
 
             if (allowEsm) {
                 /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])[esmFieldName] =
-                    `./${config.dir}/${patternToName(config.esPattern, basename)}`;
+                    `./${paths.outputDir}/${patternToName(outputs.patterns.es, basename)}`;
             }
 
             if (allowCjs) {
                 /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])[cjsFieldName] =
-                    `./${config.dir}/${patternToName(config.commonjsPattern, basename)}`;
+                    `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, basename)}`;
             }
 
             /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = orderFields(
@@ -156,36 +156,24 @@ export async function processPackage(pkg, config, pluginLifecycle) {
         await updateExtensions(indexId);
     }
 
-    if (allowUmd && config.umdInputs.length > 0 && !config.formats.includes('umd')) {
-        config.formats.push('umd');
-    }
+    pluginLifecycle.processPackageJson(/** @type {PackageJson} */ (pkg), inputs, configuration);
 
-    pluginLifecycle.processPackageJson(/** @type {PackageJson} */ (pkg), inputs);
-
-    if (config.bin) {
-        if (config.bin.length > 0) {
-            if (config.bin[0] !== '') {
-                pkg.bin = /** @type {string} */ (config.bin[0]);
-            }
-            config.bin = config.bin.filter(Boolean);
-            if (config.bin.length === 0) {
-                config.bin = undefined;
-            }
+    if (packageJson.executables.mode === 'explicit') {
+        executableOutputs = [...packageJson.executables.values];
+        if (executableOutputs.length > 0) {
+            pkg.bin = /** @type {string} */ (executableOutputs[0]);
         }
-    } else if (allowCjs && inputs.length > 0) {
+    } else if (packageJson.executables.mode === 'infer' && allowCjs && inputs.length > 0) {
         if (typeof pkg.bin === 'string') {
             if (inputs.some(input => pkg.bin === getCommonjsOutputPath(input))) {
-                config.bin = [pkg.bin];
+                executableOutputs = [pkg.bin];
             }
         } else if (typeof pkg.bin === 'object' && pkg.bin !== null) {
-            const executables = /** @type {string[]} */ (
+            executableOutputs = /** @type {string[]} */ (
                 Object.values(pkg.bin).filter(
                     value => typeof value === 'string' && inputs.some(input => value === getCommonjsOutputPath(input))
                 )
             );
-            if (executables.length > 0) {
-                config.bin = executables;
-            }
         }
         if (
             typeof pkg.directories === 'object' &&
@@ -193,20 +181,20 @@ export async function processPackage(pkg, config, pluginLifecycle) {
             'bin' in pkg.directories &&
             typeof pkg.directories.bin === 'string'
         ) {
-            if (path.resolve(pkg.directories.bin) === path.resolve(config.dir)) {
-                config.bin?.push(...inputs.map(input => `./${config.dir}/${patternToName(config.commonjsPattern, input)}`));
-                config.bin = Array.from(new Set(config.bin));
+            if (path.resolve(pkg.directories.bin) === path.resolve(paths.outputDir)) {
+                executableOutputs.push(...inputs.map(input => `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, input)}`));
+                executableOutputs = Array.from(new Set(executableOutputs));
             }
         }
     }
 
-    return [inputs, inputsExt];
+    return { inputs, inputsExt, executableOutputs };
 
     /**
      * @param {string} id
      */
     async function updateExtensions(id) {
-        const sourceFileWithoutSuffix = `./${config.sourceDir}/${id}.`;
+        const sourceFileWithoutSuffix = `./${paths.sourceDir}/${id}.`;
 
         for (const suffix of sourceFileSuffixes) {
             const file = sourceFileWithoutSuffix + suffix;
@@ -222,9 +210,9 @@ export async function processPackage(pkg, config, pluginLifecycle) {
      * @param {string} input
      */
     function getCommonjsOutputPath(input) {
-        const relativeInput = path.relative(config.sourceDir, input);
+        const relativeInput = path.relative(paths.sourceDir, input);
         const entryName = relativeInput.slice(0, -path.extname(relativeInput).length);
-        return `./${config.dir}/${patternToName(config.commonjsPattern, entryName)}`;
+        return `./${paths.outputDir}/${patternToName(outputs.patterns.cjs, entryName)}`;
     }
 }
 

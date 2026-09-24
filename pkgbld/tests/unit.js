@@ -9,9 +9,9 @@ import { promisify } from 'node:util';
 
 import { rollup } from 'rollup';
 
+import { BuildConfigurationError, resolveBuildConfiguration } from '../src/build-configuration.js';
 import { createBuildPluginLifecycle } from '../src/build-plugin-lifecycle.js';
 import { curry } from '../src/builtin-plugins/externals.js';
-import { getCliOptions } from '../src/get-cli-options.js';
 import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
 import { camelCase } from '../src/helpers.js';
@@ -132,23 +132,23 @@ describe('plugin lifecycle', () => {
 
             const calls = [];
             const plugin = {
-                options(_flags, options) {
-                    calls.push(['options']);
-                    options.tsConfig = true;
+                configure({ draft }) {
+                    calls.push(['configure']);
+                    draft.typescript.updateConfig = true;
                 },
-                processPackageJson(pkg, inputs) {
+                processPackageJson({ packageJson, inputs }) {
                     calls.push(['package', [...inputs]]);
-                    pkg.description = 'processed';
+                    packageJson.description = 'processed';
                 },
-                processTsConfig(config) {
+                processTsConfig({ config }) {
                     calls.push(['tsconfig']);
                     config.pluginOption = true;
                 },
-                async providePlugins(provider) {
+                async providePlugins({ provider }) {
                     calls.push(['rollup']);
                     provider.provide(() => ({ name: 'fixture-plugin' }), 500);
                 },
-                getExtraOutputSettings(format) {
+                getExtraOutputSettings({ format }) {
                     calls.push(['output', format]);
                     return { banner: `/* ${format} */` };
                 },
@@ -157,8 +157,8 @@ describe('plugin lifecycle', () => {
                 },
             };
             const secondPlugin = {
-                options() {
-                    calls.push(['options-2']);
+                configure() {
+                    calls.push(['configure-2']);
                 },
                 processPackageJson() {
                     calls.push(['package-2']);
@@ -166,11 +166,11 @@ describe('plugin lifecycle', () => {
                 processTsConfig() {
                     calls.push(['tsconfig-2']);
                 },
-                async providePlugins(provider) {
+                async providePlugins({ provider }) {
                     calls.push(['rollup-2']);
                     provider.provide(() => ({ name: 'fixture-plugin-2' }), 501);
                 },
-                getExtraOutputSettings(format) {
+                getExtraOutputSettings({ format }) {
                     calls.push(['output-2', format]);
                     return { banner: `/* ${format} second */` };
                 },
@@ -179,27 +179,19 @@ describe('plugin lifecycle', () => {
                 },
             };
             const pluginLifecycle = createBuildPluginLifecycle([plugin, secondPlugin]);
-            const originalArgv = process.argv;
-            process.argv = [process.execPath, 'pkgbld', '--formats=es'];
-            let config;
-            try {
-                config = getCliOptions(pluginLifecycle, {});
-            } finally {
-                process.argv = originalArgv;
-            }
+            const configuration = resolveBuildConfiguration({ argv: ['--formats=es'], packageJson: {}, pluginLifecycle });
             const logger = () => undefined;
-            const tsConfig = await checkTsConfig(config, logger, pluginLifecycle);
+            const tsConfig = await checkTsConfig(configuration, logger, pluginLifecycle);
             const pkg = {};
-            const [inputs, inputsExt] = await processPackage(pkg, config, pluginLifecycle);
+            const packageResult = await processPackage(pkg, configuration, pluginLifecycle);
             const rollupConfigs = await getRollupConfigs(
                 createProvider(),
-                inputs,
-                inputsExt,
-                config,
+                packageResult,
+                configuration,
                 { getGlobalName: String, getExternalGlobalName: String },
                 pluginLifecycle
             );
-            await pluginLifecycle.buildEnd();
+            await pluginLifecycle.buildEnd(configuration);
 
             assert.equal(tsConfig.pluginOption, true);
             assert.equal(pkg.description, 'processed');
@@ -208,23 +200,80 @@ describe('plugin lifecycle', () => {
             assert.ok(rollupConfigs[0].plugins.some(item => item.name === 'fixture-plugin'));
             assert.ok(rollupConfigs[0].plugins.some(item => item.name === 'fixture-plugin-2'));
             assert.deepEqual(
-                calls.map(call => call[0]),
-                [
-                    'options',
-                    'options-2',
-                    'tsconfig',
-                    'tsconfig-2',
-                    'package',
-                    'package-2',
-                    'rollup',
-                    'rollup-2',
-                    'output',
-                    'output-2',
-                    'buildEnd',
-                    'buildEnd-2',
-                ]
+                calls
+                    .slice(0, 2)
+                    .map(call => call[0])
+                    .sort(),
+                ['configure', 'configure-2']
+            );
+            assert.deepEqual(
+                calls
+                    .slice(2, 4)
+                    .map(call => call[0])
+                    .sort(),
+                ['tsconfig', 'tsconfig-2']
+            );
+            assert.deepEqual(
+                calls
+                    .slice(4, 6)
+                    .map(call => call[0])
+                    .sort(),
+                ['package', 'package-2']
+            );
+            assert.deepEqual(
+                calls
+                    .slice(6, 8)
+                    .map(call => call[0])
+                    .sort(),
+                ['rollup', 'rollup-2']
+            );
+            assert.deepEqual(
+                calls
+                    .slice(8, 10)
+                    .map(call => call[0])
+                    .sort(),
+                ['output', 'output-2']
+            );
+            assert.deepEqual(
+                calls
+                    .slice(10, 12)
+                    .map(call => call[0])
+                    .sort(),
+                ['buildEnd', 'buildEnd-2']
             );
         });
+    });
+
+    test('shares build-scoped state without serializing asynchronous hooks', async () => {
+        let release;
+        const gate = new Promise(resolve => {
+            release = resolve;
+        });
+        let entered = 0;
+        let sharedSize = 0;
+        const plugins = ['first', 'second'].map(name => ({
+            async providePlugins({ shared }) {
+                entered += 1;
+                shared.set(name, true);
+                await gate;
+            },
+            async buildEnd({ shared }) {
+                sharedSize = shared.size;
+            },
+        }));
+        const pluginLifecycle = createBuildPluginLifecycle(plugins);
+        const configuration = resolveBuildConfiguration({ argv: [], packageJson: {}, pluginLifecycle });
+        const inProgress = pluginLifecycle.provideRollupPlugins(createProvider()[0], configuration, {
+            inputs: [],
+            inputsExt: new Map(),
+            executableOutputs: [],
+        });
+
+        assert.equal(entered, 2);
+        release();
+        await inProgress;
+        await pluginLifecycle.buildEnd(configuration);
+        assert.equal(sharedSize, 2);
     });
 });
 
@@ -235,49 +284,52 @@ describe('format precedence', () => {
             await fs.writeFile('src/index.js', 'export const value = 1;');
             await fs.writeFile('src/core.js', 'export const core = 1;');
 
-            const explicitEs = getOptions('--formats=es');
             const explicitEsPackage = createLegacyUmdPackage();
+            const explicitEs = resolveConfiguration({ argv: ['--formats=es'], packageJson: explicitEsPackage });
             await processPackage(explicitEsPackage, explicitEs, emptyPluginLifecycle);
-            assert.deepEqual(explicitEs.formats, ['es']);
-            assert.deepEqual(explicitEs.umdInputs, []);
+            assert.deepEqual(explicitEs.outputs.formats, ['es']);
+            assert.deepEqual(explicitEs.outputs.umdEntries, []);
             assert.equal(explicitEsPackage.umd, './legacy.umd.js');
             assert.equal(explicitEsPackage.unpkg, undefined);
 
-            const explicitUmd = getOptions('--formats=es', '--umd=index');
             const explicitUmdPackage = createLegacyUmdPackage();
+            const explicitUmd = resolveConfiguration({
+                argv: ['--formats=es', '--umd=index'],
+                packageJson: explicitUmdPackage,
+            });
             await processPackage(explicitUmdPackage, explicitUmd, emptyPluginLifecycle);
-            assert.deepEqual(explicitUmd.formats, ['es', 'umd']);
-            assert.deepEqual(explicitUmd.umdInputs, ['index']);
+            assert.deepEqual(explicitUmd.outputs.formats, ['es', 'umd']);
+            assert.deepEqual(explicitUmd.outputs.umdEntries, ['index']);
             assert.equal(explicitUmdPackage.umd, './dist/index.umd.js');
             assert.equal(explicitUmdPackage.unpkg, './dist/index.umd.js');
 
-            const explicitCoreUmd = getOptions('--umd=core');
             const explicitCoreUmdPackage = createLegacyUmdPackage();
+            const explicitCoreUmd = resolveConfiguration({ argv: ['--umd=core'], packageJson: explicitCoreUmdPackage });
             await processPackage(explicitCoreUmdPackage, explicitCoreUmd, emptyPluginLifecycle);
-            assert.deepEqual(explicitCoreUmd.formats, ['es', 'cjs', 'umd']);
-            assert.deepEqual(explicitCoreUmd.umdInputs, ['core']);
+            assert.deepEqual(explicitCoreUmd.outputs.formats, ['es', 'cjs', 'umd']);
+            assert.deepEqual(explicitCoreUmd.outputs.umdEntries, ['core']);
             assert.equal(explicitCoreUmdPackage.umd, './legacy.umd.js');
             assert.equal(explicitCoreUmdPackage.unpkg, undefined);
 
-            const disabledUmd = getOptions('--umd=');
             const disabledUmdPackage = createLegacyUmdPackage();
+            const disabledUmd = resolveConfiguration({ argv: ['--umd='], packageJson: disabledUmdPackage });
             await processPackage(disabledUmdPackage, disabledUmd, emptyPluginLifecycle);
-            assert.deepEqual(disabledUmd.formats, ['es', 'cjs']);
-            assert.deepEqual(disabledUmd.umdInputs, []);
+            assert.deepEqual(disabledUmd.outputs.formats, ['es', 'cjs']);
+            assert.deepEqual(disabledUmd.outputs.umdEntries, []);
             assert.equal(disabledUmdPackage.umd, './legacy.umd.js');
             assert.equal(disabledUmdPackage.unpkg, undefined);
 
-            const packageDefaults = getOptions();
             const defaultPackage = createLegacyUmdPackage();
+            const packageDefaults = resolveConfiguration({ argv: [], packageJson: defaultPackage });
             await processPackage(defaultPackage, packageDefaults, emptyPluginLifecycle);
-            assert.deepEqual(packageDefaults.formats, ['es', 'cjs', 'umd']);
-            assert.deepEqual(packageDefaults.umdInputs, ['index']);
+            assert.deepEqual(packageDefaults.outputs.formats, ['es', 'cjs', 'umd']);
+            assert.deepEqual(packageDefaults.outputs.umdEntries, ['index']);
             assert.equal(defaultPackage.umd, './dist/index.umd.js');
             assert.equal(defaultPackage.unpkg, './dist/index.umd.js');
 
-            const freshDefaults = getOptions();
-            assert.deepEqual(freshDefaults.formats, ['es', 'cjs']);
-            assert.deepEqual(freshDefaults.umdInputs, []);
+            const freshDefaults = resolveConfiguration({ argv: [], packageJson: {} });
+            assert.deepEqual(freshDefaults.outputs.formats, ['es', 'cjs']);
+            assert.deepEqual(freshDefaults.outputs.umdEntries, []);
         });
     });
 
@@ -287,23 +339,124 @@ describe('format precedence', () => {
             await fs.writeFile('src/index.js', 'export const value = 1;');
 
             const plugin = {
-                options(_flags, options) {
-                    options.formats.splice(0, options.formats.length, 'es');
+                configure({ draft }) {
+                    draft.outputs.formats = ['es'];
+                    draft.outputs.umdEntries = [];
                 },
             };
-            const options = getOptionsWithPlugins([plugin]);
             const pkg = createLegacyUmdPackage();
-            await processPackage(pkg, options, emptyPluginLifecycle);
+            const configuration = resolveConfiguration({ argv: [], packageJson: pkg, plugins: [plugin] });
+            await processPackage(pkg, configuration, emptyPluginLifecycle);
 
-            assert.equal(options.formatsOverridden, true);
-            assert.deepEqual(options.formats, ['es']);
-            assert.deepEqual(options.umdInputs, []);
+            assert.deepEqual(configuration.outputs.formats, ['es']);
+            assert.deepEqual(configuration.outputs.umdEntries, []);
             assert.equal(pkg.main, './dist/index.mjs');
             assert.equal(pkg.module, undefined);
             assert.equal(pkg.unpkg, undefined);
             assert.equal(pkg.exports['.'].require, undefined);
             assert.equal(pkg.exports['.'].default, './dist/index.mjs');
         });
+    });
+});
+
+describe('build configuration resolution', () => {
+    test('resolves package metadata, explicit CLI options, and Build plugins in authority order', () => {
+        const packageJson = createLegacyUmdPackage();
+
+        const packageConfiguration = resolveConfiguration({ argv: [], packageJson });
+        assert.deepEqual(packageConfiguration.outputs.formats, ['es', 'cjs', 'umd']);
+        assert.deepEqual(packageConfiguration.outputs.umdEntries, ['index']);
+
+        const cliConfiguration = resolveConfiguration({ argv: ['--formats=es'], packageJson });
+        assert.deepEqual(cliConfiguration.outputs.formats, ['es']);
+        assert.deepEqual(cliConfiguration.outputs.umdEntries, []);
+
+        let sharedValue;
+        const pluginLifecycle = createBuildPluginLifecycle([
+            {
+                configure({ draft, sources, shared }) {
+                    assert.equal(sources.package.umd, './legacy.umd.js');
+                    assert.equal(sources.cli.provided.formats, true);
+                    assert.deepEqual(sources.cli.values.formats, ['es']);
+                    shared.set('configured', true);
+                    draft.outputs.formats = ['cjs'];
+                    draft.outputs.umdEntries = [];
+                },
+                processTsConfig({ shared }) {
+                    sharedValue = shared.get('configured');
+                },
+            },
+        ]);
+        const pluginConfiguration = resolveBuildConfiguration({
+            argv: ['--formats=es'],
+            packageJson,
+            pluginLifecycle,
+        });
+        assert.deepEqual(pluginConfiguration.outputs.formats, ['cjs']);
+        pluginLifecycle.processTsConfig({}, pluginConfiguration);
+        assert.equal(sharedValue, true);
+    });
+
+    test('normalizes, validates, and deeply freezes the final Build configuration', () => {
+        const configuration = resolveConfiguration({
+            argv: [],
+            packageJson: { name: 'fixture' },
+            plugins: [
+                {
+                    configure({ draft }) {
+                        draft.outputs.formats = ['es', 'es'];
+                        draft.outputs.umdEntries = ['index', 'index'];
+                    },
+                },
+            ],
+        });
+
+        assert.deepEqual(configuration.outputs.formats, ['es', 'umd']);
+        assert.deepEqual(configuration.outputs.umdEntries, ['index']);
+        assert.equal(Object.isFrozen(configuration), true);
+        assert.equal(Object.isFrozen(configuration.outputs), true);
+        assert.equal(Object.isFrozen(configuration.outputs.formats), true);
+        assert.throws(() => configuration.outputs.formats.push('cjs'), TypeError);
+
+        assert.throws(
+            () =>
+                resolveConfiguration({
+                    argv: [],
+                    packageJson: {},
+                    plugins: [{ configure: ({ draft }) => draft.outputs.formats.push('invalid') }],
+                }),
+            error => error instanceof BuildConfigurationError && error.issues.some(issue => issue.code === 'UNSUPPORTED_FORMAT')
+        );
+        assert.throws(
+            () =>
+                resolveConfiguration({
+                    argv: [],
+                    packageJson: {},
+                    plugins: [
+                        {
+                            configure({ draft }) {
+                                /** @type {any} */ (draft).unknown = true;
+                            },
+                        },
+                    ],
+                }),
+            error => error instanceof BuildConfigurationError && error.issues.some(issue => issue.code === 'UNKNOWN_CONFIGURATION_KEY')
+        );
+        assert.throws(
+            () =>
+                resolveConfiguration({
+                    argv: [],
+                    packageJson: {},
+                    plugins: [
+                        {
+                            configure({ draft }) {
+                                /** @type {any} */ (draft).outputs = null;
+                            },
+                        },
+                    ],
+                }),
+            error => error instanceof BuildConfigurationError && error.issues.some(issue => issue.code === 'INVALID_CONFIGURATION_SHAPE')
+        );
     });
 });
 
@@ -315,14 +468,14 @@ describe('bin inference', () => {
             await fs.writeFile('src/folder/cli.js', 'console.log("cli");');
 
             for (const bin of ['./dist/folder/cli.cjs', { fixture: './dist/folder/cli.cjs' }]) {
-                const options = getOptions('--formats=cjs');
                 const pkg = {
                     bin,
                     exports: { '.': {}, './folder/cli': {} },
                 };
-                await processPackage(pkg, options, emptyPluginLifecycle);
+                const configuration = resolveConfiguration({ argv: ['--formats=cjs'], packageJson: pkg });
+                const packageResult = await processPackage(pkg, configuration, emptyPluginLifecycle);
 
-                assert.deepEqual(options.bin, ['./dist/folder/cli.cjs']);
+                assert.deepEqual(packageResult.executableOutputs, ['./dist/folder/cli.cjs']);
             }
         });
     });
@@ -332,19 +485,12 @@ function createLegacyUmdPackage() {
     return { name: 'fixture', umd: './legacy.umd.js', scripts: {}, exports: { '.': {}, './core': {} } };
 }
 
-function getOptions(...args) {
-    return getOptionsWithPlugins([], ...args);
-}
-
-function getOptionsWithPlugins(plugins, ...args) {
-    const pluginLifecycle = createBuildPluginLifecycle(plugins);
-    const originalArgv = process.argv;
-    process.argv = [process.execPath, 'pkgbld', ...args];
-    try {
-        return getCliOptions(pluginLifecycle, {});
-    } finally {
-        process.argv = originalArgv;
-    }
+function resolveConfiguration({ argv, packageJson, plugins = [] }) {
+    return resolveBuildConfiguration({
+        argv,
+        packageJson,
+        pluginLifecycle: createBuildPluginLifecycle(plugins),
+    });
 }
 
 /**

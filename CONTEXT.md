@@ -22,6 +22,14 @@ _Avoid_: Independent changes, operation drafts
 **Build plugin**:
 An npm package discovered by its PKG BLD plugin name and loaded by `pkgbld` during a build.
 
+**Build configuration**:
+The finalized build choices resolved from defaults, package metadata, explicit CLI options, and Build plugin overrides before package.json is updated.
+_Avoid_: Options, config
+
+**Cross-plugin coordination state**:
+Mutable values shared by Build plugins for one build without becoming part of the Build configuration.
+_Avoid_: Shared configuration, global plugin state
+
 **Extension**:
 An npm package containing setup and removal behavior for `create-pkgbld`.
 
@@ -31,6 +39,8 @@ The committed record of integrations that the project acknowledges as successful
 ## Relationships
 
 - A **Package inventory** describes zero or more **Build plugins** and **Extensions**.
+- A **Build configuration** is resolved in ascending authority from defaults, package metadata, explicit CLI options, and **Build plugins**.
+- **Cross-plugin coordination state** is owned by one build and shared across its **Build plugin** lifecycle phases without same-phase ordering guarantees.
 - A **Package operation** derives its behavior from one inventory entry and one **Package target**.
 - **Project changes** apply **Package operations** sequentially and retain each operation's claims for conflict review.
 - A successful **Package operation** updates the **Project lock** together with its project changes.

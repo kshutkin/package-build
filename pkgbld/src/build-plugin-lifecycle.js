@@ -3,82 +3,86 @@
  * @typedef {import('rollup').OutputOptions} OutputOptions
  * @typedef {import('type-fest').JsonObject} JsonObject
  * @typedef {import('type-fest').PackageJson} PackageJson
- * @typedef {import('./types.js').CliOptions} CliOptions
- * @typedef {import('./types.js').ParsedOptions} ParsedOptions
+ * @typedef {import('./types.js').BuildConfiguration} BuildConfiguration
+ * @typedef {import('./types.js').BuildConfigurationDraft} BuildConfigurationDraft
+ * @typedef {import('./types.js').BuildConfigurationSources} BuildConfigurationSources
+ * @typedef {import('./types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {import('./types.js').PkgbldPlugin} PkgbldPlugin
+ * @typedef {import('./types.js').PluginSharedState} PluginSharedState
  * @typedef {import('./types.js').Provider} Provider
  */
 
 /**
- * Owns Build plugin invocation and aggregation semantics for one build.
+ * Owns Build plugin invocation and shared state for one build.
+ *
+ * The lifecycle preserves phase boundaries, but does not guarantee plugin order
+ * within a phase. Asynchronous hooks in the same phase run concurrently.
+ * Build plugins must not rely on same-phase shared-state reads and writes.
  *
  * @param {Partial<PkgbldPlugin>[]} plugins
  */
 export function createBuildPluginLifecycle(plugins) {
+    /** @type {PluginSharedState} */
+    const shared = new Map();
+
     return {
         /**
-         * @param {ParsedOptions} flags
-         * @param {CliOptions} options
+         * @param {BuildConfigurationDraft} draft
+         * @param {BuildConfigurationSources} sources
          */
-        applyOptions(flags, options) {
-            const formatsBeforePlugins = options.formats;
-            const formatValuesBeforePlugins = [...formatsBeforePlugins];
-
+        configure(draft, sources) {
             for (const plugin of plugins) {
-                plugin.options?.(flags, options);
-            }
-
-            if (
-                options.formats !== formatsBeforePlugins ||
-                options.formats.length !== formatValuesBeforePlugins.length ||
-                options.formats.some((format, index) => format !== formatValuesBeforePlugins[index])
-            ) {
-                options.formatsOverridden = true;
-            }
-        },
-
-        /** @param {JsonObject} config */
-        processTsConfig(config) {
-            for (const plugin of plugins) {
-                plugin.processTsConfig?.(config);
+                plugin.configure?.({ draft, sources, shared });
             }
         },
 
         /**
-         * @param {PackageJson} pkg
-         * @param {string[]} inputs
+         * @param {JsonObject} config
+         * @param {BuildConfiguration} configuration
          */
-        processPackageJson(pkg, inputs) {
+        processTsConfig(config, configuration) {
             for (const plugin of plugins) {
-                plugin.processPackageJson?.(pkg, inputs);
+                plugin.processTsConfig?.({ config, configuration, shared });
+            }
+        },
+
+        /**
+         * @param {PackageJson} packageJson
+         * @param {string[]} inputs
+         * @param {BuildConfiguration} configuration
+         */
+        processPackageJson(packageJson, inputs, configuration) {
+            for (const plugin of plugins) {
+                plugin.processPackageJson?.({ packageJson, inputs, configuration, shared });
             }
         },
 
         /**
          * @param {Provider} provider
-         * @param {CliOptions} options
-         * @param {string[]} inputs
-         * @param {Map<string, string>} inputsExt
+         * @param {BuildConfiguration} configuration
+         * @param {PackageProcessingResult} packageResult
          */
-        async provideRollupPlugins(provider, options, inputs, inputsExt) {
-            await Promise.all(plugins.map(plugin => plugin.providePlugins?.(provider, options, inputs, inputsExt)));
+        async provideRollupPlugins(provider, configuration, packageResult) {
+            await Promise.all(plugins.map(plugin => plugin.providePlugins?.({ provider, configuration, packageResult, shared })));
         },
 
         /**
          * @param {Partial<OutputOptions>} settings
          * @param {InternalModuleFormat} format
          * @param {string[]} inputs
+         * @param {BuildConfiguration} configuration
          */
-        extendOutputSettings(settings, format, inputs) {
+        extendOutputSettings(settings, format, inputs, configuration) {
             for (const plugin of plugins) {
                 if (plugin.getExtraOutputSettings) {
-                    Object.assign(settings, plugin.getExtraOutputSettings(format, inputs));
+                    Object.assign(settings, plugin.getExtraOutputSettings({ format, inputs, configuration, shared }));
                 }
             }
         },
 
-        async buildEnd() {
-            await Promise.all(plugins.map(plugin => plugin.buildEnd?.()));
+        /** @param {BuildConfiguration} configuration */
+        async buildEnd(configuration) {
+            await Promise.all(plugins.map(plugin => plugin.buildEnd?.({ configuration, shared })));
         },
     };
 }

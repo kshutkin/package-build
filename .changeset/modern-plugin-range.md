@@ -5,3 +5,5 @@
 ---
 
 Release `create-pkgbld` and the official build plugins on a new major version line for the modern PKG BLD plugin contract. The plugins declare the new `pkgbld` major range through their peer dependency, allowing compatible plugin generations to be identified from their published versions.
+
+Update the official plugins to the context-based lifecycle Interface and immutable Build configuration model.

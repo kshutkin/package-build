@@ -15,36 +15,37 @@ export function curry(fn, ...args) {
 
 /**
  * @typedef {import('rollup').InternalModuleFormat} InternalModuleFormat
- * @typedef {import('../types.js').CliOptions} CliOptions
+ * @typedef {import('../types.js').BuildConfiguration} BuildConfiguration
+ * @typedef {import('../types.js').PackageProcessingResult} PackageProcessingResult
  * @typedef {import('../types.js').Provider} Provider
  */
 
 /**
  * @param {Provider} provider
- * @param {CliOptions} config
- * @param {string[]} inputs
- * @param {Map<string, string>} inputsExt
+ * @param {BuildConfiguration} configuration
+ * @param {PackageProcessingResult} packageResult
  */
-export default async function (provider, config, inputs, inputsExt) {
-    if (config.includeExternals === true) {
+export default async function (provider, configuration, packageResult) {
+    const { inputs, inputsExt } = packageResult;
+    if (configuration.transforms.includeExternals === true) {
         return;
     }
 
     const pluginExternals = await provider.import('@rollup-extras/plugin-externals');
 
-    const allowGenericUmd = config.umdInputs.length === 1 && inputs.length === 1;
+    const allowGenericUmd = configuration.outputs.umdEntries.length === 1 && inputs.length === 1;
 
-    if (config.formats.length > 0) {
+    if (configuration.outputs.formats.length > 0) {
         const format = /** @type {InternalModuleFormat[]} */ (
-            allowGenericUmd ? undefined : config.formats.filter(format => format !== 'umd')
+            allowGenericUmd ? undefined : configuration.outputs.formats.filter(format => format !== 'umd')
         );
         provider.provide(
             () =>
                 pluginExternals(
-                    config.includeExternals === false
+                    configuration.transforms.includeExternals === false
                         ? {}
                         : (/** @type {string} */ id, /** @type {boolean} */ external, /** @type {string} */ importer) =>
-                              includeExternals(importer, external, id, config)
+                              includeExternals(importer, external, id, configuration)
                 ),
             Priority.externals,
             { format }
@@ -53,23 +54,25 @@ export default async function (provider, config, inputs, inputsExt) {
         provider.globalSetup(includeExternals);
     }
 
-    if (!allowGenericUmd && config.umdInputs.length > 0) {
+    if (!allowGenericUmd && configuration.outputs.umdEntries.length > 0) {
         const curryForConfig = /** @type {typeof curry} */ (provider.globalSetup(curry) ?? curry);
-        for (const currentInput of config.umdInputs) {
+        for (const currentInput of configuration.outputs.umdEntries) {
             const isExternal = curryForConfig(
                 (
                     /** @type {string} */ currentInput,
                     /** @type {string} */ id,
                     /** @type {boolean} */ external,
                     /** @type {string} */ importer
-                ) => includeExternals(importer, external, id, config) || isExternalInput(currentInput, inputs, inputsExt, id, config)
+                ) =>
+                    includeExternals(importer, external, id, configuration) ||
+                    isExternalInput(currentInput, inputs, inputsExt, id, configuration)
             )(currentInput);
             provider.provide(() => pluginExternals(isExternal), Priority.externals, {
                 format: 'umd',
-                inputs: [`./${config.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
+                inputs: [`./${configuration.paths.sourceDir}/${currentInput}.${inputsExt.get(currentInput)}`],
             });
         }
-        if (config.formats.length === 0) {
+        if (configuration.outputs.formats.length === 0) {
             provider.globalImport('path', 'path');
             provider.globalSetup(includeExternals);
         }
@@ -81,12 +84,12 @@ export default async function (provider, config, inputs, inputsExt) {
  * @param {string} _importer
  * @param {boolean} external
  * @param {string} id
- * @param {CliOptions} config
+ * @param {BuildConfiguration} configuration
  */
-function includeExternals(_importer, external, id, config) {
-    if (config.includeExternals === false) return external;
+function includeExternals(_importer, external, id, configuration) {
+    if (configuration.transforms.includeExternals === false) return external;
     if (!external) return false;
-    const internals = /** @type {string[]} */ (config.includeExternals);
+    const internals = /** @type {readonly string[]} */ (configuration.transforms.includeExternals);
     if (internals.includes(id) || internals.some(internal => id.includes(internal))) {
         return false;
     }
@@ -95,15 +98,15 @@ function includeExternals(_importer, external, id, config) {
 
 /**
  * @param {string} currentInput
- * @param {string | string[]} inputs
- * @param {Map<string, string>} inputsExt
+ * @param {string | readonly string[]} inputs
+ * @param {ReadonlyMap<string, string>} inputsExt
  * @param {string} id
- * @param {CliOptions} config
+ * @param {BuildConfiguration} configuration
  */
-function isExternalInput(currentInput, inputs, inputsExt, id, config) {
+function isExternalInput(currentInput, inputs, inputsExt, id, configuration) {
     const normalizedPath = path.isAbsolute(currentInput)
         ? `./${path.relative(process.cwd(), `${currentInput}.${inputsExt.get(currentInput)}`)}`
-        : `./${path.join(config.sourceDir, `${currentInput}.${inputsExt.get(currentInput)}`)}`;
+        : `./${path.join(configuration.paths.sourceDir, `${currentInput}.${inputsExt.get(currentInput)}`)}`;
     const normalizedId = path.isAbsolute(id) ? `./${path.relative(process.cwd(), id)}` : id;
     return normalizedPath !== normalizedId && inputs.includes(normalizedPath);
 }
