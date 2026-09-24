@@ -24,7 +24,7 @@ npm install --save-dev pkgbld
 
 1. Start by creating package.json using `npm init`
 2. Add pkgbld `npm install --save-dev pkgbld`
-3. Create `src/index.ts`
+3. Create `src/index.js`
 4. Add pkgbld in the 'scripts' field of your package.json like:
 
 ```json
@@ -34,6 +34,10 @@ npm install --save-dev pkgbld
 ```
 
 Run `npm run build`.
+
+For TypeScript or TSX sources, also install
+[`pkgbld-plugin-swc`](https://github.com/kshutkin/package-build/tree/main/pkgbld-plugin-swc).
+`pkgbld` discovers the plugin from your project dependencies and uses SWC to strip types.
 
 ## package.json
 
@@ -197,62 +201,6 @@ Do not add exports field in package.json.
 
 This also disables entry-point discovery from an existing `exports` field. Only the top-level `src/index` entry point is built
 unless a plugin provides additional inputs.
-
-### prune (command)
-
-```
-pkgbld prune
-```
-
-prune devDependencies and redundant scripts from package.json
-
-### prune --profile=<profile>
-
-There are two profiles: `library` and `app`. `library` is default.
-
-Right now it only affects how `prune` command removes entries in the `scripts` field.
-
-For `library` profile it retains: 'preinstall', 'install', 'postinstall', 'prepublish', 'preprepare', 'prepare', 'postprepare'.
-
-For `app` profile it retains in addition: 'prestart', 'start', 'poststart', 'prerestart', 'restart', 'postrestart', 'prestop', 'stop', 'poststop', 'pretest', 'test', 'posttest'.
-
-### flatten
-
-```
-pkgbld prune --flatten=<directory>
-```
-
-Flattens file structure by moving all files from `dist` or other directory to the root directory and updating package.json.
-
-If the directory is not specified it is guessed from package.json.
-
-If files cannot be copied because of name conflicts the command will fail.
-
-### removeSourcemaps
-
-```
-pkgbld prune --remove-sourcemaps
-```
-
-Removes all sourcemaps from the package. The logic is very simple and removes all files with `.map` extension and references in format `//# sourceMappingURL=<mapFile>`.
-
-### optimizeFiles (default)
-
-```
-pkgbld prune --optimize-files=false
-```
-
-Optimizes files by removing all files that are not required for pack at the given moment.
-
-You might want to disable this option in some edge cases.
-
-### removeLegalComments
-
-```
-pkgbld prune --remove-legal-comments --compress=es,cjs
-```
-
-Removes all legal comments from the package. Only works with compress.
 
 ## Build plugin interface
 

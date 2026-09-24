@@ -13,7 +13,7 @@ export const manifest = {
 
 export const setup = {
     devDependencies: {
-        'pkgbld-plugin-dts-buddy': '^0.3.0',
+        'pkgbld-plugin-dts-buddy': '^1.0.0',
     },
 };
 
@@ -22,7 +22,7 @@ export const remove = {
 };
 
 /**
- * @param {import('create-pkgbld/src/tree.js').Tree} tree
+ * @param {{ readJson(path: string): { dependencies?: Record<string, string>; devDependencies?: Record<string, string> } | null }} tree
  */
 export function detect(tree) {
     const pkg = tree.readJson('package.json');

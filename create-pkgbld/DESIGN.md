@@ -1,7 +1,9 @@
 # Create PKG BLD Package Management Design
 
 **Status:** Guarded update stage implemented
-**Scope:** `create-pkgbld` package discovery and management  
+
+**Scope:** `create-pkgbld` package discovery and management
+
 **Last updated:** 2026-09-20
 
 This document defines how `create-pkgbld` discovers and manages packages in

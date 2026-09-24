@@ -11,14 +11,14 @@
         {
             "name": "pkgbld-swc",
             "package": "pkgbld-plugin-swc/extension",
-            "version": "^0.1.0",
+            "version": "^1.0.0",
             "description": "SWC TypeScript stripping via pkgbld",
             "tags": ["plugin", "typescript", "pkgbld"]
         },
         {
             "name": "pkgbld-dts-buddy",
             "package": "pkgbld-plugin-dts-buddy/extension",
-            "version": "^0.3.0",
+            "version": "^1.0.0",
             "description": "Generate d.ts files using dts-buddy",
             "tags": ["plugin", "types", "pkgbld"]
         },

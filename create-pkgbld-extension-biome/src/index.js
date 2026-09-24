@@ -2,8 +2,8 @@
  * create-pkgbld extension that wires Biome into a project.
  *
  * NOTE: Biome is a linter/formatter, not a rollup plugin. This package is
- * referenced by the create-pkgbld registry and only ever installed as a
- * dependency of create-pkgbld itself. The user project only gets
+ * referenced by the create-pkgbld registry and loaded from its shared cache.
+ * The user project only gets
  * `@biomejs/biome` (see `setup.devDependencies` below).
  */
 

@@ -190,6 +190,9 @@ importers:
       terser:
         specifier: ^5.51.2
         version: 5.51.2
+      type-fest:
+        specifier: 'catalog:'
+        version: 5.9.0
     devDependencies:
       c8:
         specifier: 'catalog:'
@@ -203,9 +206,9 @@ importers:
       pkgprn:
         specifier: ^0.8.0
         version: 0.8.0
-      type-fest:
+      typescript:
         specifier: 'catalog:'
-        version: 5.9.0
+        version: 6.0.3
 
   pkgbld-plugin-dts-buddy:
     dependencies:
@@ -250,6 +253,9 @@ importers:
       pkgbld:
         specifier: workspace:*
         version: link:../pkgbld
+      pkgprn:
+        specifier: ^0.8.0
+        version: 0.8.0
 
 packages:
 

@@ -30,7 +30,8 @@
         "types"
     ],
     "scripts": {
-        "build": "dts-buddy"
+        "build": "dts-buddy",
+        "test": "pnpm build && node --test test.js"
     },
     "dependencies": {
         "dts-buddy": "catalog:"

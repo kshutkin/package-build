@@ -43,6 +43,17 @@ afterEach(async () => {
 });
 
 describe('built-in extensions registry', () => {
+    test('official build plugins target the 1.x release line', async () => {
+        const entries = await loadRegistry(builtinRegistryPath);
+        for (const name of ['pkgbld-swc', 'pkgbld-dts-buddy']) {
+            const entry = entries.find(candidate => candidate.name === name);
+            assert.strictEqual(entry.version, '^1.0.0');
+
+            const ext = await resolveExtension({ ...entry, version: undefined }, dir);
+            assert.strictEqual(ext.setup.devDependencies[entry.package.replace('/extension', '')], '^1.0.0');
+        }
+    });
+
     test('all built-ins resolve and expose manifest/setup/remove/detect', async () => {
         const entries = await loadRegistry(builtinRegistryPath);
         assert.deepStrictEqual(entries.map(e => e.name).sort(), ['biome', 'dts-buddy', 'pkgbld-dts-buddy', 'pkgbld-swc']);

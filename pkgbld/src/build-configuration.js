@@ -140,7 +140,7 @@ function parseCli(argv, packageJson) {
             args: [...argv],
             name: 'pkgbld',
             version: packageJson.version ?? '<unknown>',
-            options: cliFlags,
+            options: /** @type {any} */ (cliFlags),
             allowNegative: true,
             tokens: true,
         },

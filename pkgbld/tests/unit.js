@@ -25,6 +25,11 @@ const execFile = promisify(childProcess.execFile);
 const packageRoot = path.resolve(import.meta.dirname, '..');
 const emptyPluginLifecycle = createBuildPluginLifecycle([]);
 
+test('public declaration dependencies are published', async () => {
+    const pkg = JSON.parse(await fs.readFile(path.join(packageRoot, 'package.json'), 'utf8'));
+    assert.strictEqual(pkg.dependencies['type-fest'], 'catalog:');
+});
+
 describe('plugin discovery', () => {
     test('loads scoped and unscoped plugins once across dependency fields and ignores other names', async () => {
         const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pkgbld-scoped-plugins-'));

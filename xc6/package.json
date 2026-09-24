@@ -23,11 +23,12 @@
     "scripts": {
         "test": "c8 --src=. --all -r=html node test.js",
         "lint": "eslint .",
-        "prepack": "pkgbld prune"
+        "prepack": "pkgprn"
     },
     "devDependencies": {
         "pkgbld": "workspace:*",
         "cli-test-helper": "workspace:*",
+        "pkgprn": "^0.8.0",
         "c8": "catalog:"
     },
     "keywords": [

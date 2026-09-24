@@ -8,7 +8,7 @@ Monorepo for pkgbld and its utilities
 
 - [pkgbld](./pkgbld/README.md) - Pkgbld - build your libraries with ease
 - [create-pkgbld](./create-pkgbld/README.md) - Scaffolding utility for pkgbld with a built-in extension system for adding/removing project features (linters, formatters, plugins).
-- [pkgbld-plugin-swc](./pkgbld-plugin-swc) - pkgbld plugin to strip TypeScript types using SWC.
+- [pkgbld-plugin-swc](./pkgbld-plugin-swc/README.md) - pkgbld plugin to strip TypeScript types using SWC.
 - [pkgbld-plugin-dts-buddy](./pkgbld-plugin-dts-buddy/README.md) - pkgbld plugin to generate `.d.ts` files using dts-buddy.
 - [create-pkgbld-extension-biome](./create-pkgbld-extension-biome/README.md) - create-pkgbld extension that adds the Biome linter/formatter to a project.
 - [create-pkgbld-extension-dts-buddy](./create-pkgbld-extension-dts-buddy/README.md) - standalone dts-buddy setup for create-pkgbld.

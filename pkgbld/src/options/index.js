@@ -68,6 +68,16 @@ export const cliFlagsDefaults = {
     formatPackageJson: false,
 };
 
+/**
+ * @typedef {{
+ *   type: 'string' | 'boolean' | ((value: string) => unknown);
+ *   description: string;
+ *   default?: string | boolean | string[] | boolean[];
+ *   optionalValue?: boolean;
+ * }} CliFlag
+ */
+
+/** @type {Record<string, CliFlag>} */
 export const cliFlags = {
     umd: {
         type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),

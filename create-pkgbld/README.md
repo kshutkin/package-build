@@ -73,7 +73,7 @@ exact version in the committed `.pkgbld-lock.json`:
 {
   "$schema": "https://unpkg.com/create-pkgbld/lock-schema-v1.json",
   "packages": {
-    "create-pkgbld-extension-biome": "1.0.0",
+    "create-pkgbld-extension-biome": "0.1.1",
     "@author/pkgbld-plugin-example": "2.1.0"
   }
 }
@@ -90,7 +90,7 @@ target contract. Unchanged resources update automatically. Customized
 resources are displayed as conflicts and require interactive approval or
 `--accept-conflicts`.
 
-See the [PKG BLD Plugin API](https://github.com/kshutkin/package-build/blob/main/pkgbld/README.md#plugin-api) for build plugin authoring,
+See the [PKG BLD plugin interface](https://github.com/kshutkin/package-build/blob/main/pkgbld/README.md#build-plugin-interface) for build plugin authoring,
 [EXTENSIONS.md](./EXTENSIONS.md) for optional project setup behavior, and
 [DESIGN.md](./DESIGN.md) for package-management semantics.
 
