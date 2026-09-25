@@ -60,6 +60,7 @@
  *     includeExternals: boolean | string[];
  *     removeLegalComments: boolean;
  *   };
+ *   resolution: { imports: boolean; conditions: string[] };
  *   packageJson: {
  *     update: boolean;
  *     format: boolean;
@@ -87,6 +88,7 @@
  *     includeExternals: boolean | readonly string[];
  *     removeLegalComments: boolean;
  *   }>;
+ *   resolution: Readonly<{ imports: boolean; conditions: readonly string[] }>;
  *   packageJson: Readonly<{
  *     update: boolean;
  *     format: boolean;

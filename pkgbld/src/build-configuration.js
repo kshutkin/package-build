@@ -101,6 +101,10 @@ function createDefaultDraft() {
             includeExternals: defaults.includeExternals,
             removeLegalComments: false,
         },
+        resolution: {
+            imports: defaults.imports,
+            conditions: [...defaults.conditions],
+        },
         packageJson: {
             update: true,
             format: defaults.formatPackageJson,
@@ -124,6 +128,9 @@ function createDefaultDraft() {
  * @param {PackageJson} packageJson
  */
 function applyPackageMetadata(draft, packageJson) {
+    if (packageJson.imports !== undefined) {
+        draft.resolution.imports = true;
+    }
     if (typeof packageJson.umd === 'string') {
         draft.outputs.umdEntries.push('index');
         draft.outputs.formats.push('umd');
@@ -186,6 +193,8 @@ function applyCli(draft, flags, provided) {
     if (provided.includeExternals) {
         draft.transforms.includeExternals = /** @type {boolean | string[]} */ (flags.includeExternals);
     }
+    if (provided.imports) draft.resolution.imports = /** @type {boolean} */ (flags.imports);
+    if (provided.conditions) draft.resolution.conditions = [.../** @type {string[]} */ (flags.conditions)];
     if (provided.eject) draft.execution.eject = /** @type {boolean} */ (flags.eject);
     if (provided.tsConfig) draft.typescript.updateConfig = /** @type {boolean} */ (flags.tsConfig);
     if (provided.updatePackageJson) draft.packageJson.update = /** @type {boolean} */ (flags.updatePackageJson);
@@ -209,6 +218,7 @@ function normalize(draft) {
     if (Array.isArray(draft.outputs?.sourcemaps)) draft.outputs.sourcemaps = unique(draft.outputs.sourcemaps);
     if (Array.isArray(draft.transforms?.compress)) draft.transforms.compress = unique(draft.transforms.compress);
     if (Array.isArray(draft.transforms?.preprocess)) draft.transforms.preprocess = unique(draft.transforms.preprocess);
+    if (Array.isArray(draft.resolution?.conditions)) draft.resolution.conditions = unique(draft.resolution.conditions);
     if (Array.isArray(draft.transforms.includeExternals)) {
         draft.transforms.includeExternals = unique(draft.transforms.includeExternals);
     }
@@ -240,6 +250,7 @@ function validate(draft, packageJson) {
     validateFormats(draft.transforms.compress, 'transforms.compress', issues);
     validateStrings(draft.outputs.umdEntries, 'outputs.umdEntries', issues);
     validateStrings(draft.transforms.preprocess, 'transforms.preprocess', issues);
+    validateStrings(draft.resolution.conditions, 'resolution.conditions', issues);
     if (draft.outputs.umdEntries.length > 0 && typeof packageJson.name !== 'string') {
         issues.push({ code: 'PACKAGE_NAME_REQUIRED', path: 'package.name', message: 'a package name is required for UMD entries' });
     }

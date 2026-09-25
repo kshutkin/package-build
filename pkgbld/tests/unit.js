@@ -435,6 +435,67 @@ describe('build entries', () => {
 });
 
 describe('build configuration resolution', () => {
+    test('resolves package imports and additional conditions in authority order', () => {
+        const packageJson = { imports: { '#helper': './dist/helper.mjs' } };
+        const defaults = resolveConfiguration({ argv: [], packageJson: {} });
+        assert.deepEqual(defaults.resolution, { imports: false, conditions: [] });
+
+        const packageConfiguration = resolveConfiguration({ argv: [], packageJson });
+        assert.deepEqual(packageConfiguration.resolution, { imports: true, conditions: [] });
+        assert.equal(resolveConfiguration({ argv: ['--imports'], packageJson: {} }).resolution.imports, true);
+
+        const cliConfiguration = resolveConfiguration({
+            argv: ['--no-imports', '--conditions=node,development,node'],
+            packageJson,
+        });
+        assert.deepEqual(cliConfiguration.resolution, { imports: false, conditions: ['node', 'development'] });
+
+        let sourcesSeen = false;
+        const pluginConfiguration = resolveConfiguration({
+            argv: ['--no-imports', '--conditions=node'],
+            packageJson,
+            plugins: [
+                {
+                    configure({ draft, sources }) {
+                        assert.deepEqual(sources.defaults.resolution, { imports: false, conditions: [] });
+                        assert.deepEqual(sources.package.imports, packageJson.imports);
+                        assert.equal(sources.cli.provided.imports, true);
+                        assert.equal(sources.cli.provided.conditions, true);
+                        assert.deepEqual(sources.cli.values.conditions, ['node']);
+                        sourcesSeen = true;
+                        draft.resolution.imports = true;
+                        draft.resolution.conditions = ['browser'];
+                    },
+                },
+            ],
+        });
+        assert.equal(sourcesSeen, true);
+        assert.deepEqual(pluginConfiguration.resolution, { imports: true, conditions: ['browser'] });
+        assert.equal(Object.isFrozen(pluginConfiguration.resolution), true);
+        assert.equal(Object.isFrozen(pluginConfiguration.resolution.conditions), true);
+        assert.throws(() => pluginConfiguration.resolution.conditions.push('node'), TypeError);
+    });
+
+    test('rejects invalid resolver settings', () => {
+        assert.throws(
+            () => resolveConfiguration({ argv: ['--conditions=node,,development'], packageJson: {} }),
+            error =>
+                error instanceof BuildConfigurationError &&
+                error.issues.some(issue => issue.path === 'resolution.conditions' && issue.code === 'INVALID_LIST_VALUE')
+        );
+        assert.throws(
+            () =>
+                resolveConfiguration({
+                    argv: [],
+                    packageJson: {},
+                    plugins: [{ configure: ({ draft }) => (draft.resolution.imports = /** @type {any} */ ('yes')) }],
+                }),
+            error =>
+                error instanceof BuildConfigurationError &&
+                error.issues.some(issue => issue.path === 'resolution.imports' && issue.code === 'INVALID_CONFIGURATION_SHAPE')
+        );
+    });
+
     test('resolves package metadata, explicit CLI options, and Build plugins in authority order', () => {
         const packageJson = createLegacyUmdPackage();
 
