@@ -289,7 +289,7 @@ describe('private import outputs', () => {
                 '#tools/*': './dist/tools/*.mjs',
             };
             await fs.mkdir('src/tools');
-            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', type: 'module', imports }));
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', version: '1.0.0', type: 'module', imports }));
             await fs.writeFile(
                 'src/index.js',
                 "import { privateValue } from '#private'; import { env } from '#env'; import { tool } from '#tools/alpha'; export const value = privateValue + ':' + env + ':' + tool;"
@@ -314,6 +314,20 @@ describe('private import outputs', () => {
                 (await import(`${pathToFileURL(path.resolve('dist/public.index.mjs')).href}?test=${Date.now()}`)).value,
                 'private:node:alpha'
             );
+
+            const { stdout: packOutput } = await execFile('npm', ['pack', '--json', '--ignore-scripts'], { cwd: process.cwd() });
+            const [packed] = JSON.parse(packOutput);
+            await fs.mkdir('consumer');
+            await fs.writeFile('consumer/package.json', JSON.stringify({ name: 'consumer', private: true, type: 'module' }));
+            await execFile('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', path.resolve(packed.filename)], {
+                cwd: path.resolve('consumer'),
+            });
+            const { stdout: consumed } = await execFile(
+                process.execPath,
+                ['--input-type=module', '-e', "import('fixture').then(({ value }) => console.log(value))"],
+                { cwd: path.resolve('consumer') }
+            );
+            assert.equal(consumed.trim(), 'private:node:alpha');
 
             await fs.rm('dist', { recursive: true });
             await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--eject', ...args], { cwd: process.cwd() });
