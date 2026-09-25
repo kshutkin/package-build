@@ -84,7 +84,9 @@ for (const [suiteName, suiteTestCases] of Object.entries(tests)) {
                 await exportFiles(testCase);
                 let result;
                 try {
-                    result = await exec(`cd ${dir}; node ../../index.js${testCase.args != null ? ` ${testCase.args}` : ''}`);
+                    result = await exec(`cd ${dir}; node ../../index.js${testCase.args != null ? ` ${testCase.args}` : ''}`, {
+                        env: testCase.nodeEnv == null ? process.env : { ...process.env, NODE_ENV: testCase.nodeEnv },
+                    });
                 } catch (e) {
                     result = e;
                 }
