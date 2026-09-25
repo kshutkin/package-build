@@ -9,12 +9,15 @@ import { promisify } from 'node:util';
 
 import { rollup } from 'rollup';
 
+import { create as createDtsBuddyPlugin } from '../../pkgbld-plugin-dts-buddy/src/index.js';
+import { create as createSwcPlugin } from '../../pkgbld-plugin-swc/src/index.js';
 import { BuildConfigurationError, resolveBuildConfiguration } from '../src/build-configuration.js';
 import { BuildEntryError } from '../src/build-entries.js';
 import { createBuildPluginLifecycle } from '../src/build-plugin-lifecycle.js';
 import { curry } from '../src/builtin-plugins/externals.js';
 import { createPackageImportsPlugin } from '../src/builtin-plugins/package-imports.js';
 import provideResolve from '../src/builtin-plugins/resolve.js';
+import { createEjectProvider, ejectConfig } from '../src/eject.js';
 import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
 import { camelCase } from '../src/helpers.js';
@@ -272,6 +275,188 @@ describe('package import resolution', () => {
             } finally {
                 await bundle.close();
             }
+        });
+    });
+});
+
+describe('private import outputs', () => {
+    test('emits every declared target and reproduces the output with an ejected config', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            const imports = {
+                '#private': './dist/private.mjs',
+                '#env': { node: './dist/env.node.mjs', default: './dist/env.browser.mjs' },
+                '#tools/*': './dist/tools/*.mjs',
+            };
+            await fs.mkdir('src/tools');
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', type: 'module', imports }));
+            await fs.writeFile(
+                'src/index.js',
+                "import { privateValue } from '#private'; import { env } from '#env'; import { tool } from '#tools/alpha'; export const value = privateValue + ':' + env + ':' + tool;"
+            );
+            await fs.writeFile('src/private.js', "export const privateValue = 'private';");
+            await fs.writeFile('src/env.node.js', "export const env = 'node';");
+            await fs.writeFile('src/env.browser.js', "export const env = 'browser';");
+            await fs.writeFile('src/tools/alpha.js', "export const tool = 'alpha';");
+            await fs.symlink(path.join(packageRoot, 'node_modules'), 'node_modules');
+
+            const args = ['--formats=es', '--esm-pattern=public.[name].mjs', '--include-externals=', '--no-ts-config'];
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), ...args], { cwd: process.cwd() });
+            const emitted = await Promise.all(
+                ['public.index.mjs', 'private.mjs', 'env.node.mjs', 'env.browser.mjs', 'tools/alpha.mjs'].map(file =>
+                    fs.readFile(path.join('dist', file), 'utf8')
+                )
+            );
+            assert.deepEqual(JSON.parse(await fs.readFile('package.json', 'utf8')).imports, imports);
+            assert.match(emitted[0], /from ['"]#private['"]/);
+            assert.match(emitted[0], /from ['"]#env['"]/);
+            assert.equal(
+                (await import(`${pathToFileURL(path.resolve('dist/public.index.mjs')).href}?test=${Date.now()}`)).value,
+                'private:node:alpha'
+            );
+
+            await fs.rm('dist', { recursive: true });
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--eject', ...args], { cwd: process.cwd() });
+            const { default: configs } = await import(`${pathToFileURL(path.resolve('rollup.config.mjs')).href}?test=${Date.now()}`);
+            for (const config of configs) {
+                const bundle = await rollup(config);
+                try {
+                    for (const output of Array.isArray(config.output) ? config.output : [config.output]) await bundle.write(output);
+                } finally {
+                    await bundle.close();
+                }
+            }
+            const ejected = await Promise.all(
+                ['public.index.mjs', 'private.mjs', 'env.node.mjs', 'env.browser.mjs', 'tools/alpha.mjs'].map(file =>
+                    fs.readFile(path.join('dist', file), 'utf8')
+                )
+            );
+            assert.deepEqual(ejected, emitted);
+        });
+    });
+
+    test('emits a CommonJS .js target for a CommonJS package', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', imports: { '#private': './dist/private.js' } }));
+            await fs.writeFile('src/index.js', "import { privateValue } from '#private'; export const value = privateValue + 1;");
+            await fs.writeFile('src/private.js', 'export const privateValue = 41;');
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--formats=cjs', '--no-ts-config'], {
+                cwd: process.cwd(),
+            });
+            const { createRequire } = await import('node:module');
+            const require = createRequire(path.resolve('package.json'));
+            assert.equal(require('./dist/index.cjs').value, 42);
+            assert.deepEqual((await fs.readdir('dist')).sort(), ['index.cjs', 'private.js']);
+        });
+    });
+
+    test('keeps private targets out of UMD and emits only their requested formats', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile(
+                'package.json',
+                JSON.stringify({ name: 'fixture', type: 'module', imports: { '#private': './dist/private.mjs' } })
+            );
+            await fs.writeFile('src/index.js', 'export const value = true;');
+            await fs.writeFile('src/private.js', 'export const privateValue = true;');
+            await execFile(
+                process.execPath,
+                [
+                    path.join(packageRoot, 'index.js'),
+                    '--formats=es,cjs,umd',
+                    '--umd=index',
+                    '--compress=',
+                    '--sourcemaps=',
+                    '--no-ts-config',
+                ],
+                { cwd: process.cwd() }
+            );
+            const files = (await fs.readdir('dist')).sort();
+            assert.deepEqual(files, ['index.cjs', 'index.mjs', 'index.umd.js', 'private.mjs']);
+        });
+    });
+
+    test('applies SWC to multiple private TypeScript inputs and keeps them out of DTS Buddy modules', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = true;');
+            await fs.writeFile('src/first.ts', 'export const first: number = 1;');
+            await fs.writeFile('src/second.ts', 'export const second: number = 2;');
+            const imports = { '#first': './dist/first.mjs', '#second': './dist/second.mjs', '#types': './dist/private.d.ts' };
+            const pkg = { name: 'fixture', type: 'module', imports };
+            await fs.writeFile('package.json', JSON.stringify(pkg));
+            const swcPlugin = createSwcPlugin();
+            const pluginLifecycle = createBuildPluginLifecycle([swcPlugin]);
+            const configuration = resolveBuildConfiguration({ argv: ['--formats=es'], packageJson: pkg, pluginLifecycle });
+            const packageResult = await processPackage(pkg, configuration, pluginLifecycle);
+            assert.equal(
+                packageResult.entries.values.some(entry => entry.manifestPath === 'package.imports["#types"]'),
+                false
+            );
+            const configs = await getRollupConfigs(
+                createProvider(),
+                packageResult,
+                configuration,
+                { getGlobalName: String, getExternalGlobalName: String },
+                pluginLifecycle
+            );
+            for (const config of configs) {
+                const bundle = await rollup(config);
+                try {
+                    for (const output of config.output) await bundle.write(output);
+                } finally {
+                    await bundle.close();
+                }
+            }
+            assert.match(await fs.readFile('dist/first.mjs', 'utf8'), /first = 1/);
+            assert.match(await fs.readFile('dist/second.mjs', 'utf8'), /second = 2/);
+
+            await fs.mkdir('node_modules/@rollup', { recursive: true });
+            await fs.mkdir('node_modules/@rollup-extras', { recursive: true });
+            for (const moduleName of [
+                'rollup',
+                '@rollup/plugin-json',
+                '@rollup/plugin-node-resolve',
+                '@rollup/plugin-commonjs',
+                '@rollup-extras/plugin-externals',
+                '@rollup-extras/plugin-clean',
+            ]) {
+                await fs.symlink(path.join(packageRoot, 'node_modules', moduleName), path.join('node_modules', moduleName));
+            }
+            await fs.symlink(
+                path.resolve(packageRoot, '../pkgbld-plugin-swc/node_modules/@rollup/plugin-swc'),
+                'node_modules/@rollup/plugin-swc'
+            );
+            const helpers = { getGlobalName: String, getExternalGlobalName: String };
+            const ejectedConfigs = await getRollupConfigs(
+                await createEjectProvider(),
+                packageResult,
+                configuration,
+                helpers,
+                pluginLifecycle
+            );
+            await ejectConfig(ejectedConfigs, path.resolve('package.json'), configuration, packageResult, helpers, pkg);
+            await fs.rm('dist', { recursive: true });
+            const { default: importedConfigs } = await import(
+                `${pathToFileURL(path.resolve('rollup.config.mjs')).href}?test=${Date.now()}`
+            );
+            for (const config of importedConfigs) {
+                const bundle = await rollup(config);
+                try {
+                    for (const output of config.output) await bundle.write(output);
+                } finally {
+                    await bundle.close();
+                }
+            }
+            assert.match(await fs.readFile('dist/first.mjs', 'utf8'), /first = 1/);
+            assert.match(await fs.readFile('dist/second.mjs', 'utf8'), /second = 2/);
+
+            const dtsPlugin = createDtsBuddyPlugin();
+            dtsPlugin.configure({ draft: { paths: { outputDir: 'dist' }, typescript: {} } });
+            const dtsConfig = dtsPlugin.processPackageJson({ packageJson: pkg, entries: packageResult.entries });
+            assert.deepEqual(Object.keys(dtsConfig.modules), ['fixture']);
+            assert.deepEqual(pkg.imports, imports);
         });
     });
 });

@@ -26,7 +26,7 @@ export function curry(fn, ...args) {
  * @param {PackageProcessingResult} packageResult
  */
 export default async function (provider, configuration, packageResult) {
-    const inputs = packageResult.entries.values.map(entry => entry.sourcePath);
+    const inputs = packageResult.entries.values.filter(entry => entry.origin !== 'import').map(entry => entry.sourcePath);
     if (configuration.transforms.includeExternals === true) {
         return;
     }

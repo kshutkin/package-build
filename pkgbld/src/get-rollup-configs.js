@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import refiner from '@slimlib/refine-partition';
 
 import { plugins as pluginFactories } from './get-plugins.js';
@@ -21,8 +23,11 @@ import { areSetsEqual, toArray } from './helpers.js';
  * @param {BuildPluginLifecycle} pluginLifecycle
  */
 export async function getRollupConfigs([provider, plugins], packageResult, configuration, helpers, pluginLifecycle) {
-    const inputs = packageResult.entries.values.map(entry => entry.sourcePath);
-    const entriesBySourcePath = new Map(packageResult.entries.values.map(entry => [entry.sourcePath, entry]));
+    const publicEntries = packageResult.entries.values.filter(entry => entry.origin !== 'import');
+    const privateEntries = packageResult.entries.values.filter(entry => entry.origin === 'import');
+    const inputs = publicEntries.map(entry => entry.sourcePath);
+    const publicInputSet = new Set(inputs);
+    const entriesBySourcePath = new Map(publicEntries.map(entry => [entry.sourcePath, entry]));
     const factoryInProgress = [];
 
     const fileNamePatterns = /** @type {{ [key in InternalModuleFormat]: string }} */ ({
@@ -43,7 +48,7 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
     const expandInputs = new Set();
 
     for (const plugin of plugins) {
-        if (plugin.format && plugin.inputs?.length && !plugin.outputPlugin) {
+        if (plugin.format && plugin.inputs?.some(input => publicInputSet.has(input)) && !plugin.outputPlugin) {
             for (const format of toArray(plugin.format)) {
                 expandInputs.add(format);
             }
@@ -56,6 +61,8 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
 
     for (const plugin of plugins) {
         if (plugin.format && !plugin.outputPlugin) {
+            const publicPluginInputs = plugin.inputs?.filter(input => publicInputSet.has(input));
+            if (plugin.inputs && publicPluginInputs?.length === 0) continue;
             const formats = toArray(plugin.format);
             if (!plugin.inputs || plugin.inputs.length === 0) {
                 refineNext(doExpandInputs(formats));
@@ -64,7 +71,7 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
             } else {
                 const expanded = [];
                 for (const format of formats) {
-                    for (const input of plugin.inputs) {
+                    for (const input of /** @type {string[]} */ (publicPluginInputs)) {
                         expanded.push(`${format}.${input}`);
                     }
                 }
@@ -124,7 +131,7 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
         partitions.push({ formats: [...mapFormatInputs.keys()], inputs: [.../** @type {Set<string>} */ (prevInputs)] });
     }
 
-    return partitions.map(({ formats, inputs }) => {
+    const publicConfigs = partitions.map(({ formats, inputs }) => {
         return {
             input: Object.fromEntries(
                 inputs.map(input => [/** @type {import('./types.js').BuildEntry} */ (entriesBySourcePath.get(input)).name, input])
@@ -142,6 +149,30 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
             plugins: getPlugins(formats, inputs, false),
         };
     });
+
+    const privateConfigs = privateEntries.map(entry => {
+        const [[format, outputPath]] = Object.entries(entry.outputPaths);
+        const input = entry.sourcePath;
+        const selectedFormat = /** @type {InternalModuleFormat} */ (format);
+        return {
+            input,
+            output: [
+                {
+                    format: selectedFormat,
+                    dir: configuration.paths.outputDir,
+                    entryFileNames: path
+                        .relative(path.resolve(configuration.paths.outputDir), path.resolve(outputPath))
+                        .replaceAll('\\', '/'),
+                    plugins: getPlugins([selectedFormat], [input], true, true),
+                    sourcemap: configuration.outputs.sourcemaps.includes(/** @type {import('./types.js').BuildFormat} */ (selectedFormat)),
+                    ...getExtraOutputSettings(selectedFormat, [input]),
+                },
+            ],
+            plugins: getPlugins([selectedFormat], [input], false, true),
+        };
+    });
+
+    return [...publicConfigs, ...privateConfigs];
 
     /**
      * @param {InternalModuleFormat} format
@@ -176,14 +207,20 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
      * @param {InternalModuleFormat[]} formats
      * @param {string[]} inputs
      * @param {boolean} outputPlugin
+     * @param {boolean} [privateOutput]
      */
-    function getPlugins(formats, inputs, outputPlugin) {
+    function getPlugins(formats, inputs, outputPlugin, privateOutput = false) {
         const filteredPlugins = [];
         for (const plugin of plugins) {
             if (!!plugin.outputPlugin === outputPlugin) {
+                const publicPluginInputs = plugin.inputs?.filter(input => publicInputSet.has(input));
                 if (
                     (!plugin.format || toArray(plugin.format).some(format => formats.includes(format))) &&
-                    (!plugin.inputs || plugin.inputs.every(input => inputs.includes(input)))
+                    (!plugin.inputs ||
+                        plugin.inputs.length === 0 ||
+                        (privateOutput
+                            ? plugin.inputs.some(input => inputs.includes(input))
+                            : publicPluginInputs?.length > 0 && publicPluginInputs.every(input => inputs.includes(input))))
                 ) {
                     filteredPlugins.push({
                         instance: plugin.plugin(),
