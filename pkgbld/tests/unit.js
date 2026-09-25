@@ -13,6 +13,8 @@ import { BuildConfigurationError, resolveBuildConfiguration } from '../src/build
 import { BuildEntryError } from '../src/build-entries.js';
 import { createBuildPluginLifecycle } from '../src/build-plugin-lifecycle.js';
 import { curry } from '../src/builtin-plugins/externals.js';
+import { createPackageImportsPlugin } from '../src/builtin-plugins/package-imports.js';
+import provideResolve from '../src/builtin-plugins/resolve.js';
 import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
 import { camelCase } from '../src/helpers.js';
@@ -130,6 +132,146 @@ describe('local utilities', () => {
             }
 
             await Promise.all([fs.access('dist/index.umd.js'), fs.access('dist/second.umd.js')]);
+        });
+    });
+});
+
+describe('package import resolution', () => {
+    test('externalizes only imports owned by the package being built across symlinks and package boundaries', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.mkdir('workspace/dependency', { recursive: true });
+            await fs.mkdir('node_modules');
+            await fs.writeFile('package.json', '{}');
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+            await fs.writeFile('workspace/dependency/package.json', '{"name":"fixture-dependency"}');
+            await fs.writeFile('workspace/dependency/index.js', 'export const value = 2;');
+            await fs.symlink('index.js', 'src/alias.js');
+            await fs.symlink('../workspace/dependency', 'node_modules/fixture-dependency');
+
+            const plugin = createPackageImportsPlugin();
+            const own = await plugin.resolveId('#own', path.resolve('src/index.js'));
+            assert.deepEqual(own, { id: '#own', external: true });
+            assert.deepEqual(await plugin.resolveId('#own', path.resolve('src/alias.js')), own);
+            assert.equal(await plugin.resolveId('#dependency', path.resolve('node_modules/fixture-dependency/index.js')), null);
+            assert.equal(await plugin.resolveId('fixture-dependency', path.resolve('src/index.js')), null);
+        });
+    });
+
+    test('passes conditions to nodeResolve only when configured', async () => {
+        const calls = [];
+        const factories = [];
+        const provider = {
+            import:
+                async () =>
+                (...args) => {
+                    calls.push(args);
+                    return { name: 'resolve-test' };
+                },
+            provide: factory => factories.push(factory),
+        };
+        await provideResolve(provider, resolveConfiguration({ argv: [], packageJson: {} }));
+        factories.pop()();
+        await provideResolve(provider, resolveConfiguration({ argv: ['--conditions=node,development'], packageJson: {} }));
+        factories.pop()();
+        assert.deepEqual(calls, [[], [{ exportConditions: ['node', 'development'] }]]);
+    });
+
+    test('preserves package imports while resolving bundled linked-dependency imports with conditions', async () => {
+        await withTempDir(async () => {
+            const dependencyDir = await fs.mkdtemp(path.join(os.tmpdir(), 'fixture-dependency-'));
+            const originalNodeEnv = process.env.NODE_ENV;
+            try {
+                process.env.NODE_ENV = 'production';
+                await fs.mkdir('src');
+                await fs.mkdir('node_modules');
+                await fs.writeFile('package.json', JSON.stringify({ imports: { '#own': './dist/own.mjs' } }));
+                await fs.writeFile(
+                    'src/index.js',
+                    "import { own } from '#own'; import { selected } from 'fixture-dependency'; export { own, selected };"
+                );
+                await fs.writeFile('src/own.js', 'export const own = true;');
+                await fs.writeFile(
+                    path.join(dependencyDir, 'package.json'),
+                    JSON.stringify({
+                        name: 'fixture-dependency',
+                        type: 'module',
+                        main: './index.js',
+                        imports: {
+                            '#private': {
+                                node: './node.js',
+                                production: './production.js',
+                                default: './default.js',
+                            },
+                        },
+                    })
+                );
+                await fs.writeFile(path.join(dependencyDir, 'index.js'), "export { selected } from '#private';");
+                for (const condition of ['node', 'production', 'default']) {
+                    await fs.writeFile(path.join(dependencyDir, `${condition}.js`), `export const selected = '${condition}';`);
+                }
+                await fs.symlink(dependencyDir, 'node_modules/fixture-dependency');
+
+                for (const [conditions, includeExternals, expected] of [
+                    ['', '--include-externals=fixture-dependency', 'production'],
+                    ['--conditions=node', '--include-externals=fixture-dependency', 'node'],
+                    ['', '--include-externals=', 'production'],
+                ]) {
+                    const pkg = { imports: { '#own': './dist/own.mjs' } };
+                    const argv = ['--formats=es', includeExternals, ...(conditions ? [conditions] : [])];
+                    const configuration = resolveConfiguration({ argv, packageJson: pkg });
+                    const packageResult = await processPackage(pkg, configuration, emptyPluginLifecycle);
+                    const configs = await getRollupConfigs(
+                        createProvider(),
+                        packageResult,
+                        configuration,
+                        { getGlobalName: String, getExternalGlobalName: String },
+                        emptyPluginLifecycle
+                    );
+                    const bundle = await rollup(configs[0]);
+                    try {
+                        const { output } = await bundle.generate(configs[0].output[0]);
+                        const index = output.find(chunk => chunk.type === 'chunk' && chunk.facadeModuleId === path.resolve('src/index.js'));
+                        assert.ok(index);
+                        assert.match(index.code, /from ['"]#own['"]/);
+                        assert.match(index.code, new RegExp(`selected = '${expected}'`));
+                        assert.doesNotMatch(index.code, /from ['"]#private['"]/);
+                    } finally {
+                        await bundle.close();
+                    }
+                }
+            } finally {
+                if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+                else process.env.NODE_ENV = originalNodeEnv;
+                await fs.rm(dependencyDir, { recursive: true, force: true });
+            }
+        });
+    });
+
+    test('keeps the package-owned import external in an ejected config', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', imports: { '#own': 'node:fs' } }));
+            await fs.writeFile('src/index.js', "export { own } from '#own';");
+            await fs.symlink(path.join(packageRoot, 'node_modules'), 'node_modules');
+
+            await execFile(
+                process.execPath,
+                [path.join(packageRoot, 'index.js'), '--eject', '--formats=es', '--conditions=node', '--no-ts-config'],
+                {
+                    cwd: process.cwd(),
+                }
+            );
+            const { default: configs } = await import(`${pathToFileURL(path.resolve('rollup.config.mjs')).href}?test=${Date.now()}`);
+            const bundle = await rollup(configs[0]);
+            try {
+                const { output } = await bundle.generate(configs[0].output[0]);
+                const index = output.find(chunk => chunk.type === 'chunk' && chunk.facadeModuleId === path.resolve('src/index.js'));
+                assert.ok(index);
+                assert.match(index.code, /from ['"]#own['"]/);
+            } finally {
+                await bundle.close();
+            }
         });
     });
 });

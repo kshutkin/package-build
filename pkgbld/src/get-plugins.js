@@ -3,6 +3,7 @@ import clean from './builtin-plugins/clean.js';
 import commonjs from './builtin-plugins/commonjs.js';
 import externals from './builtin-plugins/externals.js';
 import json from './builtin-plugins/json.js';
+import packageImports from './builtin-plugins/package-imports.js';
 import preprocess from './builtin-plugins/preprocess.js';
 import resolve from './builtin-plugins/resolve.js';
 import terser from './builtin-plugins/terser.js';
@@ -12,7 +13,7 @@ import terser from './builtin-plugins/terser.js';
  * @typedef {import('./types.js').Provider} Provider
  */
 
-export const plugins = [clean, commonjs, externals, preprocess, resolve, terser, binify, json];
+export const plugins = [clean, commonjs, externals, preprocess, packageImports, resolve, terser, binify, json];
 
 const noop = () => undefined;
 
