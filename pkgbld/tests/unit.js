@@ -385,6 +385,109 @@ describe('format precedence', () => {
 });
 
 describe('build entries', () => {
+    test('discovers exact, conditional, fallback, and wildcard import targets without changing the map', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src/tools', { recursive: true });
+            await fs.writeFile('src/index.js', 'export const index = true;');
+            await fs.writeFile('src/shared.js', 'export const shared = true;');
+            await fs.writeFile('src/node.js', 'export const node = true;');
+            await fs.writeFile('src/browser.js', 'export const browser = true;');
+            await fs.writeFile('src/tools/one.js', 'export const one = true;');
+            await fs.writeFile('src/tools/two.js', 'export const two = true;');
+            const imports = {
+                '#shared': './dist/shared.mjs',
+                '#shared-alias': './dist/shared.mjs',
+                '#env': { node: './dist/node.mjs', default: ['./dist/browser.js', null, 'fixture-dependency'] },
+                '#tools/*': './dist/tools/*.mjs',
+                '#tools-alias/*': './dist/tools/*.mjs',
+                '#external': 'fixture-dependency',
+                '#blocked': null,
+            };
+            const pkg = { type: 'module', exports: { '.': {}, './shared': {} }, imports: structuredClone(imports) };
+            const configuration = resolveConfiguration({ argv: ['--formats=es'], packageJson: pkg });
+            const { entries } = await processPackage(pkg, configuration, emptyPluginLifecycle);
+
+            assert.deepEqual(pkg.imports, imports);
+            assert.deepEqual(
+                entries.values.filter(entry => entry.origin === 'import').map(entry => [entry.sourcePath, entry.outputPaths]),
+                [
+                    ['./src/node.js', { es: './dist/node.mjs' }],
+                    ['./src/browser.js', { es: './dist/browser.js' }],
+                    ['./src/tools/one.js', { es: './dist/tools/one.mjs' }],
+                    ['./src/tools/two.js', { es: './dist/tools/two.mjs' }],
+                ]
+            );
+            assert.equal(entries.values.filter(entry => entry.outputPaths.es === './dist/shared.mjs').length, 1);
+            assert.equal(entries.require('shared').origin, 'export');
+            assert.equal(
+                entries.values.filter(entry => entry.origin === 'import').every(entry => Object.isFrozen(entry.outputPaths)),
+                true
+            );
+        });
+    });
+
+    test('maps .js targets using the original package type and configured directories', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('lib');
+            await fs.writeFile('lib/index.ts', 'export const index = true;');
+            await fs.writeFile('lib/private.ts', 'export const value = true;');
+            const imports = { '#private': './build/private.js', '#types': './build/private.d.ts' };
+            const pkg = { imports: structuredClone(imports) };
+            const configuration = resolveConfiguration({
+                argv: ['--src=lib', '--dest=build', '--formats=cjs', '--no-exports'],
+                packageJson: pkg,
+            });
+            const { entries } = await processPackage(pkg, configuration, emptyPluginLifecycle);
+            assert.deepEqual(pkg.imports, imports);
+            assert.deepEqual(
+                entries.values.filter(entry => entry.origin === 'import').map(entry => entry.outputPaths),
+                [{ cjs: './build/private.js' }]
+            );
+        });
+    });
+
+    test('rejects missing, unsafe, excluded, and conflicting import outputs at their manifest paths', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const index = true;');
+            await fs.writeFile('src/conflict.js', 'export const conflict = true;');
+            await fs.writeFile('src/other.js', 'export const other = true;');
+            await fs.writeFile('src/other.conflict.js', 'export const otherConflict = true;');
+            const cases = [
+                [{ '#missing': './dist/missing.mjs' }, 'SOURCE_NOT_FOUND', 'package.imports["#missing"]'],
+                [{ '#outside': './outside/other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#outside"]'],
+                [{ '#traversal': './dist/../other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#traversal"]'],
+                [{ '#query': './dist/other.mjs?query' }, 'INVALID_IMPORT_TARGET', 'package.imports["#query"]'],
+                [{ '#url': 'file:///other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#url"]'],
+                [{ '#cjs': './dist/other.cjs' }, 'EXCLUDED_IMPORT_FORMAT', 'package.imports["#cjs"]'],
+                [{ '#conflict': './dist/other.conflict.mjs' }, 'OUTPUT_PATH_COLLISION', 'package.imports["#conflict"]'],
+                [{ '#missing/*': './dist/absent/*.mjs' }, 'SOURCE_NOT_FOUND', 'package.imports["#missing/*"]'],
+                [{ broken: './dist/other.mjs' }, 'INVALID_IMPORT_KEY', 'package.imports["broken"]'],
+            ];
+            for (const [imports, code, issuePath] of cases) {
+                const pkg = { exports: { '.': {}, './conflict': {} }, imports };
+                const configuration = resolveConfiguration({ argv: ['--formats=es', '--esm-pattern=other.[name].mjs'], packageJson: pkg });
+                await assert.rejects(
+                    () => processPackage(pkg, configuration, emptyPluginLifecycle),
+                    error =>
+                        error instanceof BuildEntryError &&
+                        error.issues.some(
+                            issue =>
+                                issue.code === code &&
+                                issue.path === issuePath &&
+                                (code !== 'OUTPUT_PATH_COLLISION' || issue.message.includes('package.exports["./conflict"]'))
+                        )
+                );
+            }
+            const malformed = { imports: [] };
+            const configuration = resolveConfiguration({ argv: [], packageJson: malformed });
+            await assert.rejects(
+                () => processPackage(malformed, configuration, emptyPluginLifecycle),
+                error => error instanceof BuildEntryError && error.issues.some(issue => issue.code === 'INVALID_IMPORT_MAP')
+            );
+        });
+    });
+
     test('rejects duplicate Build plugin contributions', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');

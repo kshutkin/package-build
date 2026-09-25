@@ -10,9 +10,10 @@ import { isExists } from './helpers.js';
  * @typedef {import('./types.js').BuildEntryContributions} BuildEntryContributions
  * @typedef {import('./types.js').BuildEntryIssue} BuildEntryIssue
  * @typedef {import('./types.js').BuildFormat} BuildFormat
+ * @typedef {import('./types.js').ImportTarget} ImportTarget
  */
 
-const sourceFileExtensions = /** @type {const} */ (['ts', 'tsx', 'js', 'jsx', 'cjs', 'mjs']);
+export const sourceFileExtensions = /** @type {const} */ (['ts', 'tsx', 'js', 'jsx', 'cjs', 'mjs']);
 
 export class BuildEntryError extends Error {
     /** @param {BuildEntryIssue[]} issues */
@@ -28,18 +29,25 @@ export class BuildEntryError extends Error {
  * one immutable catalog.
  *
  * @param {readonly string[]} packageEntryNames
+ * @param {readonly ImportTarget[]} importTargets
  * @param {BuildConfiguration} configuration
  * @param {(contributions: BuildEntryContributions) => void} contribute
  * @returns {Promise<BuildEntries>}
  */
-export async function resolveBuildEntries(packageEntryNames, configuration, contribute) {
-    /** @type {(BuildEntryContribution & { issuePath: string })[]} */
-    const specifications = packageEntryNames.map((name, index) => ({ name, issuePath: `package.entries[${index}]` }));
+export async function resolveBuildEntries(packageEntryNames, importTargets, configuration, contribute) {
+    /** @type {(BuildEntryContribution & { issuePath: string; origin: 'export' | 'plugin'; manifestPath: string })[]} */
+    const specifications = packageEntryNames.map((name, index) => ({
+        name,
+        issuePath: `package.entries[${index}]`,
+        origin: 'export',
+        manifestPath: `package.exports[${JSON.stringify(name === 'index' ? '.' : `./${name}`)}]`,
+    }));
     let contributionIndex = 0;
     const contributions = {
         /** @param {BuildEntryContribution} contribution */
         add(contribution) {
-            specifications.push({ ...contribution, issuePath: `plugins.entries[${contributionIndex}]` });
+            const issuePath = `plugins.entries[${contributionIndex}]`;
+            specifications.push({ ...contribution, issuePath, origin: 'plugin', manifestPath: issuePath });
             contributionIndex += 1;
         },
     };
@@ -87,6 +95,8 @@ export async function resolveBuildEntries(packageEntryNames, configuration, cont
         }
         const entry = Object.freeze({
             name,
+            origin: specification.origin,
+            manifestPath: specification.manifestPath,
             sourcePath: source.sourcePath,
             extension: source.extension,
             outputPaths: Object.freeze(outputPaths),
@@ -95,13 +105,47 @@ export async function resolveBuildEntries(packageEntryNames, configuration, cont
         byName.set(name, entry);
     }
 
+    for (const target of importTargets) {
+        const name = `@imports/${target.outputPath.slice(2)}`;
+        if (byName.has(name)) {
+            issues.push({
+                code: 'DUPLICATE_BUILD_ENTRY',
+                path: target.issuePath,
+                name,
+                message: `Build entry ${JSON.stringify(name)} is declared more than once`,
+            });
+            continue;
+        }
+        const source = await resolveSource(target.sourceName, undefined, configuration.paths.sourceDir);
+        if (!source) {
+            issues.push({
+                code: 'SOURCE_NOT_FOUND',
+                path: target.issuePath,
+                name,
+                message: `Import target ${JSON.stringify(target.outputPath)} has no supported source file`,
+            });
+            continue;
+        }
+        const entry = Object.freeze({
+            name,
+            origin: /** @type {const} */ ('import'),
+            manifestPath: target.issuePath,
+            sourcePath: source.sourcePath,
+            extension: source.extension,
+            outputPaths: Object.freeze({ [target.format]: target.outputPath }),
+        });
+        values.push(entry);
+        byName.set(name, entry);
+    }
+
     validateSelections(byName, configuration.outputs.umdEntries, 'outputs.umdEntries', issues);
     validateSelections(byName, configuration.transforms.preprocess, 'transforms.preprocess', issues);
-    validateOutputPaths(values, issues);
+    const shared = validateOutputPaths(values, issues);
 
     if (issues.length > 0) throw new BuildEntryError(issues);
 
-    const frozenValues = Object.freeze(values);
+    for (const entry of shared) byName.delete(entry.name);
+    const frozenValues = Object.freeze(values.filter(entry => !shared.has(entry)));
     return Object.freeze({
         values: frozenValues,
         /** @param {string} name */
@@ -113,7 +157,7 @@ export async function resolveBuildEntries(packageEntryNames, configuration, cont
                         code: 'SELECTED_BUILD_ENTRY_NOT_FOUND',
                         path: 'entries',
                         name,
-                        message: `Build entry ${JSON.stringify(name)} was not discovered; available entries: ${values.map(entry => entry.name).join(', ')}`,
+                        message: `Build entry ${JSON.stringify(name)} was not discovered; available entries: ${frozenValues.map(entry => entry.name).join(', ')}`,
                     },
                 ]);
             }
@@ -195,20 +239,33 @@ function validateSelections(byName, names, selectionPath, issues) {
  * @param {BuildEntryIssue[]} issues
  */
 function validateOutputPaths(entries, issues) {
+    /** @type {Map<string, { entry: BuildEntry; format: string }>} */
     const owners = new Map();
+    /** @type {Set<BuildEntry>} */
+    const shared = new Set();
     for (const entry of entries) {
         for (const [format, outputPath] of Object.entries(entry.outputPaths)) {
-            const owner = owners.get(outputPath);
+            const normalizedPath = path.resolve(outputPath);
+            const owner = owners.get(normalizedPath);
             if (owner) {
-                issues.push({
-                    code: 'OUTPUT_PATH_COLLISION',
-                    path: `entries.${entry.name}.outputPaths.${format}`,
-                    name: entry.name,
-                    message: `Output path ${JSON.stringify(outputPath)} is also produced by Build entry ${JSON.stringify(owner)}`,
-                });
+                if (
+                    entry.origin === 'import' &&
+                    owner.format === format &&
+                    path.resolve(entry.sourcePath) === path.resolve(owner.entry.sourcePath)
+                ) {
+                    shared.add(entry);
+                } else {
+                    issues.push({
+                        code: 'OUTPUT_PATH_COLLISION',
+                        path: entry.manifestPath,
+                        name: entry.name,
+                        message: `Output path ${JSON.stringify(outputPath)} conflicts with ${owner.entry.manifestPath}`,
+                    });
+                }
             } else {
-                owners.set(outputPath, entry.name);
+                owners.set(normalizedPath, { entry, format });
             }
         }
     }
+    return shared;
 }

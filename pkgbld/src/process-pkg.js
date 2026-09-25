@@ -3,6 +3,7 @@ import path from 'node:path';
 import { createLogger, LogLevel } from '@niceties/logger';
 
 import { resolveBuildEntries } from './build-entries.js';
+import { collectPackageImportTargets } from './package-imports.js';
 
 /**
  * @typedef {import('type-fest').JsonObject} JsonObject
@@ -42,6 +43,8 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         process.exit(-1);
     }
 
+    const importTargets = await collectPackageImportTargets(pkg.imports, configuration, pkg.type);
+
     if (!Array.isArray(pkg.files)) {
         pkg.files = [];
     }
@@ -71,7 +74,7 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         entryNames.push(indexId);
     }
 
-    const entries = await resolveBuildEntries(entryNames, configuration, contributions =>
+    const entries = await resolveBuildEntries(entryNames, importTargets, configuration, contributions =>
         pluginLifecycle.contributeEntries(contributions, configuration)
     );
     const indexEntry = entries.require(indexId);

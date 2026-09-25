@@ -198,8 +198,8 @@
         },
         {
             "id": 43,
-            "name": "bundles a package-owned source # import",
-            "args": "--formats=es --no-ts-config",
+            "name": "bundles a package-owned source # import with --no-imports",
+            "args": "--formats=es --no-ts-config --no-imports",
             "input": "package.json\n|{\n|  \"imports\": {\n|    \"#helper\": \"./src/helper.js\"\n|  }\n|}\nsrc\n  helper.js\n|export const helper = 41;\n  index.js\n|import { helper } from \"#helper\";\n|export const value = helper + 1;",
             "output": "dist\n  index.mjs\n|const helper = 41;\n|\n|const value = helper + 1;\n|\n|export { value };\n|\npackage.json\n|{\n|  \"imports\": {\n|    \"#helper\": \"./src/helper.js\"\n|  },\n|  \"files\": [\n|    \"dist\"\n|  ],\n|  \"scripts\": {\n|    \"prepack\": \"pkgprn\"\n|  },\n|  \"type\": \"module\",\n|  \"main\": \"./dist/index.mjs\",\n|  \"exports\": {\n|    \".\": {\n|      \"default\": \"./dist/index.mjs\"\n|    },\n|    \"./package.json\": \"./package.json\"\n|  }\n|}\n|\nsrc\n  helper.js\n|export const helper = 41;\n  index.js\n|import { helper } from \"#helper\";\n|export const value = helper + 1;",
             "stdout": "preparing..\n\npreparing...\nsrc → dist 0 / 1\nℹ ✓ index [es]\nsrc → dist 1 / 1\n✓ src → dist 1 / 1 in XXX\n",
