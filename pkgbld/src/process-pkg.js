@@ -43,7 +43,8 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         process.exit(-1);
     }
 
-    const importTargets = await collectPackageImportTargets(pkg.imports, configuration, pkg.type);
+    const finalPackageType = allowEsm && !allowCjs && typeof pkg.type !== 'string' ? 'module' : pkg.type;
+    const importTargets = await collectPackageImportTargets(pkg.imports, configuration, finalPackageType);
 
     if (!Array.isArray(pkg.files)) {
         pkg.files = [];

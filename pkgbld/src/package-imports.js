@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { BuildEntryError, sourceFileExtensions } from './build-entries.js';
 
@@ -29,32 +30,61 @@ export async function collectPackageImportTargets(imports, configuration, packag
     const issues = [];
     /** @type {Map<string, ImportTarget>} */
     const targets = new Map();
+    const leaves = parseImportMap(imports, issues);
+    for (const leaf of leaves) {
+        for (const target of await expandLocalTarget(leaf, configuration, packageType, issues)) {
+            if (!targets.has(target.outputPath)) targets.set(target.outputPath, target);
+        }
+    }
+
+    if (issues.length > 0) throw new BuildEntryError(issues);
+    return [...targets.values()];
+}
+
+/**
+ * Walk the authored map without selecting runtime conditions. Every local
+ * branch may need its own output, while package specifiers remain mappings.
+ * @param {unknown} imports
+ * @param {BuildEntryIssue[]} issues
+ */
+function parseImportMap(imports, issues) {
+    /** @type {{ value: string; issuePath: string; wildcardKey: boolean }[]} */
+    const leaves = [];
     if (!isRecord(imports)) {
-        throw new BuildEntryError([{ code: 'INVALID_IMPORT_MAP', path: 'package.imports', message: 'must be an object' }]);
+        issues.push({ code: 'INVALID_IMPORT_MAP', path: 'package.imports', message: 'must be an object' });
+        return leaves;
     }
 
     for (const [key, value] of Object.entries(imports)) {
         const issuePath = `package.imports[${JSON.stringify(key)}]`;
         const stars = key.match(/\*/g)?.length ?? 0;
-        if (!key.startsWith('#') || key === '#' || key.startsWith('#/') || key.includes('\\') || stars > 1) {
+        if (!key.startsWith('#') || key === '#' || key.endsWith('/') || stars > 1) {
             issues.push({ code: 'INVALID_IMPORT_KEY', path: issuePath, message: `Invalid package import key ${JSON.stringify(key)}` });
             continue;
         }
-        await visit(value, issuePath, stars > 0);
+        visit(value, issuePath, stars > 0);
     }
-
-    if (issues.length > 0) throw new BuildEntryError(issues);
-    return [...targets.values()];
+    return leaves;
 
     /** @param {unknown} value @param {string} issuePath @param {boolean} wildcardKey */
-    async function visit(value, issuePath, wildcardKey) {
+    function visit(value, issuePath, wildcardKey) {
         if (value === null) return;
         if (Array.isArray(value)) {
-            for (const [index, leaf] of value.entries()) await visit(leaf, `${issuePath}[${index}]`, wildcardKey);
+            for (const [index, leaf] of value.entries()) visit(leaf, `${issuePath}[${index}]`, wildcardKey);
             return;
         }
         if (isRecord(value)) {
-            for (const [condition, leaf] of Object.entries(value)) await visit(leaf, `${issuePath}.${condition}`, wildcardKey);
+            for (const [condition, leaf] of Object.entries(value)) {
+                if (isArrayIndex(condition)) {
+                    issues.push({
+                        code: 'INVALID_IMPORT_CONDITION',
+                        path: `${issuePath}.${condition}`,
+                        message: `Integer condition key ${JSON.stringify(condition)} is invalid in a package imports map`,
+                    });
+                } else {
+                    visit(leaf, `${issuePath}.${condition}`, wildcardKey);
+                }
+            }
             return;
         }
         if (typeof value !== 'string') {
@@ -62,13 +92,7 @@ export async function collectPackageImportTargets(imports, configuration, packag
             return;
         }
         if (!value.startsWith('./')) {
-            if (
-                value.startsWith('.') ||
-                value.startsWith('/') ||
-                value.includes('\\') ||
-                value.length === 0 ||
-                (/^[a-z][a-z+.-]*:/i.test(value) && !value.startsWith('node:'))
-            ) {
+            if (value.startsWith('.') || value.startsWith('/') || value.includes('\\') || value.length === 0 || URL.canParse(value)) {
                 issues.push({
                     code: 'INVALID_IMPORT_TARGET',
                     path: issuePath,
@@ -77,62 +101,99 @@ export async function collectPackageImportTargets(imports, configuration, packag
             }
             return;
         }
-        if (!javascriptExtensions.has(path.posix.extname(value.split(/[?#]/, 1)[0]))) return;
+        leaves.push({ value, issuePath, wildcardKey });
+    }
+}
 
-        const segments = value.slice(2).split('/');
-        const outputDir = path.resolve(configuration.paths.outputDir);
-        const outputPath = path.resolve(value);
+/** @param {string} key */
+function isArrayIndex(key) {
+    return /^(0|[1-9]\d*)$/.test(key) && Number(key) < 2 ** 32 - 1;
+}
+
+/**
+ * Validate a local URL target, then expand its output pattern against source
+ * names. Final source-extension selection happens in resolveBuildEntries.
+ * @param {{ value: string; issuePath: string; wildcardKey: boolean }} leaf
+ * @param {BuildConfiguration} configuration
+ * @param {unknown} packageType
+ * @param {BuildEntryIssue[]} issues
+ * @returns {Promise<ImportTarget[]>}
+ */
+async function expandLocalTarget({ value, issuePath, wildcardKey }, configuration, packageType, issues) {
+    const pathPart = value.split(/[?#]/, 1)[0];
+    const rawSegments = pathPart.slice(2).split('/');
+    let outputPath;
+    try {
         if (
-            segments.some(segment => segment === '' || segment === '.' || segment === '..' || segment === 'node_modules') ||
-            /[\\?#]/.test(value) ||
-            /%(?:2e|2f|5c)/i.test(value) ||
-            !outputPath.startsWith(`${outputDir}${path.sep}`) ||
-            (value.includes('*') && !wildcardKey)
+            pathPart.includes('\\') ||
+            rawSegments.some(segment => {
+                const decoded = decodeURIComponent(segment);
+                return (
+                    decoded === '' ||
+                    decoded === '.' ||
+                    decoded === '..' ||
+                    decoded.toLowerCase() === 'node_modules' ||
+                    decoded.includes('/') ||
+                    decoded.includes('\\')
+                );
+            })
         ) {
-            issues.push({
-                code: 'INVALID_IMPORT_TARGET',
-                path: issuePath,
-                message: `Local JavaScript target ${JSON.stringify(value)} must be a safe path beneath ${configuration.paths.outputDir}`,
-            });
-            return;
+            throw new Error('invalid path segment');
         }
-
-        const extension = path.posix.extname(value);
-        const format = /** @type {BuildFormat} */ (
-            extension === '.mjs' ? 'es' : extension === '.cjs' ? 'cjs' : packageType === 'module' ? 'es' : 'cjs'
-        );
-        if (!configuration.outputs.formats.includes(format)) {
-            issues.push({
-                code: 'EXCLUDED_IMPORT_FORMAT',
-                path: issuePath,
-                message: `Local target ${JSON.stringify(value)} requires ${format}, which is excluded by outputs.formats`,
-            });
-            return;
-        }
-
-        const relativeOutput = path.relative(outputDir, outputPath).replaceAll('\\', '/');
-        const sourceName = relativeOutput.slice(0, -extension.length);
-        if (value.includes('*')) {
-            const sourceNames = await findMatchingSourceNames(configuration.paths.sourceDir, sourceName);
-            if (sourceNames.length === 0) {
-                issues.push({
-                    code: 'SOURCE_NOT_FOUND',
-                    path: issuePath,
-                    message: `Import target ${JSON.stringify(value)} has no supported source file`,
-                });
-            }
-            for (const matchedName of sourceNames) {
-                addTarget(matchedName, `./${configuration.paths.outputDir}/${matchedName}${extension}`, format, issuePath);
-            }
-        } else {
-            addTarget(sourceName, `./${configuration.paths.outputDir}/${relativeOutput}`, format, issuePath);
-        }
+        outputPath = fileURLToPath(new URL(value, pathToFileURL(path.join(process.cwd(), 'package.json'))));
+    } catch {
+        issues.push({
+            code: 'INVALID_IMPORT_TARGET',
+            path: issuePath,
+            message: `Invalid local package import target ${JSON.stringify(value)}`,
+        });
+        return [];
     }
 
-    /** @param {string} sourceName @param {string} outputPath @param {BuildFormat} format @param {string} issuePath */
-    function addTarget(sourceName, outputPath, format, issuePath) {
-        if (!targets.has(outputPath)) targets.set(outputPath, { sourceName, outputPath, format, issuePath });
+    const extension = path.extname(outputPath);
+    if (!javascriptExtensions.has(extension)) return [];
+
+    const outputDir = path.resolve(configuration.paths.outputDir);
+    if (!outputPath.startsWith(`${outputDir}${path.sep}`) || (pathPart.includes('*') && !wildcardKey)) {
+        issues.push({
+            code: 'INVALID_IMPORT_TARGET',
+            path: issuePath,
+            message: `Local JavaScript target ${JSON.stringify(value)} must be a safe path beneath ${configuration.paths.outputDir}`,
+        });
+        return [];
     }
+
+    const format = /** @type {BuildFormat} */ (
+        extension === '.mjs' ? 'es' : extension === '.cjs' ? 'cjs' : packageType === 'module' ? 'es' : 'cjs'
+    );
+    if (!configuration.outputs.formats.includes(format)) {
+        issues.push({
+            code: 'EXCLUDED_IMPORT_FORMAT',
+            path: issuePath,
+            message: `Local target ${JSON.stringify(value)} requires ${format}, which is excluded by outputs.formats`,
+        });
+        return [];
+    }
+
+    const relativeOutput = path.relative(outputDir, outputPath).replaceAll('\\', '/');
+    const sourceName = relativeOutput.slice(0, -extension.length);
+    if (pathPart.includes('*')) {
+        const sourceNames = await findMatchingSourceNames(configuration.paths.sourceDir, sourceName);
+        if (sourceNames.length === 0) {
+            issues.push({
+                code: 'SOURCE_NOT_FOUND',
+                path: issuePath,
+                message: `Import target ${JSON.stringify(value)} has no supported source file`,
+            });
+        }
+        return sourceNames.map(matchedName => ({
+            sourceName: matchedName,
+            outputPath: `./${configuration.paths.outputDir}/${matchedName}${extension}`,
+            format,
+            issuePath,
+        }));
+    }
+    return [{ sourceName, outputPath: `./${configuration.paths.outputDir}/${relativeOutput}`, format, issuePath }];
 }
 
 /** @param {unknown} value @returns {value is Record<string, unknown>} */

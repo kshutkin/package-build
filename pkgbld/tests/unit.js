@@ -254,7 +254,7 @@ describe('package import resolution', () => {
     test('keeps the package-owned import external in an ejected config', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
-            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', imports: { '#own': 'node:fs' } }));
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', imports: { '#own': 'fs' } }));
             await fs.writeFile('src/index.js', "export { own } from '#own';");
             await fs.symlink(path.join(packageRoot, 'node_modules'), 'node_modules');
 
@@ -362,6 +362,25 @@ describe('private import outputs', () => {
             const require = createRequire(path.resolve('package.json'));
             assert.equal(require('./dist/index.cjs').value, 42);
             assert.deepEqual((await fs.readdir('dist')).sort(), ['index.cjs', 'private.js']);
+        });
+    });
+
+    test('emits an encoded and queried .js target when an ESM-only build sets the package type', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile(
+                'package.json',
+                JSON.stringify({ name: 'fixture', imports: { '#private': './dist/private%20space.js?variant=1' } })
+            );
+            await fs.writeFile('src/index.js', "import { value } from '#private'; export { value };");
+            await fs.writeFile('src/private space.js', 'export const value = 42;');
+
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--formats=es', '--no-ts-config'], {
+                cwd: process.cwd(),
+            });
+            assert.equal(JSON.parse(await fs.readFile('package.json', 'utf8')).type, 'module');
+            assert.deepEqual((await fs.readdir('dist')).sort(), ['index.mjs', 'private space.js']);
+            assert.equal((await import(`${pathToFileURL(path.resolve('dist/index.mjs')).href}?test=${Date.now()}`)).value, 42);
         });
     });
 
@@ -798,8 +817,8 @@ describe('build entries', () => {
                 [{ '#missing': './dist/missing.mjs' }, 'SOURCE_NOT_FOUND', 'package.imports["#missing"]'],
                 [{ '#outside': './outside/other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#outside"]'],
                 [{ '#traversal': './dist/../other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#traversal"]'],
-                [{ '#query': './dist/other.mjs?query' }, 'INVALID_IMPORT_TARGET', 'package.imports["#query"]'],
                 [{ '#url': 'file:///other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#url"]'],
+                [{ '#url': 'node:fs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#url"]'],
                 [{ '#cjs': './dist/other.cjs' }, 'EXCLUDED_IMPORT_FORMAT', 'package.imports["#cjs"]'],
                 [{ '#conflict': './dist/other.conflict.mjs' }, 'OUTPUT_PATH_COLLISION', 'package.imports["#conflict"]'],
                 [{ '#missing/*': './dist/absent/*.mjs' }, 'SOURCE_NOT_FOUND', 'package.imports["#missing/*"]'],
@@ -826,6 +845,46 @@ describe('build entries', () => {
                 () => processPackage(malformed, configuration, emptyPluginLifecycle),
                 error => error instanceof BuildEntryError && error.issues.some(issue => issue.code === 'INVALID_IMPORT_MAP')
             );
+        });
+    });
+
+    test('follows Node import-map keys, condition keys, and encoded target paths', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const index = true;');
+            await fs.writeFile('src/private.js', 'export const value = true;');
+            await fs.writeFile('src/private space.js', 'export const value = true;');
+            const lifecycle = emptyPluginLifecycle;
+            const valid = {
+                imports: {
+                    '#/private': './dist/private.mjs',
+                    '#private\\name': './dist/private.mjs',
+                    '#encoded': './dist/private%20space.mjs#fragment',
+                },
+            };
+            const configuration = resolveConfiguration({ argv: ['--formats=es'], packageJson: valid });
+            const { entries } = await processPackage(valid, configuration, lifecycle);
+            assert.deepEqual(
+                entries.values.filter(entry => entry.origin === 'import').map(entry => entry.outputPaths.es),
+                ['./dist/private.mjs', './dist/private space.mjs']
+            );
+
+            for (const [imports, code, issuePath] of [
+                [{ '#bad': './dist/%6eode_modules/private.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#bad"]'],
+                [{ '#bad': './dist/NODE_MODULES/private.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#bad"]'],
+                [
+                    { '#bad': { 1: './dist/private.mjs', default: './dist/private.mjs' } },
+                    'INVALID_IMPORT_CONDITION',
+                    'package.imports["#bad"].1',
+                ],
+            ]) {
+                const pkg = { imports };
+                const invalidConfiguration = resolveConfiguration({ argv: ['--formats=es'], packageJson: pkg });
+                await assert.rejects(
+                    () => processPackage(pkg, invalidConfiguration, lifecycle),
+                    error => error instanceof BuildEntryError && error.issues.some(issue => issue.code === code && issue.path === issuePath)
+                );
+            }
         });
     });
 
