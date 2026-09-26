@@ -26,7 +26,7 @@ export function curry(fn, ...args) {
  * @param {PackageProcessingResult} packageResult
  */
 export default async function (provider, configuration, packageResult) {
-    const inputs = packageResult.entries.values.map(entry => entry.sourcePath);
+    const inputs = packageResult.entries.values.filter(entry => entry.origin !== 'import').map(entry => entry.sourcePath);
     if (configuration.transforms.includeExternals === true) {
         return;
     }
@@ -42,7 +42,7 @@ export default async function (provider, configuration, packageResult) {
         provider.provide(
             () =>
                 pluginExternals(
-                    configuration.transforms.includeExternals === false
+                    configuration.transforms.includeExternals === false && !configuration.resolution.imports
                         ? {}
                         : (/** @type {string} */ id, /** @type {boolean} */ external, /** @type {string} */ importer) =>
                               includeExternals(importer, external, id, configuration)
@@ -86,6 +86,7 @@ export default async function (provider, configuration, packageResult) {
  * @param {BuildConfiguration} configuration
  */
 function includeExternals(_importer, external, id, configuration) {
+    if (configuration.resolution.imports && id.startsWith('#')) return false;
     if (configuration.transforms.includeExternals === false) return external;
     if (!external) return false;
     const internals = /** @type {readonly string[]} */ (configuration.transforms.includeExternals);

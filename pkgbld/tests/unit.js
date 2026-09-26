@@ -9,10 +9,15 @@ import { promisify } from 'node:util';
 
 import { rollup } from 'rollup';
 
+import { create as createDtsBuddyPlugin } from '../../pkgbld-plugin-dts-buddy/src/index.js';
+import { create as createSwcPlugin } from '../../pkgbld-plugin-swc/src/index.js';
 import { BuildConfigurationError, resolveBuildConfiguration } from '../src/build-configuration.js';
 import { BuildEntryError } from '../src/build-entries.js';
 import { createBuildPluginLifecycle } from '../src/build-plugin-lifecycle.js';
 import { curry } from '../src/builtin-plugins/externals.js';
+import { createPackageImportsPlugin } from '../src/builtin-plugins/package-imports.js';
+import provideResolve from '../src/builtin-plugins/resolve.js';
+import { createEjectProvider, ejectConfig } from '../src/eject.js';
 import { createProvider } from '../src/get-plugins.js';
 import { getRollupConfigs } from '../src/get-rollup-configs.js';
 import { camelCase } from '../src/helpers.js';
@@ -130,6 +135,361 @@ describe('local utilities', () => {
             }
 
             await Promise.all([fs.access('dist/index.umd.js'), fs.access('dist/second.umd.js')]);
+        });
+    });
+});
+
+describe('package import resolution', () => {
+    test('externalizes only imports owned by the package being built across symlinks and package boundaries', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.mkdir('workspace/dependency', { recursive: true });
+            await fs.mkdir('node_modules');
+            await fs.writeFile('package.json', '{}');
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+            await fs.writeFile('workspace/dependency/package.json', '{"name":"fixture-dependency"}');
+            await fs.writeFile('workspace/dependency/index.js', 'export const value = 2;');
+            await fs.symlink('index.js', 'src/alias.js');
+            await fs.symlink('../workspace/dependency', 'node_modules/fixture-dependency');
+
+            const plugin = createPackageImportsPlugin();
+            const own = await plugin.resolveId('#own', path.resolve('src/index.js'));
+            assert.deepEqual(own, { id: '#own', external: true });
+            assert.deepEqual(await plugin.resolveId('#own', path.resolve('src/alias.js')), own);
+            assert.equal(await plugin.resolveId('#dependency', path.resolve('node_modules/fixture-dependency/index.js')), null);
+            assert.equal(await plugin.resolveId('fixture-dependency', path.resolve('src/index.js')), null);
+        });
+    });
+
+    test('passes conditions to nodeResolve only when configured', async () => {
+        const calls = [];
+        const factories = [];
+        const provider = {
+            import:
+                async () =>
+                (...args) => {
+                    calls.push(args);
+                    return { name: 'resolve-test' };
+                },
+            provide: factory => factories.push(factory),
+        };
+        await provideResolve(provider, resolveConfiguration({ argv: [], packageJson: {} }));
+        factories.pop()();
+        await provideResolve(provider, resolveConfiguration({ argv: ['--conditions=node,development'], packageJson: {} }));
+        factories.pop()();
+        assert.deepEqual(calls, [[], [{ exportConditions: ['node', 'development'] }]]);
+    });
+
+    test('preserves package imports while resolving bundled linked-dependency imports with conditions', async () => {
+        await withTempDir(async () => {
+            const dependencyDir = await fs.mkdtemp(path.join(os.tmpdir(), 'fixture-dependency-'));
+            const originalNodeEnv = process.env.NODE_ENV;
+            try {
+                process.env.NODE_ENV = 'production';
+                await fs.mkdir('src');
+                await fs.mkdir('node_modules');
+                await fs.writeFile('package.json', JSON.stringify({ imports: { '#own': './dist/own.mjs' } }));
+                await fs.writeFile(
+                    'src/index.js',
+                    "import { own } from '#own'; import { selected } from 'fixture-dependency'; export { own, selected };"
+                );
+                await fs.writeFile('src/own.js', 'export const own = true;');
+                await fs.writeFile(
+                    path.join(dependencyDir, 'package.json'),
+                    JSON.stringify({
+                        name: 'fixture-dependency',
+                        type: 'module',
+                        main: './index.js',
+                        imports: {
+                            '#private': {
+                                node: './node.js',
+                                production: './production.js',
+                                default: './default.js',
+                            },
+                        },
+                    })
+                );
+                await fs.writeFile(path.join(dependencyDir, 'index.js'), "export { selected } from '#private';");
+                for (const condition of ['node', 'production', 'default']) {
+                    await fs.writeFile(path.join(dependencyDir, `${condition}.js`), `export const selected = '${condition}';`);
+                }
+                await fs.symlink(dependencyDir, 'node_modules/fixture-dependency');
+
+                for (const [conditions, includeExternals, expected] of [
+                    ['', '--include-externals=fixture-dependency', 'production'],
+                    ['--conditions=node', '--include-externals=fixture-dependency', 'node'],
+                    ['', '--include-externals=', 'production'],
+                ]) {
+                    const pkg = { imports: { '#own': './dist/own.mjs' } };
+                    const argv = ['--formats=es', includeExternals, ...(conditions ? [conditions] : [])];
+                    const configuration = resolveConfiguration({ argv, packageJson: pkg });
+                    const packageResult = await processPackage(pkg, configuration, emptyPluginLifecycle);
+                    const configs = await getRollupConfigs(
+                        createProvider(),
+                        packageResult,
+                        configuration,
+                        { getGlobalName: String, getExternalGlobalName: String },
+                        emptyPluginLifecycle
+                    );
+                    const bundle = await rollup(configs[0]);
+                    try {
+                        const { output } = await bundle.generate(configs[0].output[0]);
+                        const index = output.find(chunk => chunk.type === 'chunk' && chunk.facadeModuleId === path.resolve('src/index.js'));
+                        assert.ok(index);
+                        assert.match(index.code, /from ['"]#own['"]/);
+                        assert.match(index.code, new RegExp(`selected = '${expected}'`));
+                        assert.doesNotMatch(index.code, /from ['"]#private['"]/);
+                    } finally {
+                        await bundle.close();
+                    }
+                }
+            } finally {
+                if (originalNodeEnv === undefined) delete process.env.NODE_ENV;
+                else process.env.NODE_ENV = originalNodeEnv;
+                await fs.rm(dependencyDir, { recursive: true, force: true });
+            }
+        });
+    });
+
+    test('keeps the package-owned import external in an ejected config', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', imports: { '#own': 'fs' } }));
+            await fs.writeFile('src/index.js', "export { own } from '#own';");
+            await fs.symlink(path.join(packageRoot, 'node_modules'), 'node_modules');
+
+            await execFile(
+                process.execPath,
+                [path.join(packageRoot, 'index.js'), '--eject', '--formats=es', '--conditions=node', '--no-ts-config'],
+                {
+                    cwd: process.cwd(),
+                }
+            );
+            const { default: configs } = await import(`${pathToFileURL(path.resolve('rollup.config.mjs')).href}?test=${Date.now()}`);
+            const bundle = await rollup(configs[0]);
+            try {
+                const { output } = await bundle.generate(configs[0].output[0]);
+                const index = output.find(chunk => chunk.type === 'chunk' && chunk.facadeModuleId === path.resolve('src/index.js'));
+                assert.ok(index);
+                assert.match(index.code, /from ['"]#own['"]/);
+            } finally {
+                await bundle.close();
+            }
+        });
+    });
+});
+
+describe('private import outputs', () => {
+    test('emits every declared target and reproduces the output with an ejected config', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            const imports = {
+                '#private': './dist/private.mjs',
+                '#env': { node: './dist/env.node.mjs', default: './dist/env.browser.mjs' },
+                '#tools/*': './dist/tools/*.mjs',
+            };
+            await fs.mkdir('src/tools');
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', version: '1.0.0', type: 'module', imports }));
+            await fs.writeFile(
+                'src/index.js',
+                "import { privateValue } from '#private'; import { env } from '#env'; import { tool } from '#tools/alpha'; export const value = privateValue + ':' + env + ':' + tool;"
+            );
+            await fs.writeFile('src/private.js', "export const privateValue = 'private';");
+            await fs.writeFile('src/env.node.js', "export const env = 'node';");
+            await fs.writeFile('src/env.browser.js', "export const env = 'browser';");
+            await fs.writeFile('src/tools/alpha.js', "export const tool = 'alpha';");
+            await fs.symlink(path.join(packageRoot, 'node_modules'), 'node_modules');
+
+            const args = ['--formats=es', '--esm-pattern=public.[name].mjs', '--include-externals=', '--no-ts-config'];
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), ...args], { cwd: process.cwd() });
+            const emitted = await Promise.all(
+                ['public.index.mjs', 'private.mjs', 'env.node.mjs', 'env.browser.mjs', 'tools/alpha.mjs'].map(file =>
+                    fs.readFile(path.join('dist', file), 'utf8')
+                )
+            );
+            assert.deepEqual(JSON.parse(await fs.readFile('package.json', 'utf8')).imports, imports);
+            assert.match(emitted[0], /from ['"]#private['"]/);
+            assert.match(emitted[0], /from ['"]#env['"]/);
+            assert.equal(
+                (await import(`${pathToFileURL(path.resolve('dist/public.index.mjs')).href}?test=${Date.now()}`)).value,
+                'private:node:alpha'
+            );
+
+            const { stdout: packOutput } = await execFile('npm', ['pack', '--json', '--ignore-scripts'], { cwd: process.cwd() });
+            const [packed] = JSON.parse(packOutput);
+            await fs.mkdir('consumer');
+            await fs.writeFile('consumer/package.json', JSON.stringify({ name: 'consumer', private: true, type: 'module' }));
+            await execFile('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', path.resolve(packed.filename)], {
+                cwd: path.resolve('consumer'),
+            });
+            const { stdout: consumed } = await execFile(
+                process.execPath,
+                ['--input-type=module', '-e', "import('fixture').then(({ value }) => console.log(value))"],
+                { cwd: path.resolve('consumer') }
+            );
+            assert.equal(consumed.trim(), 'private:node:alpha');
+
+            await fs.rm('dist', { recursive: true });
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--eject', ...args], { cwd: process.cwd() });
+            const { default: configs } = await import(`${pathToFileURL(path.resolve('rollup.config.mjs')).href}?test=${Date.now()}`);
+            for (const config of configs) {
+                const bundle = await rollup(config);
+                try {
+                    for (const output of Array.isArray(config.output) ? config.output : [config.output]) await bundle.write(output);
+                } finally {
+                    await bundle.close();
+                }
+            }
+            const ejected = await Promise.all(
+                ['public.index.mjs', 'private.mjs', 'env.node.mjs', 'env.browser.mjs', 'tools/alpha.mjs'].map(file =>
+                    fs.readFile(path.join('dist', file), 'utf8')
+                )
+            );
+            assert.deepEqual(ejected, emitted);
+        });
+    });
+
+    test('emits a CommonJS .js target for a CommonJS package', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', imports: { '#private': './dist/private.js' } }));
+            await fs.writeFile('src/index.js', "import { privateValue } from '#private'; export const value = privateValue + 1;");
+            await fs.writeFile('src/private.js', 'export const privateValue = 41;');
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--formats=cjs', '--no-ts-config'], {
+                cwd: process.cwd(),
+            });
+            const { createRequire } = await import('node:module');
+            const require = createRequire(path.resolve('package.json'));
+            assert.equal(require('./dist/index.cjs').value, 42);
+            assert.deepEqual((await fs.readdir('dist')).sort(), ['index.cjs', 'private.js']);
+        });
+    });
+
+    test('emits an encoded and queried .js target when an ESM-only build sets the package type', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile(
+                'package.json',
+                JSON.stringify({ name: 'fixture', imports: { '#private': './dist/private%20space.js?variant=1' } })
+            );
+            await fs.writeFile('src/index.js', "import { value } from '#private'; export { value };");
+            await fs.writeFile('src/private space.js', 'export const value = 42;');
+
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--formats=es', '--no-ts-config'], {
+                cwd: process.cwd(),
+            });
+            assert.equal(JSON.parse(await fs.readFile('package.json', 'utf8')).type, 'module');
+            assert.deepEqual((await fs.readdir('dist')).sort(), ['index.mjs', 'private space.js']);
+            assert.equal((await import(`${pathToFileURL(path.resolve('dist/index.mjs')).href}?test=${Date.now()}`)).value, 42);
+        });
+    });
+
+    test('keeps private targets out of UMD and emits only their requested formats', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile(
+                'package.json',
+                JSON.stringify({ name: 'fixture', type: 'module', imports: { '#private': './dist/private.mjs' } })
+            );
+            await fs.writeFile('src/index.js', 'export const value = true;');
+            await fs.writeFile('src/private.js', 'export const privateValue = true;');
+            await execFile(
+                process.execPath,
+                [
+                    path.join(packageRoot, 'index.js'),
+                    '--formats=es,cjs,umd',
+                    '--umd=index',
+                    '--compress=',
+                    '--sourcemaps=',
+                    '--no-ts-config',
+                ],
+                { cwd: process.cwd() }
+            );
+            const files = (await fs.readdir('dist')).sort();
+            assert.deepEqual(files, ['index.cjs', 'index.mjs', 'index.umd.js', 'private.mjs']);
+        });
+    });
+
+    test('applies SWC to multiple private TypeScript inputs and keeps them out of DTS Buddy modules', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = true;');
+            await fs.writeFile('src/first.ts', 'export const first: number = 1;');
+            await fs.writeFile('src/second.ts', 'export const second: number = 2;');
+            const imports = { '#first': './dist/first.mjs', '#second': './dist/second.mjs', '#types': './dist/private.d.ts' };
+            const pkg = { name: 'fixture', type: 'module', imports };
+            await fs.writeFile('package.json', JSON.stringify(pkg));
+            const swcPlugin = createSwcPlugin();
+            const pluginLifecycle = createBuildPluginLifecycle([swcPlugin]);
+            const configuration = resolveBuildConfiguration({ argv: ['--formats=es'], packageJson: pkg, pluginLifecycle });
+            const packageResult = await processPackage(pkg, configuration, pluginLifecycle);
+            assert.equal(
+                packageResult.entries.values.some(entry => entry.manifestPath === 'package.imports["#types"]'),
+                false
+            );
+            const configs = await getRollupConfigs(
+                createProvider(),
+                packageResult,
+                configuration,
+                { getGlobalName: String, getExternalGlobalName: String },
+                pluginLifecycle
+            );
+            for (const config of configs) {
+                const bundle = await rollup(config);
+                try {
+                    for (const output of config.output) await bundle.write(output);
+                } finally {
+                    await bundle.close();
+                }
+            }
+            assert.match(await fs.readFile('dist/first.mjs', 'utf8'), /first = 1/);
+            assert.match(await fs.readFile('dist/second.mjs', 'utf8'), /second = 2/);
+
+            await fs.mkdir('node_modules/@rollup', { recursive: true });
+            await fs.mkdir('node_modules/@rollup-extras', { recursive: true });
+            for (const moduleName of [
+                'rollup',
+                '@rollup/plugin-json',
+                '@rollup/plugin-node-resolve',
+                '@rollup/plugin-commonjs',
+                '@rollup-extras/plugin-externals',
+                '@rollup-extras/plugin-clean',
+            ]) {
+                await fs.symlink(path.join(packageRoot, 'node_modules', moduleName), path.join('node_modules', moduleName));
+            }
+            await fs.symlink(
+                path.resolve(packageRoot, '../pkgbld-plugin-swc/node_modules/@rollup/plugin-swc'),
+                'node_modules/@rollup/plugin-swc'
+            );
+            const helpers = { getGlobalName: String, getExternalGlobalName: String };
+            const ejectedConfigs = await getRollupConfigs(
+                await createEjectProvider(),
+                packageResult,
+                configuration,
+                helpers,
+                pluginLifecycle
+            );
+            await ejectConfig(ejectedConfigs, path.resolve('package.json'), configuration, packageResult, helpers, pkg);
+            await fs.rm('dist', { recursive: true });
+            const { default: importedConfigs } = await import(
+                `${pathToFileURL(path.resolve('rollup.config.mjs')).href}?test=${Date.now()}`
+            );
+            for (const config of importedConfigs) {
+                const bundle = await rollup(config);
+                try {
+                    for (const output of config.output) await bundle.write(output);
+                } finally {
+                    await bundle.close();
+                }
+            }
+            assert.match(await fs.readFile('dist/first.mjs', 'utf8'), /first = 1/);
+            assert.match(await fs.readFile('dist/second.mjs', 'utf8'), /second = 2/);
+
+            const dtsPlugin = createDtsBuddyPlugin();
+            dtsPlugin.configure({ draft: { paths: { outputDir: 'dist' }, typescript: {} } });
+            const dtsConfig = dtsPlugin.processPackageJson({ packageJson: pkg, entries: packageResult.entries });
+            assert.deepEqual(Object.keys(dtsConfig.modules), ['fixture']);
+            assert.deepEqual(pkg.imports, imports);
         });
     });
 });
@@ -385,6 +745,149 @@ describe('format precedence', () => {
 });
 
 describe('build entries', () => {
+    test('discovers exact, conditional, fallback, and wildcard import targets without changing the map', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src/tools', { recursive: true });
+            await fs.writeFile('src/index.js', 'export const index = true;');
+            await fs.writeFile('src/shared.js', 'export const shared = true;');
+            await fs.writeFile('src/node.js', 'export const node = true;');
+            await fs.writeFile('src/browser.js', 'export const browser = true;');
+            await fs.writeFile('src/tools/one.js', 'export const one = true;');
+            await fs.writeFile('src/tools/two.js', 'export const two = true;');
+            const imports = {
+                '#shared': './dist/shared.mjs',
+                '#shared-alias': './dist/shared.mjs',
+                '#env': { node: './dist/node.mjs', default: ['./dist/browser.js', null, 'fixture-dependency'] },
+                '#tools/*': './dist/tools/*.mjs',
+                '#tools-alias/*': './dist/tools/*.mjs',
+                '#external': 'fixture-dependency',
+                '#blocked': null,
+            };
+            const pkg = { type: 'module', exports: { '.': {}, './shared': {} }, imports: structuredClone(imports) };
+            const configuration = resolveConfiguration({ argv: ['--formats=es'], packageJson: pkg });
+            const { entries } = await processPackage(pkg, configuration, emptyPluginLifecycle);
+
+            assert.deepEqual(pkg.imports, imports);
+            assert.deepEqual(
+                entries.values.filter(entry => entry.origin === 'import').map(entry => [entry.sourcePath, entry.outputPaths]),
+                [
+                    ['./src/node.js', { es: './dist/node.mjs' }],
+                    ['./src/browser.js', { es: './dist/browser.js' }],
+                    ['./src/tools/one.js', { es: './dist/tools/one.mjs' }],
+                    ['./src/tools/two.js', { es: './dist/tools/two.mjs' }],
+                ]
+            );
+            assert.equal(entries.values.filter(entry => entry.outputPaths.es === './dist/shared.mjs').length, 1);
+            assert.equal(entries.require('shared').origin, 'export');
+            assert.equal(
+                entries.values.filter(entry => entry.origin === 'import').every(entry => Object.isFrozen(entry.outputPaths)),
+                true
+            );
+        });
+    });
+
+    test('maps .js targets using the original package type and configured directories', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('lib');
+            await fs.writeFile('lib/index.ts', 'export const index = true;');
+            await fs.writeFile('lib/private.ts', 'export const value = true;');
+            const imports = { '#private': './build/private.js', '#types': './build/private.d.ts' };
+            const pkg = { imports: structuredClone(imports) };
+            const configuration = resolveConfiguration({
+                argv: ['--src=lib', '--dest=build', '--formats=cjs', '--no-exports'],
+                packageJson: pkg,
+            });
+            const { entries } = await processPackage(pkg, configuration, emptyPluginLifecycle);
+            assert.deepEqual(pkg.imports, imports);
+            assert.deepEqual(
+                entries.values.filter(entry => entry.origin === 'import').map(entry => entry.outputPaths),
+                [{ cjs: './build/private.js' }]
+            );
+        });
+    });
+
+    test('rejects missing, unsafe, excluded, and conflicting import outputs at their manifest paths', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const index = true;');
+            await fs.writeFile('src/conflict.js', 'export const conflict = true;');
+            await fs.writeFile('src/other.js', 'export const other = true;');
+            await fs.writeFile('src/other.conflict.js', 'export const otherConflict = true;');
+            const cases = [
+                [{ '#missing': './dist/missing.mjs' }, 'SOURCE_NOT_FOUND', 'package.imports["#missing"]'],
+                [{ '#outside': './outside/other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#outside"]'],
+                [{ '#traversal': './dist/../other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#traversal"]'],
+                [{ '#url': 'file:///other.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#url"]'],
+                [{ '#url': 'node:fs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#url"]'],
+                [{ '#cjs': './dist/other.cjs' }, 'EXCLUDED_IMPORT_FORMAT', 'package.imports["#cjs"]'],
+                [{ '#conflict': './dist/other.conflict.mjs' }, 'OUTPUT_PATH_COLLISION', 'package.imports["#conflict"]'],
+                [{ '#missing/*': './dist/absent/*.mjs' }, 'SOURCE_NOT_FOUND', 'package.imports["#missing/*"]'],
+                [{ broken: './dist/other.mjs' }, 'INVALID_IMPORT_KEY', 'package.imports["broken"]'],
+            ];
+            for (const [imports, code, issuePath] of cases) {
+                const pkg = { exports: { '.': {}, './conflict': {} }, imports };
+                const configuration = resolveConfiguration({ argv: ['--formats=es', '--esm-pattern=other.[name].mjs'], packageJson: pkg });
+                await assert.rejects(
+                    () => processPackage(pkg, configuration, emptyPluginLifecycle),
+                    error =>
+                        error instanceof BuildEntryError &&
+                        error.issues.some(
+                            issue =>
+                                issue.code === code &&
+                                issue.path === issuePath &&
+                                (code !== 'OUTPUT_PATH_COLLISION' || issue.message.includes('package.exports["./conflict"]'))
+                        )
+                );
+            }
+            const malformed = { imports: [] };
+            const configuration = resolveConfiguration({ argv: [], packageJson: malformed });
+            await assert.rejects(
+                () => processPackage(malformed, configuration, emptyPluginLifecycle),
+                error => error instanceof BuildEntryError && error.issues.some(issue => issue.code === 'INVALID_IMPORT_MAP')
+            );
+        });
+    });
+
+    test('follows Node import-map keys, condition keys, and encoded target paths', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const index = true;');
+            await fs.writeFile('src/private.js', 'export const value = true;');
+            await fs.writeFile('src/private space.js', 'export const value = true;');
+            const lifecycle = emptyPluginLifecycle;
+            const valid = {
+                imports: {
+                    '#/private': './dist/private.mjs',
+                    '#private\\name': './dist/private.mjs',
+                    '#encoded': './dist/private%20space.mjs#fragment',
+                },
+            };
+            const configuration = resolveConfiguration({ argv: ['--formats=es'], packageJson: valid });
+            const { entries } = await processPackage(valid, configuration, lifecycle);
+            assert.deepEqual(
+                entries.values.filter(entry => entry.origin === 'import').map(entry => entry.outputPaths.es),
+                ['./dist/private.mjs', './dist/private space.mjs']
+            );
+
+            for (const [imports, code, issuePath] of [
+                [{ '#bad': './dist/%6eode_modules/private.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#bad"]'],
+                [{ '#bad': './dist/NODE_MODULES/private.mjs' }, 'INVALID_IMPORT_TARGET', 'package.imports["#bad"]'],
+                [
+                    { '#bad': { 1: './dist/private.mjs', default: './dist/private.mjs' } },
+                    'INVALID_IMPORT_CONDITION',
+                    'package.imports["#bad"].1',
+                ],
+            ]) {
+                const pkg = { imports };
+                const invalidConfiguration = resolveConfiguration({ argv: ['--formats=es'], packageJson: pkg });
+                await assert.rejects(
+                    () => processPackage(pkg, invalidConfiguration, lifecycle),
+                    error => error instanceof BuildEntryError && error.issues.some(issue => issue.code === code && issue.path === issuePath)
+                );
+            }
+        });
+    });
+
     test('rejects duplicate Build plugin contributions', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
@@ -435,6 +938,67 @@ describe('build entries', () => {
 });
 
 describe('build configuration resolution', () => {
+    test('resolves package imports and additional conditions in authority order', () => {
+        const packageJson = { imports: { '#helper': './dist/helper.mjs' } };
+        const defaults = resolveConfiguration({ argv: [], packageJson: {} });
+        assert.deepEqual(defaults.resolution, { imports: false, conditions: [] });
+
+        const packageConfiguration = resolveConfiguration({ argv: [], packageJson });
+        assert.deepEqual(packageConfiguration.resolution, { imports: true, conditions: [] });
+        assert.equal(resolveConfiguration({ argv: ['--imports'], packageJson: {} }).resolution.imports, true);
+
+        const cliConfiguration = resolveConfiguration({
+            argv: ['--no-imports', '--conditions=node,development,node'],
+            packageJson,
+        });
+        assert.deepEqual(cliConfiguration.resolution, { imports: false, conditions: ['node', 'development'] });
+
+        let sourcesSeen = false;
+        const pluginConfiguration = resolveConfiguration({
+            argv: ['--no-imports', '--conditions=node'],
+            packageJson,
+            plugins: [
+                {
+                    configure({ draft, sources }) {
+                        assert.deepEqual(sources.defaults.resolution, { imports: false, conditions: [] });
+                        assert.deepEqual(sources.package.imports, packageJson.imports);
+                        assert.equal(sources.cli.provided.imports, true);
+                        assert.equal(sources.cli.provided.conditions, true);
+                        assert.deepEqual(sources.cli.values.conditions, ['node']);
+                        sourcesSeen = true;
+                        draft.resolution.imports = true;
+                        draft.resolution.conditions = ['browser'];
+                    },
+                },
+            ],
+        });
+        assert.equal(sourcesSeen, true);
+        assert.deepEqual(pluginConfiguration.resolution, { imports: true, conditions: ['browser'] });
+        assert.equal(Object.isFrozen(pluginConfiguration.resolution), true);
+        assert.equal(Object.isFrozen(pluginConfiguration.resolution.conditions), true);
+        assert.throws(() => pluginConfiguration.resolution.conditions.push('node'), TypeError);
+    });
+
+    test('rejects invalid resolver settings', () => {
+        assert.throws(
+            () => resolveConfiguration({ argv: ['--conditions=node,,development'], packageJson: {} }),
+            error =>
+                error instanceof BuildConfigurationError &&
+                error.issues.some(issue => issue.path === 'resolution.conditions' && issue.code === 'INVALID_LIST_VALUE')
+        );
+        assert.throws(
+            () =>
+                resolveConfiguration({
+                    argv: [],
+                    packageJson: {},
+                    plugins: [{ configure: ({ draft }) => (draft.resolution.imports = /** @type {any} */ ('yes')) }],
+                }),
+            error =>
+                error instanceof BuildConfigurationError &&
+                error.issues.some(issue => issue.path === 'resolution.imports' && issue.code === 'INVALID_CONFIGURATION_SHAPE')
+        );
+    });
+
     test('resolves package metadata, explicit CLI options, and Build plugins in authority order', () => {
         const packageJson = createLegacyUmdPackage();
 

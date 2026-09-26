@@ -1,6 +1,7 @@
 export const Priority = /** @type {const} */ ({
     preprocess: 1000,
     cleanup: 1000,
+    packageImports: 1500,
     externals: 2000,
     resolve: 3000,
     commonjs: 4000,

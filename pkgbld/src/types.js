@@ -60,6 +60,7 @@
  *     includeExternals: boolean | string[];
  *     removeLegalComments: boolean;
  *   };
+ *   resolution: { imports: boolean; conditions: string[] };
  *   packageJson: {
  *     update: boolean;
  *     format: boolean;
@@ -87,6 +88,7 @@
  *     includeExternals: boolean | readonly string[];
  *     removeLegalComments: boolean;
  *   }>;
+ *   resolution: Readonly<{ imports: boolean; conditions: readonly string[] }>;
  *   packageJson: Readonly<{
  *     update: boolean;
  *     format: boolean;
@@ -117,6 +119,8 @@
 /**
  * @typedef {Readonly<{
  *   name: string;
+ *   origin: 'export' | 'import' | 'plugin';
+ *   manifestPath: string;
  *   sourcePath: string;
  *   extension: BuildEntryExtension;
  *   outputPaths: Readonly<Partial<Record<BuildFormat, string>>>;
@@ -125,7 +129,8 @@
 
 /** @typedef {{ name: string; sourcePath?: string }} BuildEntryContribution */
 /** @typedef {{ add(contribution: BuildEntryContribution): void }} BuildEntryContributions */
-/** @typedef {{ code: 'INVALID_BUILD_ENTRY_NAME' | 'DUPLICATE_BUILD_ENTRY' | 'SOURCE_NOT_FOUND' | 'SELECTED_BUILD_ENTRY_NOT_FOUND' | 'OUTPUT_PATH_COLLISION'; path: string; message: string; name?: string }} BuildEntryIssue */
+/** @typedef {{ sourceName: string; outputPath: string; format: BuildFormat; issuePath: string }} ImportTarget */
+/** @typedef {{ code: 'INVALID_BUILD_ENTRY_NAME' | 'DUPLICATE_BUILD_ENTRY' | 'SOURCE_NOT_FOUND' | 'SELECTED_BUILD_ENTRY_NOT_FOUND' | 'OUTPUT_PATH_COLLISION' | 'INVALID_IMPORT_MAP' | 'INVALID_IMPORT_KEY' | 'INVALID_IMPORT_TARGET' | 'EXCLUDED_IMPORT_FORMAT'; path: string; message: string; name?: string }} BuildEntryIssue */
 
 /**
  * @typedef {Readonly<{

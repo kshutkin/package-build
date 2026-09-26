@@ -36,6 +36,7 @@ export function create() {
     function processPackageJson({ packageJson, entries }) {
         pkgName = packageJson.name ?? '';
         for (const entry of entries.values) {
+            if (entry.origin === 'import') continue;
             config.modules[getOutputName(entry.name)] = entry.sourcePath;
         }
         if (typeof packageJson.typings === 'string') {

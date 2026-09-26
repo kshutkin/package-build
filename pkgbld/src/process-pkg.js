@@ -3,6 +3,7 @@ import path from 'node:path';
 import { createLogger, LogLevel } from '@niceties/logger';
 
 import { resolveBuildEntries } from './build-entries.js';
+import { collectPackageImportTargets } from './package-imports.js';
 
 /**
  * @typedef {import('type-fest').JsonObject} JsonObject
@@ -42,6 +43,9 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         process.exit(-1);
     }
 
+    const finalPackageType = allowEsm && !allowCjs && typeof pkg.type !== 'string' ? 'module' : pkg.type;
+    const importTargets = await collectPackageImportTargets(pkg.imports, configuration, finalPackageType);
+
     if (!Array.isArray(pkg.files)) {
         pkg.files = [];
     }
@@ -71,7 +75,7 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         entryNames.push(indexId);
     }
 
-    const entries = await resolveBuildEntries(entryNames, configuration, contributions =>
+    const entries = await resolveBuildEntries(entryNames, importTargets, configuration, contributions =>
         pluginLifecycle.contributeEntries(contributions, configuration)
     );
     const indexEntry = entries.require(indexId);
@@ -171,14 +175,15 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
             pkg.bin = /** @type {string} */ (executableOutputs[0]);
         }
     } else if (packageJson.executables.mode === 'infer' && allowCjs && entries.values.length > 0) {
+        const executableEntries = entries.values.filter(entry => entry.origin !== 'import');
         if (typeof pkg.bin === 'string') {
-            if (entries.values.some(entry => pkg.bin === entry.outputPaths.cjs)) {
+            if (executableEntries.some(entry => pkg.bin === entry.outputPaths.cjs)) {
                 executableOutputs = [pkg.bin];
             }
         } else if (typeof pkg.bin === 'object' && pkg.bin !== null) {
             executableOutputs = /** @type {string[]} */ (
                 Object.values(pkg.bin).filter(
-                    value => typeof value === 'string' && entries.values.some(entry => value === entry.outputPaths.cjs)
+                    value => typeof value === 'string' && executableEntries.some(entry => value === entry.outputPaths.cjs)
                 )
             );
         }
@@ -189,7 +194,9 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
             typeof pkg.directories.bin === 'string'
         ) {
             if (path.resolve(pkg.directories.bin) === path.resolve(paths.outputDir)) {
-                executableOutputs.push(...entries.values.flatMap(entry => (entry.outputPaths.cjs == null ? [] : [entry.outputPaths.cjs])));
+                executableOutputs.push(
+                    ...executableEntries.flatMap(entry => (entry.outputPaths.cjs == null ? [] : [entry.outputPaths.cjs]))
+                );
                 executableOutputs = Array.from(new Set(executableOutputs));
             }
         }

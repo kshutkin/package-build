@@ -59,6 +59,8 @@ export const cliFlagsDefaults = {
     src: 'src',
     bin: /** @type {string[] | undefined} */ (undefined),
     includeExternals: /** @type {boolean | string[]} */ (false),
+    imports: false,
+    conditions: /** @type {string[]} */ ([]),
     eject: false,
     tsConfig: false,
     updatePackageJson: true,
@@ -117,6 +119,15 @@ export const cliFlags = {
         type: /** @type {(value: string) => true | string[]} */ (CommaSeparatedStringOrBoolean),
         description: 'Include all/specified externals into the result bundle(s)',
         optionalValue: true,
+    },
+    imports: {
+        type: /** @type {'boolean'} */ ('boolean'),
+        description: 'Build and preserve package imports',
+        default: cliFlagsDefaults.imports,
+    },
+    conditions: {
+        type: /** @type {(value: string) => string[]} */ (CommaSeparatedString),
+        description: 'Additional conditions for resolving bundled dependencies',
     },
     eject: {
         type: /** @type {'boolean'} */ ('boolean'),
