@@ -26,7 +26,7 @@ catalogs:
       version: 4.63.1
     type-fest:
       specifier: ^5.9.0
-      version: 5.9.0
+      version: 5.10.0
     typescript:
       specifier: ^6.0.3
       version: 6.0.3
@@ -192,7 +192,7 @@ importers:
         version: 5.51.2
       type-fest:
         specifier: 'catalog:'
-        version: 5.9.0
+        version: 5.10.0
     devDependencies:
       c8:
         specifier: 'catalog:'
@@ -224,7 +224,7 @@ importers:
         version: 4.63.1
       type-fest:
         specifier: 'catalog:'
-        version: 5.9.0
+        version: 5.10.0
 
   pkgbld-plugin-swc:
     dependencies:
@@ -1213,8 +1213,8 @@ packages:
     peerDependencies:
       typescript: '>=4.2.0'
 
-  type-fest@5.9.0:
-    resolution: {integrity: sha512-yANm3Jr3GiJ1qgJlxGAVxTOIcEOk1rhQHamlXtnrCK7EHP4HeM9OGxtMg/W7HFdrVzw/ZWJKGVIJusVH85sLtw==}
+  type-fest@5.10.0:
+    resolution: {integrity: sha512-NoSdpq/WEiAg5sjmBkmV/hfxv6HJH4NqPNrqjtSO5CwRmpsDfaf4begxW34KdJykH/l1yHtwBWQkCRdoXO8mPA==}
     engines: {node: '>=20'}
 
   typescript@6.0.3:
@@ -2103,7 +2103,7 @@ snapshots:
     dependencies:
       typescript: 6.0.3
 
-  type-fest@5.9.0:
+  type-fest@5.10.0:
     dependencies:
       tagged-tag: 1.0.0
 
