@@ -64,7 +64,7 @@ importers:
         version: link:../pkgbld
       pkgprn:
         specifier: ^0.8.0
-        version: 0.8.0
+        version: 0.8.4
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -117,7 +117,7 @@ importers:
         version: link:../../pkgbld-plugin-dts-buddy
       pkgprn:
         specifier: ^0.8.0
-        version: 0.8.0
+        version: 0.8.4
 
   integration-tests/swc-plugin-integration:
     devDependencies:
@@ -132,7 +132,7 @@ importers:
         version: link:../../pkgbld-plugin-swc
       pkgprn:
         specifier: ^0.8.0
-        version: 0.8.0
+        version: 0.8.4
 
   pkgbld:
     dependencies:
@@ -205,7 +205,7 @@ importers:
         version: 0.8.3(typescript@6.0.3)
       pkgprn:
         specifier: ^0.8.0
-        version: 0.8.0
+        version: 0.8.4
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -255,7 +255,7 @@ importers:
         version: link:../pkgbld
       pkgprn:
         specifier: ^0.8.0
-        version: 0.8.0
+        version: 0.8.4
 
 packages:
 
@@ -1094,8 +1094,8 @@ packages:
     engines: {node: '>=18'}
     deprecated: Renamed to `package-directory`.
 
-  pkgprn@0.8.0:
-    resolution: {integrity: sha512-H+MmsZ3ONBs3MwdgpnC+CeCsrdcWJx7jhWxraEBBDawMtRkU+N8ks0YkVaScc66ZoiaLTtm4DZvywuLk0O6VbQ==}
+  pkgprn@0.8.4:
+    resolution: {integrity: sha512-47q6iJVTNL85jViUxgvikmsZrViMlEU/+SyOyeM9t4fb1VpiSFl+TutnO5f0+qG86on90cvQMY9FHxWH2a5aVg==}
     hasBin: true
 
   preprocess@3.2.0:
@@ -1964,11 +1964,12 @@ snapshots:
     dependencies:
       find-up-simple: 1.0.1
 
-  pkgprn@0.8.0:
+  pkgprn@0.8.4:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
       '@niceties/logger': 2.1.1
       '@niceties/node-parseargs-plus': 0.5.1
+      minimatch: 10.2.6
 
   preprocess@3.2.0:
     dependencies:
