@@ -150,7 +150,7 @@ importers:
         version: 0.6.0
       '@rollup-extras/plugin-binify':
         specifier: ^2.0.0
-        version: 2.0.0(rollup@4.63.1)
+        version: 2.0.1(rollup@4.63.1)
       '@rollup-extras/plugin-clean':
         specifier: ^2.0.1
         version: 2.0.1(rollup@4.63.1)
@@ -458,8 +458,8 @@ packages:
     resolution: {integrity: sha512-pOr5+q1fLYKwFN3LAJuGZEnfXDcQ73zqgDHMtGy+K+uIoUqyY+6MeDCWFwfu+4EFuq76I5EPFofoNAI+Bmmq4A==}
     engines: {node: '>=22.13'}
 
-  '@rollup-extras/plugin-binify@2.0.0':
-    resolution: {integrity: sha512-FyNj3jWSSmGbpPo98SV4gxuvKkt1HDM7nNY8zCa4E31EXT6cMqbbwZG44DpaeYVRTUocbshO9Eiu2ISqS/qyDg==}
+  '@rollup-extras/plugin-binify@2.0.1':
+    resolution: {integrity: sha512-VCgme6BWJF5dNesl/lBzqd/ItCGnMIosWYldqbrSVrheo/PfP6rDiU0LF43Y0zNsuCNa76dl9hg8usME1v6Apw==}
     engines: {node: '>=15'}
     peerDependencies:
       rollup: ^4.0.0
@@ -1486,7 +1486,7 @@ snapshots:
 
   '@pnpm/deps.graph-sequencer@1100.0.1': {}
 
-  '@rollup-extras/plugin-binify@2.0.0(rollup@4.63.1)':
+  '@rollup-extras/plugin-binify@2.0.1(rollup@4.63.1)':
     dependencies:
       '@niceties/logger': 2.1.1
       '@rollup-extras/utils': 2.0.0(rollup@4.63.1)
