@@ -184,7 +184,7 @@ export async function getRollupConfigs([provider, plugins], packageResult, confi
         switch (format) {
             case 'cjs':
             case 'es':
-                result = { chunkFileNames: fileNamePatterns[format] };
+                result = { chunkFileNames: fileNamePatterns[format].replace('[name]', '[name]-[hash]') };
                 break;
             case 'umd':
                 if (inputs.length <= 0) {

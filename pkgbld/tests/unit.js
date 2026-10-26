@@ -280,6 +280,57 @@ describe('package import resolution', () => {
 });
 
 describe('private import outputs', () => {
+    for (const [format, extension, patternFlag] of [
+        ['es', 'mjs', '--esm-pattern'],
+        ['cjs', 'cjs', '--commonjs-pattern'],
+    ]) {
+        test(`keeps same-named dynamic chunks distinct across public and private ${format} builds`, async () => {
+            await withTempDir(async () => {
+                const imports = { '#a': `./dist/a.${extension}`, '#b': `./dist/b.${extension}` };
+                await fs.writeFile('package.json', JSON.stringify({ name: 'fixture', version: '1.0.0', imports }));
+                for (const name of ['index', 'a', 'b']) {
+                    await fs.mkdir(`src/${name}`, { recursive: true });
+                    await fs.writeFile(`src/${name}.js`, `export const load = () => import('./${name}/lazy.js');`);
+                    await fs.writeFile(`src/${name}/lazy.js`, `export const value = '${name}';`);
+                }
+                await fs.symlink(path.join(packageRoot, 'node_modules'), 'node_modules');
+
+                const args = [`--formats=${format}`, `${patternFlag}=public/[name].${extension}`, '--compress=', '--no-ts-config'];
+                const verifyOutputs = async () => {
+                    assert.deepEqual(JSON.parse(await fs.readFile('package.json', 'utf8')).imports, imports);
+                    const { stdout } = await execFile(
+                        process.execPath,
+                        [
+                            '--input-type=module',
+                            '-e',
+                            `const entries = await Promise.all([import('./dist/public/index.${extension}'), import('#a'), import('#b')]);
+                             const values = await Promise.all(entries.map(async entry => (await entry.load()).value));
+                             console.log(JSON.stringify(values));`,
+                        ],
+                        { cwd: process.cwd() }
+                    );
+                    assert.deepEqual(JSON.parse(stdout), ['index', 'a', 'b']);
+                };
+
+                await execFile(process.execPath, [path.join(packageRoot, 'index.js'), ...args], { cwd: process.cwd() });
+                await verifyOutputs();
+
+                await fs.rm('dist', { recursive: true });
+                await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--eject', ...args], { cwd: process.cwd() });
+                const { default: configs } = await import(pathToFileURL(path.resolve('rollup.config.mjs')).href);
+                for (const config of configs) {
+                    const bundle = await rollup(config);
+                    try {
+                        for (const output of Array.isArray(config.output) ? config.output : [config.output]) await bundle.write(output);
+                    } finally {
+                        await bundle.close();
+                    }
+                }
+                await verifyOutputs();
+            });
+        });
+    }
+
     test('emits every declared target and reproduces the output with an ejected config', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
