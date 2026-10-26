@@ -149,21 +149,19 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
 
             const cjsFieldName = pkg.type === 'module' ? 'require' : 'default';
             const esmFieldName = pkg.type === 'module' ? 'default' : 'import';
+            const entryExports = /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id]);
 
             if (allowEsm) {
-                /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])[esmFieldName] =
-                    /** @type {string} */ (entry.outputPaths.es);
+                entryExports[esmFieldName] = /** @type {string} */ (entry.outputPaths.es);
+                if (typeof entryExports.import === 'string') entryExports.import = /** @type {string} */ (entry.outputPaths.es);
             }
 
             if (allowCjs) {
-                /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])[cjsFieldName] =
-                    /** @type {string} */ (entry.outputPaths.cjs);
+                entryExports[cjsFieldName] = /** @type {string} */ (entry.outputPaths.cjs);
+                if (typeof entryExports.require === 'string') entryExports.require = /** @type {string} */ (entry.outputPaths.cjs);
             }
 
-            /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = orderFields(
-                exportsFields,
-                /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)[id])
-            );
+            /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = orderFields(exportsFields, entryExports);
         }
     }
 

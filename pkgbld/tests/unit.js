@@ -712,6 +712,87 @@ describe('plugin lifecycle', () => {
     });
 });
 
+describe('package export targets', () => {
+    test('preserves existing targets for formats excluded from the build', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 1;');
+            await fs.writeFile('src/extra.js', 'export const value = 2;');
+            for (const format of ['es', 'cjs']) {
+                const targets = { import: './prebuilt/index.mjs', require: './prebuilt/index.cjs' };
+                const pkg = { type: 'module', exports: { '.': { ...targets }, './extra': { ...targets } } };
+                const configuration = resolveConfiguration({ argv: [`--formats=${format}`], packageJson: pkg });
+                await processPackage(pkg, configuration, emptyPluginLifecycle);
+                for (const entry of Object.values(pkg.exports)) {
+                    if (typeof entry !== 'object') continue;
+                    const excludedCondition = format === 'es' ? 'require' : 'import';
+                    assert.equal(entry[excludedCondition], targets[excludedCondition]);
+                }
+            }
+        });
+    });
+
+    for (const type of ['module', 'commonjs']) {
+        test(`refreshes existing import and require targets for ${type} packages`, async () => {
+            await withTempDir(async () => {
+                await fs.mkdir('src/folder', { recursive: true });
+                await fs.writeFile('src/index.js', "export const value = 'index';");
+                await fs.writeFile('src/folder/extra.js', "export const value = 'extra';");
+                await fs.writeFile(
+                    'package.json',
+                    JSON.stringify({
+                        name: 'fixture',
+                        type,
+                        exports: {
+                            '.': { import: './old/index.js', require: './old/index.cjs', default: './old/index.js' },
+                            './folder/extra': { import: './old/extra.js', require: './old/extra.cjs', default: './old/extra.js' },
+                        },
+                    })
+                );
+                await execFile(
+                    process.execPath,
+                    [
+                        path.join(packageRoot, 'index.js'),
+                        '--dest=build',
+                        '--esm-pattern=esm/[name].mjs',
+                        '--commonjs-pattern=cjs/[name].cjs',
+                        '--compress=',
+                        '--no-ts-config',
+                    ],
+                    { cwd: process.cwd() }
+                );
+
+                const { exports } = JSON.parse(await fs.readFile('package.json', 'utf8'));
+                for (const [id, name] of [
+                    ['.', 'index'],
+                    ['./folder/extra', 'folder/extra'],
+                ]) {
+                    assert.equal(exports[id].import, `./build/esm/${name}.mjs`);
+                    assert.equal(exports[id].require, `./build/cjs/${name}.cjs`);
+                    assert.equal(exports[id].default, type === 'module' ? exports[id].import : exports[id].require);
+                }
+                const { stdout } = await execFile(
+                    process.execPath,
+                    [
+                        '--input-type=module',
+                        '-e',
+                        `import { createRequire } from 'node:module';
+                         const require = createRequire(import.meta.url);
+                         const values = await Promise.all(['fixture', 'fixture/folder/extra'].map(async id =>
+                             [(await import(id)).value, require(id).value]));
+                         console.log(JSON.stringify(values));`,
+                    ],
+                    { cwd: process.cwd() }
+                );
+                assert.deepEqual(JSON.parse(stdout), [
+                    ['index', 'index'],
+                    ['extra', 'extra'],
+                ]);
+            });
+        });
+    }
+});
+
 describe('format precedence', () => {
     test('explicit formats override legacy UMD metadata unless --umd is also passed', async () => {
         await withTempDir(async () => {
