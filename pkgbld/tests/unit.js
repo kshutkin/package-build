@@ -781,6 +781,54 @@ describe('prepack setup', () => {
 });
 
 describe('package export targets', () => {
+    for (const [type, formats] of [
+        ['module', 'es,cjs'],
+        ['commonjs', 'es,cjs'],
+        ['module', 'es'],
+        ['commonjs', 'cjs'],
+    ]) {
+        test(`builds string-valued root exports for ${type} packages with ${formats} output`, async () => {
+            await withTempDir(async () => {
+                await fs.mkdir('src/folder', { recursive: true });
+                await fs.writeFile('src/index.js', 'export const value = 42;');
+                await fs.writeFile('src/folder/extra.js', 'export const value = 43;');
+                await fs.writeFile(
+                    'package.json',
+                    JSON.stringify({
+                        name: 'fixture',
+                        type,
+                        ...(formats === 'es' ? { module: './old/module.mjs' } : {}),
+                        exports: { '.': './old/index.mjs', './folder/extra': './old/extra.mjs' },
+                    })
+                );
+                await execFile(
+                    process.execPath,
+                    [path.join(packageRoot, 'index.js'), `--formats=${formats}`, '--compress=', '--no-ts-config'],
+                    { cwd: process.cwd() }
+                );
+
+                const { stdout } = await execFile(
+                    process.execPath,
+                    [
+                        '--input-type=module',
+                        '-e',
+                        `import { createRequire } from 'node:module';
+                         const require = createRequire(import.meta.url);
+                         const ids = ['fixture', 'fixture/folder/extra'];
+                         const imported = await Promise.all(ids.map(async id => (await import(id)).value));
+                         const required = ${formats.includes('cjs')} ? ids.map(id => require(id).value) : null;
+                         console.log(JSON.stringify({ imported, required }));`,
+                    ],
+                    { cwd: process.cwd() }
+                );
+                assert.deepEqual(JSON.parse(stdout), {
+                    imported: [42, 43],
+                    required: formats.includes('cjs') ? [42, 43] : null,
+                });
+            });
+        });
+    }
+
     test('preserves existing targets for formats excluded from the build', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');

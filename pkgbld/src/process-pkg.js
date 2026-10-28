@@ -117,7 +117,8 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         if (typeof pkg.exports !== 'object' || pkg.exports == null || Array.isArray(pkg.exports)) {
             pkg.exports = {};
         }
-        if (/** @type {Record<string, JsonValue>} */ (pkg.exports)['.'] == null) {
+        const rootExport = /** @type {Record<string, JsonValue>} */ (pkg.exports)['.'];
+        if (typeof rootExport !== 'object' || rootExport === null) {
             /** @type {Record<string, JsonValue>} */ (pkg.exports)['.'] = {};
         }
         /** @type {Record<string, JsonValue>} */ (pkg.exports)['./package.json'] = './package.json';
