@@ -229,7 +229,10 @@ Formats package.json file.
 
 ### no-pack
 
-Do not setup pack script in package.json
+By default, pkgbld adds `"prepack": "pkgprn"` only when `pkgprn` is declared in the project's `dependencies` or
+`devDependencies` and no prepack script exists. Install `pkgprn` directly to enable automatic pruning.
+
+Use `--no-pack` to disable this script setup.
 
 ```
 pkgbld --no-pack

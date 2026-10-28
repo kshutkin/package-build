@@ -712,6 +712,60 @@ describe('plugin lifecycle', () => {
     });
 });
 
+describe('prepack setup', () => {
+    test('builds and packs a package whose only build dependency is pkgbld', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 42;');
+            await fs.writeFile(
+                'package.json',
+                JSON.stringify({
+                    name: 'prepack-fixture',
+                    version: '1.0.0',
+                    devDependencies: { pkgbld: `file:${packageRoot}` },
+                    scripts: { build: 'pkgbld --no-ts-config --compress=' },
+                })
+            );
+            await fs.mkdir('node_modules/.bin', { recursive: true });
+            await fs.symlink(packageRoot, 'node_modules/pkgbld');
+            await fs.symlink(path.join(packageRoot, 'index.js'), 'node_modules/.bin/pkgbld');
+
+            await execFile('npm', ['run', 'build'], { cwd: process.cwd() });
+            assert.equal(JSON.parse(await fs.readFile('package.json', 'utf8')).scripts.prepack, undefined);
+            const { stdout } = await execFile('npm', ['pack', '--json'], { cwd: process.cwd() });
+            const [packed] = JSON.parse(stdout);
+            assert.ok(packed.files.some(file => file.path === 'dist/index.mjs'));
+            assert.ok(packed.files.some(file => file.path === 'dist/index.cjs'));
+            assert.ok(!packed.files.some(file => file.path.startsWith('src/')));
+        });
+    });
+
+    test('sets up pruning only for declared pkgprn dependencies and preserves explicit choices', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 42;');
+            for (const field of ['dependencies', 'devDependencies']) {
+                const pkg = { [field]: { pkgprn: '^0.8.0' } };
+                const configuration = resolveConfiguration({ argv: [], packageJson: pkg });
+                await processPackage(pkg, configuration, emptyPluginLifecycle);
+                assert.equal(pkg.scripts.prepack, 'pkgprn');
+            }
+
+            const disabled = { devDependencies: { pkgprn: '^0.8.0' } };
+            const disabledConfiguration = resolveConfiguration({ argv: ['--no-pack'], packageJson: disabled });
+            await processPackage(disabled, disabledConfiguration, emptyPluginLifecycle);
+            assert.equal(disabled.scripts.prepack, undefined);
+
+            for (const dependencies of [{}, { devDependencies: { pkgprn: '^0.8.0' } }]) {
+                const pkg = { ...dependencies, scripts: { prepack: 'node custom-prepack.js' } };
+                const configuration = resolveConfiguration({ argv: [], packageJson: pkg });
+                await processPackage(pkg, configuration, emptyPluginLifecycle);
+                assert.equal(pkg.scripts.prepack, 'node custom-prepack.js');
+            }
+        });
+    });
+});
+
 describe('package export targets', () => {
     test('preserves existing targets for formats excluded from the build', async () => {
         await withTempDir(async () => {
