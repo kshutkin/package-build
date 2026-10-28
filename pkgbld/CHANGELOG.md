@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.1
+
+### Patch Changes
+
+- df59802: Place the default export condition after custom conditions so the fallback does not hide branches such as browser or node. Preserve svelte priority, package-type ordering of import and require, and the relative order of custom conditions.
+- 9340d25: Generate `npx -y pkgprn@^0.8.0` as the default prepack script so pruning works without a direct pkgprn dependency. Existing prepack scripts and the --no-pack opt-out are preserved.
+- de60d42: Refresh existing string-valued import and require export conditions to match emitted files, including subpath exports and custom output patterns. This prevents successful builds from leaving stale paths that fail at runtime.
+- 8fde0d7: Preserve null-valued export entries as blocked paths and skip them during source discovery and output rewriting. Blocked exact and wildcard subpaths no longer require sources or crash builds, and explicit root and package.json blockers remain intact.
+- 2591e28: Add content hashes to generated ES and CommonJS chunk filenames to prevent separate builds from overwriting same-named chunks. Public and private entry filenames remain unchanged.
+- 17562dc: Normalize string-valued root exports before assigning generated output conditions. Packages with `exports: { ".": "./dist/index.mjs" }` now build successfully instead of crashing when setting require or default paths.
+
 ## 2.1.0
 
 ### Minor Changes

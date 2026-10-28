@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.2
+
+### Patch Changes
+
+- b8c2829: Normalize absolute and relative Tree paths to the same project-relative key. Sequential package operations now retain each other's staged changes instead of silently overwriting them, and lock-file commit filtering works with absolute paths.
+- Updated dependencies [df59802]
+- Updated dependencies [9340d25]
+- Updated dependencies [de60d42]
+- Updated dependencies [8fde0d7]
+- Updated dependencies [2591e28]
+- Updated dependencies [17562dc]
+  - pkgbld@2.1.1
+
 ## 2.0.1
 
 ### Patch Changes
