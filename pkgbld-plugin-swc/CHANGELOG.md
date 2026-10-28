@@ -1,5 +1,18 @@
 # pkgbld-plugin-swc
 
+## 1.0.2
+
+### Patch Changes
+
+- dca4956: Always register SWC when the plugin is loaded, regardless of entry-file extensions. TypeScript dependencies of JavaScript public and private entries now build correctly, including with ejected configurations.
+- Updated dependencies [df59802]
+- Updated dependencies [9340d25]
+- Updated dependencies [de60d42]
+- Updated dependencies [8fde0d7]
+- Updated dependencies [2591e28]
+- Updated dependencies [17562dc]
+  - pkgbld@2.1.1
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.2",
     "name": "pkgbld-plugin-swc",
     "description": "Plugin to strip TypeScript types using SWC",
     "license": "MIT",
