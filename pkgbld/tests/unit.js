@@ -781,6 +781,88 @@ describe('prepack setup', () => {
 });
 
 describe('package export targets', () => {
+    for (const sourceExists of [false, true]) {
+        test(`preserves null export blockers ${sourceExists ? 'with' : 'without'} matching sources`, async () => {
+            await withTempDir(async () => {
+                await fs.mkdir('src');
+                await fs.writeFile('src/index.js', 'export const value = 42;');
+                await fs.writeFile('src/extra.js', 'export const value = 43;');
+                if (sourceExists) {
+                    await fs.writeFile('src/internal.js', 'export const secret = true;');
+                }
+                await fs.writeFile(
+                    'package.json',
+                    JSON.stringify({
+                        name: 'fixture',
+                        type: 'module',
+                        exports: { '.': {}, './extra': {}, './internal': null, ...(sourceExists ? {} : { './private/*': null }) },
+                    })
+                );
+                await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--compress=', '--no-ts-config'], {
+                    cwd: process.cwd(),
+                });
+
+                const pkg = JSON.parse(await fs.readFile('package.json', 'utf8'));
+                assert.equal(pkg.exports['./internal'], null);
+                if (!sourceExists) assert.equal(pkg.exports['./private/*'], null);
+                assert.deepEqual((await fs.readdir('dist')).sort(), ['extra.cjs', 'extra.mjs', 'index.cjs', 'index.mjs']);
+                await execFile(
+                    process.execPath,
+                    [
+                        '--input-type=module',
+                        '-e',
+                        `import assert from 'node:assert/strict';
+                         import { createRequire } from 'node:module';
+                         const require = createRequire(import.meta.url);
+                         assert.equal((await import('fixture')).value, 42);
+                         assert.equal(require('fixture/extra').value, 43);
+                         for (const id of ['fixture/internal', 'fixture/private/secret']) {
+                             await assert.rejects(import(id), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
+                             assert.throws(() => require(id), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
+                         }`,
+                    ],
+                    { cwd: process.cwd() }
+                );
+            });
+        });
+    }
+
+    test('preserves null root and package.json exports while building an allowed subpath', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 42;');
+            await fs.writeFile('src/extra.js', 'export const value = 43;');
+            await fs.writeFile(
+                'package.json',
+                JSON.stringify({ name: 'fixture', exports: { '.': null, './extra': {}, './package.json': null } })
+            );
+            await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--compress=', '--no-ts-config'], {
+                cwd: process.cwd(),
+            });
+
+            const pkg = JSON.parse(await fs.readFile('package.json', 'utf8'));
+            assert.equal(pkg.exports['.'], null);
+            assert.equal(pkg.exports['./package.json'], null);
+            await execFile(
+                process.execPath,
+                [
+                    '--input-type=module',
+                    '-e',
+                    `import assert from 'node:assert/strict';
+                     import { createRequire } from 'node:module';
+                     const require = createRequire(import.meta.url);
+                     assert.equal((await import('fixture/extra')).value, 43);
+                     assert.equal(require('fixture/extra').value, 43);
+                     for (const id of ['fixture', 'fixture/package.json']) {
+                         await assert.rejects(import(id), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
+                         assert.throws(() => require(id), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
+                     }`,
+                ],
+                { cwd: process.cwd() }
+            );
+        });
+    });
+
     test('keeps type-based export ordering while placing default after custom conditions', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');

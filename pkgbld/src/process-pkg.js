@@ -67,7 +67,7 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
     if (packageJson.exports) {
         if (typeof pkg.exports === 'object' && pkg.exports != null && !Array.isArray(pkg.exports)) {
             for (const id in pkg.exports) {
-                if (id !== './package.json') entryNames.push(exportIdToEntryName(id));
+                if (id !== './package.json' && pkg.exports[id] !== null) entryNames.push(exportIdToEntryName(id));
             }
         }
         if (!entryNames.includes(indexId)) entryNames.unshift(indexId);
@@ -114,12 +114,15 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
             pkg.exports = {};
         }
         const rootExport = /** @type {Record<string, JsonValue>} */ (pkg.exports)['.'];
-        if (typeof rootExport !== 'object' || rootExport === null) {
+        if (rootExport !== null && typeof rootExport !== 'object') {
             /** @type {Record<string, JsonValue>} */ (pkg.exports)['.'] = {};
         }
-        /** @type {Record<string, JsonValue>} */ (pkg.exports)['./package.json'] = './package.json';
+        if (/** @type {Record<string, JsonValue>} */ (pkg.exports)['./package.json'] !== null) {
+            /** @type {Record<string, JsonValue>} */ (pkg.exports)['./package.json'] = './package.json';
+        }
 
         if (
+            rootExport !== null &&
             allowCjs &&
             pkg.main !== /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)['.']).require
         ) {
@@ -128,6 +131,7 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         }
 
         if (
+            rootExport !== null &&
             pkg.module !== /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)['.'])?.default
         ) {
             /** @type {Record<string, JsonValue>} */ (/** @type {Record<string, JsonValue>} */ (pkg.exports)['.']).default =
@@ -135,7 +139,7 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         }
 
         for (const id in /** @type {object} */ (pkg.exports)) {
-            if (id === './package.json') continue;
+            if (id === './package.json' || /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] === null) continue;
 
             const basename = exportIdToEntryName(id);
             const entry = entries.require(basename);
