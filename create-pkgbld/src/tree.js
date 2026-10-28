@@ -50,8 +50,7 @@ export class Tree {
      * @param {string} p
      */
     _key(p) {
-        this._abs(p);
-        return path.normalize(p);
+        return path.relative(this.projectRoot, this._abs(p));
     }
 
     /**

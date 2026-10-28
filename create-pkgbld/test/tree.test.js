@@ -73,6 +73,31 @@ describe('Tree core ops', () => {
             .sort();
         assert.deepStrictEqual(types, ['a.txt:DELETE', 'b.txt:CREATE']);
     });
+
+    test('rename preserves staged writes across absolute and relative path aliases', async () => {
+        await fs.writeFile(path.join(dir, 'a.txt'), 'original');
+        const tree = new Tree(dir);
+        tree.write(path.join(dir, 'a.txt'), 'staged');
+        tree.rename('./a.txt', path.join(dir, 'nested/b.txt'));
+
+        assert.strictEqual(tree.read('a.txt'), null);
+        assert.strictEqual(tree.read('nested/../nested/b.txt'), 'staged');
+        assert.deepStrictEqual(tree.listChanges(), [
+            { path: 'a.txt', type: 'DELETE' },
+            { path: path.join('nested', 'b.txt'), type: 'CREATE', content: 'staged' },
+        ]);
+        await tree.commit();
+        await assert.rejects(fs.access(path.join(dir, 'a.txt')));
+        assert.strictEqual(await fs.readFile(path.join(dir, 'nested/b.txt'), 'utf8'), 'staged');
+    });
+
+    test('delete cancels a staged creation through another path alias', () => {
+        const tree = new Tree(dir);
+        tree.write(path.join(dir, 'new.txt'), 'staged');
+        tree.delete('nested/../new.txt');
+        assert.strictEqual(tree.read(path.join(dir, 'new.txt')), null);
+        assert.deepStrictEqual(tree.listChanges(), []);
+    });
 });
 
 describe('Tree JSON + package helpers', () => {
@@ -146,6 +171,24 @@ describe('Tree commit', () => {
 
         await assert.rejects(tree.commit(), { code: 'EISDIR' });
         assert.strictEqual(await fs.readFile(path.join(dir, LOCK_FILE), 'utf8'), previousLock);
+    });
+
+    test('filters lock-only and lock-excluded commits for absolute paths', async () => {
+        const previousLock = '{"packages":{"old":"1.0.0"}}\n';
+        const nextLock = '{"packages":{"next":"2.0.0"}}\n';
+        await fs.writeFile(path.join(dir, LOCK_FILE), previousLock);
+        const tree = new Tree(dir);
+        tree.write(path.join(dir, LOCK_FILE), nextLock);
+        tree.write(path.join(dir, 'updated.txt'), 'ready');
+
+        await tree.commit({ lock: 'exclude' });
+        assert.strictEqual(await fs.readFile(path.join(dir, LOCK_FILE), 'utf8'), previousLock);
+        assert.strictEqual(await fs.readFile(path.join(dir, 'updated.txt'), 'utf8'), 'ready');
+
+        tree.write('updated.txt', 'later');
+        await tree.commit({ lock: 'only' });
+        assert.strictEqual(await fs.readFile(path.join(dir, LOCK_FILE), 'utf8'), nextLock);
+        assert.strictEqual(await fs.readFile(path.join(dir, 'updated.txt'), 'utf8'), 'ready');
     });
 
     test('resolveExtensionFile resolves relative to set base', () => {

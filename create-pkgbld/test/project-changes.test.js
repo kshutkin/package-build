@@ -19,6 +19,34 @@ afterEach(async () => {
 });
 
 describe('ProjectChanges', () => {
+    for (const absoluteFirst of [false, true]) {
+        test(`merges package edits across path aliases with ${absoluteFirst ? 'absolute' : 'relative'} path first`, async () => {
+            const project = new ProjectChanges(dir);
+            const absolutePath = path.join(dir, 'package.json');
+            await project.stagePackageOperation('extension-a', ({ tree }) => {
+                tree.updateJson(absoluteFirst ? absolutePath : 'package.json', pkg => {
+                    pkg.scripts = { build: 'pkgbld' };
+                });
+            });
+            await project.stagePackageOperation('extension-b', ({ tree }) => {
+                tree.updateJson(absoluteFirst ? './package.json' : absolutePath, pkg => {
+                    pkg.devDependencies = { tool: '1.0.0' };
+                });
+            });
+
+            const { changes, conflicts } = project.review();
+            assert.deepStrictEqual(conflicts, []);
+            assert.strictEqual(changes.length, 1);
+            assert.strictEqual(changes[0].path, 'package.json');
+            await project.commit();
+            assert.deepStrictEqual(JSON.parse(await fs.readFile(absolutePath, 'utf8')), {
+                name: 'host',
+                scripts: { build: 'pkgbld' },
+                devDependencies: { tool: '1.0.0' },
+            });
+        });
+    }
+
     test('detects script conflicts regardless of which Tree mutation method was used', async () => {
         const project = new ProjectChanges(dir);
         await project.stagePackageOperation('extension-a', ({ tree }) => tree.addScript('lint', 'eslint .'));
