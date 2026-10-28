@@ -229,8 +229,8 @@ Formats package.json file.
 
 ### no-pack
 
-By default, pkgbld adds `"prepack": "pkgprn"` only when `pkgprn` is declared in the project's `dependencies` or
-`devDependencies` and no prepack script exists. Install `pkgprn` directly to enable automatic pruning.
+By default, pkgbld adds `"prepack": "npx -y pkgprn@^0.8.0"` when no prepack script exists. This runs pruning without
+requiring a direct `pkgprn` dependency. The first run downloads the tool if it is not already available locally or cached.
 
 Use `--no-pack` to disable this script setup.
 

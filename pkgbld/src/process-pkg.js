@@ -58,15 +58,8 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         pkg.scripts = {};
     }
 
-    const hasPkgprn = [pkg.dependencies, pkg.devDependencies].some(
-        dependencies =>
-            typeof dependencies === 'object' &&
-            dependencies !== null &&
-            !Array.isArray(dependencies) &&
-            typeof dependencies.pkgprn === 'string'
-    );
-    if (packageJson.pack && hasPkgprn && !('prepack' in /** @type {Record<string, JsonObject>} */ (pkg.scripts))) {
-        /** @type {Record<string, JsonValue>} */ (pkg.scripts).prepack = 'pkgprn';
+    if (packageJson.pack && !('prepack' in /** @type {Record<string, JsonObject>} */ (pkg.scripts))) {
+        /** @type {Record<string, JsonValue>} */ (pkg.scripts).prepack = 'npx -y pkgprn@^0.8.0';
     }
 
     /** @type {string[]} */

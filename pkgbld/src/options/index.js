@@ -166,7 +166,7 @@ export const cliFlags = {
     },
     pack: {
         type: /** @type {'boolean'} */ ('boolean'),
-        description: 'Set up a prepack script when pkgprn is a project dependency',
+        description: 'Set up a pkgprn prepack script using npx',
         default: true,
     },
     exports: {

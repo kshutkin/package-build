@@ -713,7 +713,7 @@ describe('plugin lifecycle', () => {
 });
 
 describe('prepack setup', () => {
-    test('builds and packs a package whose only build dependency is pkgbld', async () => {
+    test('runs generated prepack through npx without a project pkgprn dependency', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
             await fs.writeFile('src/index.js', 'export const value = 42;');
@@ -729,26 +729,40 @@ describe('prepack setup', () => {
             await fs.mkdir('node_modules/.bin', { recursive: true });
             await fs.symlink(packageRoot, 'node_modules/pkgbld');
             await fs.symlink(path.join(packageRoot, 'index.js'), 'node_modules/.bin/pkgbld');
+            // Exercise real pruning without downloading packages during the test suite.
+            await fs.writeFile(
+                'node_modules/.bin/npx',
+                `#!/usr/bin/env node
+                 const fs = require('node:fs');
+                 const { execFileSync } = require('node:child_process');
+                 execFileSync(process.execPath, [${JSON.stringify(path.join(packageRoot, 'node_modules/pkgprn/index.js'))}], { stdio: 'inherit' });
+                 fs.writeFileSync('npx-arguments.json', JSON.stringify(process.argv.slice(2)));`,
+                { mode: 0o755 }
+            );
 
             await execFile('npm', ['run', 'build'], { cwd: process.cwd() });
-            assert.equal(JSON.parse(await fs.readFile('package.json', 'utf8')).scripts.prepack, undefined);
-            const { stdout } = await execFile('npm', ['pack', '--json'], { cwd: process.cwd() });
-            const [packed] = JSON.parse(stdout);
-            assert.ok(packed.files.some(file => file.path === 'dist/index.mjs'));
-            assert.ok(packed.files.some(file => file.path === 'dist/index.cjs'));
-            assert.ok(!packed.files.some(file => file.path.startsWith('src/')));
+            assert.equal(JSON.parse(await fs.readFile('package.json', 'utf8')).scripts.prepack, 'npx -y pkgprn@^0.8.0');
+            await execFile('npm', ['pack'], { cwd: process.cwd() });
+            const { stdout } = await execFile('tar', ['-tzf', 'prepack-fixture-1.0.0.tgz'], { cwd: process.cwd() });
+            assert.match(stdout, /^package\/dist\/index\.mjs$/m);
+            assert.match(stdout, /^package\/dist\/index\.cjs$/m);
+            assert.doesNotMatch(stdout, /^package\/src\//m);
+            assert.deepEqual(JSON.parse(await fs.readFile('npx-arguments.json', 'utf8')), ['-y', 'pkgprn@^0.8.0']);
+            const pruned = JSON.parse(await fs.readFile('package.json', 'utf8'));
+            assert.equal(pruned.devDependencies, undefined);
+            assert.equal(pruned.scripts, undefined);
         });
     });
 
-    test('sets up pruning only for declared pkgprn dependencies and preserves explicit choices', async () => {
+    test('sets up pruning with or without pkgprn dependencies and preserves explicit choices', async () => {
         await withTempDir(async () => {
             await fs.mkdir('src');
             await fs.writeFile('src/index.js', 'export const value = 42;');
-            for (const field of ['dependencies', 'devDependencies']) {
-                const pkg = { [field]: { pkgprn: '^0.8.0' } };
+            for (const dependencies of [{}, { dependencies: { pkgprn: '^0.8.0' } }, { devDependencies: { pkgprn: '^0.8.0' } }]) {
+                const pkg = { ...dependencies };
                 const configuration = resolveConfiguration({ argv: [], packageJson: pkg });
                 await processPackage(pkg, configuration, emptyPluginLifecycle);
-                assert.equal(pkg.scripts.prepack, 'pkgprn');
+                assert.equal(pkg.scripts.prepack, 'npx -y pkgprn@^0.8.0');
             }
 
             const disabled = { devDependencies: { pkgprn: '^0.8.0' } };
