@@ -147,6 +147,11 @@ function cleanDir() {
 }
 
 async function executeEjectedConfig() {
+    await fs.mkdir(path.join(dir, 'node_modules/@rollup'), { recursive: true });
+    await fs.symlink(
+        path.resolve('../pkgbld-plugin-swc/node_modules/@rollup/plugin-swc'),
+        path.join(dir, 'node_modules/@rollup/plugin-swc')
+    );
     const script = `
         import { rollup } from 'rollup';
         const { default: configs } = await import('./rollup.config.mjs');

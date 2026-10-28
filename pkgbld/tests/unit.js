@@ -545,6 +545,80 @@ describe('private import outputs', () => {
     });
 });
 
+describe('SWC dependency transforms', () => {
+    for (const extension of ['js', 'ts']) {
+        test(`transforms TypeScript dependencies of ${extension} public and JavaScript private entries in normal and ejected builds`, async () => {
+            await withTempDir(async () => {
+                await fs.mkdir('src');
+                await fs.writeFile(
+                    `src/index.${extension}`,
+                    "import { base } from './helper.ts'; import { privateValue } from '#private'; export const value = base + privateValue;"
+                );
+                await fs.writeFile('src/private.js', "import { base } from './helper.ts'; export const privateValue = base + 2;");
+                await fs.writeFile('src/helper.ts', 'export const base: number = 40;');
+                await fs.writeFile(
+                    'package.json',
+                    JSON.stringify({
+                        name: 'fixture',
+                        imports: { '#private': { import: './dist/private.mjs', require: './dist/private.cjs' } },
+                        devDependencies: { 'pkgbld-plugin-swc': `file:${path.resolve(packageRoot, '../pkgbld-plugin-swc')}` },
+                    })
+                );
+                for (const name of [
+                    'rollup',
+                    '@rollup/plugin-json',
+                    '@rollup/plugin-node-resolve',
+                    '@rollup/plugin-commonjs',
+                    '@rollup-extras/plugin-clean',
+                    '@rollup-extras/plugin-externals',
+                ]) {
+                    await fs.mkdir(path.dirname(`node_modules/${name}`), { recursive: true });
+                    await fs.symlink(path.join(packageRoot, 'node_modules', name), `node_modules/${name}`);
+                }
+                await fs.symlink(path.resolve(packageRoot, '../pkgbld-plugin-swc'), 'node_modules/pkgbld-plugin-swc');
+                await fs.symlink(
+                    path.resolve(packageRoot, '../pkgbld-plugin-swc/node_modules/@rollup/plugin-swc'),
+                    'node_modules/@rollup/plugin-swc'
+                );
+
+                const args = ['--compress=', '--no-ts-config'];
+                const verifyOutputs = async () => {
+                    const { stdout } = await execFile(
+                        process.execPath,
+                        [
+                            '--input-type=module',
+                            '-e',
+                            `import { createRequire } from 'node:module';
+                             const require = createRequire(import.meta.url);
+                             console.log(JSON.stringify([(await import('fixture')).value, require('fixture').value]));`,
+                        ],
+                        { cwd: process.cwd() }
+                    );
+                    assert.deepEqual(JSON.parse(stdout), [82, 82]);
+                    return Promise.all(
+                        ['index.mjs', 'index.cjs', 'private.mjs', 'private.cjs'].map(file => fs.readFile(`dist/${file}`, 'utf8'))
+                    );
+                };
+
+                await execFile(process.execPath, [path.join(packageRoot, 'index.js'), ...args], { cwd: process.cwd() });
+                const emitted = await verifyOutputs();
+                await fs.rm('dist', { recursive: true });
+                await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--eject', ...args], { cwd: process.cwd() });
+                const { default: configs } = await import(pathToFileURL(path.resolve('rollup.config.mjs')).href);
+                for (const config of configs) {
+                    const bundle = await rollup(config);
+                    try {
+                        for (const output of config.output) await bundle.write(output);
+                    } finally {
+                        await bundle.close();
+                    }
+                }
+                assert.deepEqual(await verifyOutputs(), emitted);
+            });
+        });
+    }
+});
+
 describe('plugin lifecycle', () => {
     test('applies package, tsconfig, Rollup, and output hooks', async () => {
         await withTempDir(async () => {

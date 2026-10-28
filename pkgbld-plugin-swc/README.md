@@ -18,7 +18,8 @@ npm install --save-dev pkgbld pkgbld-plugin-swc
 }
 ```
 
-The plugin applies SWC only to TypeScript and TSX build entries; JavaScript entries continue through the regular PKG BLD pipeline.
+When installed, the plugin registers SWC for every public and private build configuration. JavaScript entries can import
+TypeScript or TSX dependencies; SWC transforms the modules reached by the build.
 
 It can also be added through `create-pkgbld`:
 
