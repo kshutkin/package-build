@@ -781,6 +781,88 @@ describe('prepack setup', () => {
 });
 
 describe('package export targets', () => {
+    test('keeps type-based export ordering while placing default after custom conditions', async () => {
+        await withTempDir(async () => {
+            await fs.mkdir('src');
+            await fs.writeFile('src/index.js', 'export const value = 42;');
+            await fs.writeFile('src/extra.js', 'export const value = 43;');
+            for (const type of ['module', 'commonjs']) {
+                const conditions = {
+                    default: './old.js',
+                    browser: './browser.js',
+                    node: './node.js',
+                    require: './old.cjs',
+                    import: './old.mjs',
+                    svelte: './index.svelte',
+                };
+                const pkg = { type, exports: { '.': { ...conditions }, './extra': { ...conditions } } };
+                const configuration = resolveConfiguration({ argv: [], packageJson: pkg });
+                await processPackage(pkg, configuration, emptyPluginLifecycle);
+                const expected = [
+                    'svelte',
+                    ...(type === 'module' ? ['require', 'import'] : ['import', 'require']),
+                    'browser',
+                    'node',
+                    'default',
+                ];
+                for (const id of ['.', './extra']) {
+                    assert.deepEqual(Object.keys(pkg.exports[id]), expected);
+                    assert.equal(pkg.exports[id].browser, conditions.browser);
+                    assert.equal(pkg.exports[id].node, conditions.node);
+                    assert.equal(pkg.exports[id].svelte, conditions.svelte);
+                }
+            }
+        });
+    });
+
+    for (const type of ['module', 'commonjs']) {
+        test(`resolves browser conditions before default while retaining ${type} format priorities`, async () => {
+            await withTempDir(async () => {
+                await fs.mkdir('src');
+                await fs.writeFile('src/index.js', "export const value = 'root';");
+                await fs.writeFile('src/extra.js', "export const value = 'extra';");
+                await fs.writeFile('browser.cjs', "exports.value = 'browser';");
+                const conditions = { browser: './browser.cjs', default: './old.js' };
+                await fs.writeFile(
+                    'package.json',
+                    JSON.stringify({ name: 'fixture', type, exports: { '.': { ...conditions }, './extra': { ...conditions } } })
+                );
+                await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--compress=', '--no-ts-config'], {
+                    cwd: process.cwd(),
+                });
+                for (const browser of [false, true]) {
+                    const { stdout } = await execFile(
+                        process.execPath,
+                        [
+                            '--input-type=module',
+                            ...(browser ? ['--conditions=browser'] : []),
+                            '-e',
+                            `import { createRequire } from 'node:module';
+                             const require = createRequire(import.meta.url);
+                             const values = await Promise.all(['fixture', 'fixture/extra'].map(async id =>
+                                 [(await import(id)).value, require(id).value]));
+                             console.log(JSON.stringify(values));`,
+                        ],
+                        { cwd: process.cwd() }
+                    );
+                    const expected = [
+                        ['root', 'root'],
+                        ['extra', 'extra'],
+                    ];
+                    if (browser) {
+                        if (type === 'module') {
+                            expected[0][0] = 'browser';
+                            expected[1][0] = 'browser';
+                        } else {
+                            expected[1][1] = 'browser';
+                        }
+                    }
+                    assert.deepEqual(JSON.parse(stdout), expected);
+                }
+            });
+        });
+    }
+
     for (const [type, formats] of [
         ['module', 'es,cjs'],
         ['commonjs', 'es,cjs'],

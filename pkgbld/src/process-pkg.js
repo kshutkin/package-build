@@ -84,12 +84,8 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
         pkg.type = 'module';
     }
 
-    const exportsFields = new Set([
-        'svelte',
-        pkg.type === 'module' ? 'require' : 'import',
-        pkg.type === 'module' ? 'import' : 'require',
-        'default',
-    ]);
+    const exportsFields = new Set(['svelte', pkg.type === 'module' ? 'require' : 'import', pkg.type === 'module' ? 'import' : 'require']);
+    const exportsLastFields = new Set(['default']);
 
     if (allowUmd && typeof pkg.umd === 'string') {
         if (outputs.umdEntries.includes(indexId)) {
@@ -162,7 +158,7 @@ export async function processPackage(pkg, configuration, pluginLifecycle) {
                 if (typeof entryExports.require === 'string') entryExports.require = /** @type {string} */ (entry.outputPaths.cjs);
             }
 
-            /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = orderFields(exportsFields, entryExports);
+            /** @type {Record<string, JsonValue>} */ (pkg.exports)[id] = orderFields(exportsFields, entryExports, exportsLastFields);
         }
     }
 
