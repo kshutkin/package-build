@@ -367,7 +367,8 @@ describe('private import outputs', () => {
             );
 
             const { stdout: packOutput } = await execFile('npm', ['pack', '--json', '--ignore-scripts'], { cwd: process.cwd() });
-            const [packed] = JSON.parse(packOutput);
+            // npm 11 returns an array; npm 12 keys entries by package name.
+            const [packed] = Object.values(JSON.parse(packOutput));
             await fs.mkdir('consumer');
             await fs.writeFile('consumer/package.json', JSON.stringify({ name: 'consumer', private: true, type: 'module' }));
             await execFile('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', path.resolve(packed.filename)], {
