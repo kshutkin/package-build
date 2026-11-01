@@ -1,5 +1,16 @@
 # pkgbld-plugin-swc
 
+## 1.1.0
+
+### Minor Changes
+
+- 44caf7e: Use the target and class-field semantics configured in tsconfig.json, including inherited settings, instead of always using SWC's ES2020 and loose-mode defaults. Preserve the existing ES2020 fallback when no target is configured and include resolved settings in ejected Rollup configurations.
+
+### Patch Changes
+
+- Updated dependencies [44caf7e]
+  - pkgbld@2.2.0
+
 ## 1.0.2
 
 ### Patch Changes
