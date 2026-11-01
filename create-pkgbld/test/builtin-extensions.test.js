@@ -43,6 +43,18 @@ afterEach(async () => {
 });
 
 describe('built-in extensions registry', () => {
+    test('biome detects and removes a JSONC config', async () => {
+        const entries = await loadRegistry(builtinRegistryPath);
+        const entry = entries.find(e => e.name === 'biome');
+        const ext = await resolveExtension({ ...entry, version: undefined }, dir);
+        await fs.writeFile(path.join(dir, 'biome.jsonc'), '{ // project config\n"formatter": {"enabled": true}, }');
+        const tree = new Tree(dir);
+        assert.equal(detectExtension(ext, tree), true);
+        await runRemove(ext, tree);
+        assert.equal(tree.exists('biome.jsonc'), false);
+        assert.equal(detectExtension(ext, tree), false);
+    });
+
     test('official build plugins target the 1.x release line', async () => {
         const entries = await loadRegistry(builtinRegistryPath);
         for (const name of ['pkgbld-swc', 'pkgbld-dts-buddy']) {

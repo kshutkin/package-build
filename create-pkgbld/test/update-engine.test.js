@@ -18,6 +18,26 @@ afterEach(async () => {
 });
 
 describe('guarded extension updates', () => {
+    for (const filename of ['tsconfig.json', 'biome.jsonc', '.swcrc']) {
+        test(`reconciles ${filename} structurally and retains existing comments`, async () => {
+            const original = '{ // Keep this explanation\n"enabled": true, "nested": {"old": 1}, }\n';
+            await fs.writeFile(path.join(dir, filename), original);
+            const tree = new Tree(dir);
+            const conflicts = [];
+            await runExtensionUpdate({
+                previous: { setup: { files: { [filename]: 'inline:{"nested":{"old":1},"enabled":true}' } } },
+                target: { setup: { files: { [filename]: 'inline:{"nested":{"new":2},"enabled":false}' } } },
+                tree,
+                fromVersion: '1.0.0',
+                toVersion: '1.1.0',
+                reportConflict: conflict => conflicts.push(conflict),
+            });
+            assert.deepEqual(conflicts, []);
+            assert.deepEqual(tree.readJson(filename), { nested: { new: 2 }, enabled: false });
+            assert.match(tree.read(filename), /\/\/ Keep this explanation/);
+        });
+    }
+
     test('applies clean declarative transitions and preserves unchanged custom resources', async () => {
         await fs.writeFile(
             path.join(dir, 'package.json'),

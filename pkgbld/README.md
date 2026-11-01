@@ -185,7 +185,7 @@ Ejects Rollup config.
 
 ### no-ts-config
 
-Do not check/write tsconfig.json.
+Disable creating and updating TypeScript/JavaScript configs. Transform plugins can still read existing compiler settings.
 
 ### no-update-package-json
 
@@ -256,6 +256,16 @@ unless a plugin provides additional inputs or enabled package imports declare lo
 the optional scope must start with `pkgbld-plugin-`.
 
 Plugins implement one or more lifecycle methods on the object returned by the plugin module's `create()` function.
+
+When config updates are enabled, PKG BLD finds the nearest `tsconfig.json` or `jsconfig.json` using `get-tsconfig`, preferring
+TypeScript at the same directory depth. `processTsConfig` receives resolved settings, including `extends`. Only hook changes
+are written back, preserving existing comments and the authored inheritance. Changes to an ancestor config become local
+overrides extending that config. Syntax errors in the authored config and inheritance-resolution errors are reported without
+replacing the files.
+
+Shared file helpers are available through `pkgbld/json` (`isJsoncFile`, `parseJson`, `toFormattedJsonc`) and
+`pkgbld/tsconfig` (`getProjectTsConfig`). `parseJson` accepts an optional boolean for JSONC mode; `toFormattedJsonc` edits the
+existing text while preserving comments and formatting outside changed values. These helpers also power the extension Tree API.
 
 Build configuration is resolved from defaults, package metadata, and explicit CLI options before `configure` runs. Plugins receive the effective mutable draft and have final authority. After all `configure` hooks finish, `pkgbld` normalizes, validates, and deeply freezes the configuration; every later hook receives that frozen value.
 

@@ -16,6 +16,9 @@ pkgbld will automatically detect the plugin and generate declaration files.
 
 The plugin enables declaration generation in `tsconfig.json`, updates the package `types` and export metadata, and runs `dts-buddy` after the JavaScript build completes. Public PKG BLD entries are exposed as modules in the generated declaration bundle. Private `package.json#imports` entries and declaration targets are left to their own declaration producer.
 
+The declaration build uses the nearest TypeScript or JavaScript config discovered by PKG BLD, including ancestor configs and
+inherited settings through `extends`.
+
 # License
 
 [MIT](https://github.com/kshutkin/package-build/blob/main/LICENSE)

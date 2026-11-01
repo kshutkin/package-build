@@ -367,7 +367,8 @@ describe('private import outputs', () => {
             );
 
             const { stdout: packOutput } = await execFile('npm', ['pack', '--json', '--ignore-scripts'], { cwd: process.cwd() });
-            const [packed] = JSON.parse(packOutput);
+            // npm 11 returns an array; npm 12 keys entries by package name.
+            const [packed] = Object.values(JSON.parse(packOutput));
             await fs.mkdir('consumer');
             await fs.writeFile('consumer/package.json', JSON.stringify({ name: 'consumer', private: true, type: 'module' }));
             await execFile('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', path.resolve(packed.filename)], {
@@ -556,6 +557,11 @@ describe('SWC dependency transforms', () => {
                 );
                 await fs.writeFile('src/private.js', "import { base } from './helper.ts'; export const privateValue = base + 2;");
                 await fs.writeFile('src/helper.ts', 'export const base: number = 40;');
+                const target = extension === 'js' ? 'ES2020' : 'ESNext';
+                await fs.writeFile('base.json', JSON.stringify({ compilerOptions: { target } }));
+                const tsconfig = '{ // Keep project settings\n"extends": "./base.json", }';
+                await fs.writeFile('tsconfig.json', tsconfig);
+                await fs.appendFile(`src/index.${extension}`, '\nexport class Example { field = 1; }');
                 await fs.writeFile(
                     'package.json',
                     JSON.stringify({
@@ -581,7 +587,7 @@ describe('SWC dependency transforms', () => {
                     'node_modules/@rollup/plugin-swc'
                 );
 
-                const args = ['--compress=', '--no-ts-config'];
+                const args = ['--compress=', extension === 'js' ? '--ts-config' : '--no-ts-config'];
                 const verifyOutputs = async () => {
                     const { stdout } = await execFile(
                         process.execPath,
@@ -601,9 +607,16 @@ describe('SWC dependency transforms', () => {
                 };
 
                 await execFile(process.execPath, [path.join(packageRoot, 'index.js'), ...args], { cwd: process.cwd() });
+                assert.equal(await fs.readFile('tsconfig.json', 'utf8'), tsconfig);
                 const emitted = await verifyOutputs();
+                for (const code of emitted.slice(0, 2)) {
+                    if (target === 'ESNext') assert.match(code, /\n\s+field = 1;/);
+                    else assert.doesNotMatch(code, /\n\s+field = 1;/);
+                }
                 await fs.rm('dist', { recursive: true });
                 await execFile(process.execPath, [path.join(packageRoot, 'index.js'), '--eject', ...args], { cwd: process.cwd() });
+                await fs.rm('tsconfig.json');
+                await fs.rm('base.json');
                 const { default: configs } = await import(pathToFileURL(path.resolve('rollup.config.mjs')).href);
                 for (const config of configs) {
                     const bundle = await rollup(config);
@@ -617,6 +630,207 @@ describe('SWC dependency transforms', () => {
             });
         });
     }
+});
+
+describe('SWC compiler targets', () => {
+    const cases = [
+        { name: 'ESNext', config: { compilerOptions: { target: 'ESNext' } }, preservesFields: true, ownField: true },
+        { name: 'ES2022', config: { compilerOptions: { target: 'ES2022' } }, preservesFields: true, ownField: true },
+        { name: 'ES2020', config: { compilerOptions: { target: 'ES2020' } } },
+        { name: 'ES6 alias', config: { compilerOptions: { target: 'ES6' } }, lowersNullish: true },
+        { name: 'no config' },
+        { name: 'jsconfig target', jsconfig: { compilerOptions: { target: 'ESNext' } }, preservesFields: true, ownField: true },
+        { name: 'no target', config: { compilerOptions: { strict: true } } },
+        {
+            name: 'explicit assignment semantics',
+            config: { compilerOptions: { target: 'ESNext', useDefineForClassFields: false } },
+        },
+        {
+            name: 'explicit define semantics below ES2022',
+            config: { compilerOptions: { target: 'ES2020', useDefineForClassFields: true } },
+            ownField: true,
+        },
+        {
+            name: 'JSONC with inherited target',
+            config: '{ // Project settings\n"extends": "./base.json", "compilerOptions": { "strict": true, }, }',
+            base: { compilerOptions: { target: 'ESNext' } },
+            preservesFields: true,
+            ownField: true,
+        },
+        {
+            name: 'local target overrides inherited target',
+            config: { extends: './base.json', compilerOptions: { target: 'ES2020' } },
+            base: { compilerOptions: { target: 'ESNext' } },
+        },
+        {
+            name: 'package-based inherited target',
+            config: { extends: '@fixture/tsconfig' },
+            packageConfig: { compilerOptions: { target: 'ESNext' } },
+            preservesFields: true,
+            ownField: true,
+        },
+    ];
+    for (const fixture of cases) {
+        test(`uses ${fixture.name}`, async () => {
+            await withTempDir(async () => {
+                if (fixture.config) {
+                    await fs.writeFile(
+                        'tsconfig.json',
+                        typeof fixture.config === 'string' ? fixture.config : JSON.stringify(fixture.config)
+                    );
+                }
+                if (fixture.base) await fs.writeFile('base.json', JSON.stringify(fixture.base));
+                if (fixture.jsconfig) await fs.writeFile('jsconfig.json', JSON.stringify(fixture.jsconfig));
+                if (fixture.packageConfig) {
+                    await fs.mkdir('node_modules/@fixture/tsconfig', { recursive: true });
+                    await fs.writeFile('node_modules/@fixture/tsconfig/package.json', '{"name":"@fixture/tsconfig"}');
+                    await fs.writeFile('node_modules/@fixture/tsconfig/tsconfig.json', JSON.stringify(fixture.packageConfig));
+                }
+                const [provider, plugins] = createProvider();
+                await createSwcPlugin().providePlugins({ provider });
+                const plugin = plugins[0].plugin();
+                const { code } = await plugin.transform(
+                    `export const calls: number[] = [];
+                     class Base { set field(value: number) { calls.push(value); } }
+                     export class Example extends Base { field: number = 1; }
+                     export const instance = new Example();
+                     export const fallback = (value: number | null) => value ?? 42;`,
+                    path.resolve('index.ts')
+                );
+                if (fixture.preservesFields) assert.match(code, /\n\s+field = 1;/);
+                else assert.doesNotMatch(code, /\n\s+field = 1;/);
+                if (fixture.lowersNullish) assert.doesNotMatch(code, /\?\?/);
+                else assert.match(code, /\?\?/);
+                const result = await import(`data:text/javascript,${encodeURIComponent(code)}`);
+                assert.deepEqual(result.calls, fixture.ownField ? [] : [1]);
+                assert.equal(Object.hasOwn(result.instance, 'field'), Boolean(fixture.ownField));
+                assert.equal(result.fallback(null), 42);
+                assert.equal(result.fallback(0), 0);
+            });
+        });
+    }
+});
+
+describe('TypeScript config resolution and edits', () => {
+    test('DTS Buddy builds declarations using the discovered ancestor config', async () => {
+        await withTempDir(async () => {
+            await fs.writeFile('tsconfig.json', '{"compilerOptions":{"declaration":true,"target":"ESNext"}}');
+            await fs.mkdir('child/src', { recursive: true });
+            process.chdir('child');
+            await fs.writeFile('src/index.ts', 'export const value: number = 42;');
+            const plugin = createDtsBuddyPlugin();
+            const pluginLifecycle = createBuildPluginLifecycle([plugin]);
+            const configuration = resolveBuildConfiguration({ argv: ['--ts-config'], packageJson: { name: 'fixture' }, pluginLifecycle });
+            plugin.processPackageJson({
+                packageJson: { name: 'fixture' },
+                entries: { values: [{ name: 'index', sourcePath: './src/index.ts' }] },
+            });
+            await checkTsConfig(configuration, () => {}, pluginLifecycle);
+            await plugin.buildEnd();
+            assert.match(await fs.readFile('dist/index.d.ts', 'utf8'), /value: number/);
+            await assert.rejects(fs.access('tsconfig.json'));
+        });
+    });
+
+    test('resolves extends for hooks and writes only their edits while preserving JSONC', async () => {
+        await withTempDir(async () => {
+            const original = '{\n  // Keep project settings\n  "extends": "./base.json",\n  "compilerOptions": {"strict": true,},\n}\n';
+            const base = '{ // Shared defaults\n"compilerOptions": {"target": "ES2022", "declaration": true}, }';
+            await fs.writeFile('tsconfig.json', original);
+            await fs.writeFile('base.json', base);
+            const lifecycle = createBuildPluginLifecycle([
+                {
+                    processTsConfig({ config }) {
+                        assert.equal(config.compilerOptions.target, 'es2022');
+                        assert.equal(config.compilerOptions.declaration, true);
+                        config.compilerOptions.declaration = false;
+                        delete config.compilerOptions.strict;
+                    },
+                },
+            ]);
+            const configuration = resolveConfiguration({ argv: ['--ts-config'], packageJson: {} });
+            await checkTsConfig(configuration, () => {}, lifecycle);
+            const text = await fs.readFile('tsconfig.json', 'utf8');
+            assert.match(text, /\/\/ Keep project settings/);
+            assert.match(text, /"extends": "\.\/base.json"/);
+            assert.match(text, /"declaration": false/);
+            assert.doesNotMatch(text, /"strict"|"target"|"useDefineForClassFields"/);
+            assert.equal(await fs.readFile('base.json', 'utf8'), base);
+        });
+    });
+
+    test('prefers a local jsconfig over an ancestor tsconfig and updates the jsconfig itself', async () => {
+        await withTempDir(async () => {
+            const parent = '{"compilerOptions":{"target":"ES2020"}}';
+            await fs.writeFile('tsconfig.json', parent);
+            await fs.mkdir('child');
+            process.chdir('child');
+            await fs.writeFile('jsconfig.json', '{ // JS project\n"compilerOptions":{"checkJs":true}, }');
+            const lifecycle = createBuildPluginLifecycle([
+                {
+                    processTsConfig({ config }) {
+                        assert.equal(config.compilerOptions.checkJs, true);
+                        assert.equal(config.compilerOptions.allowJs, true);
+                        config.compilerOptions.checkJs = false;
+                    },
+                },
+            ]);
+            await checkTsConfig(resolveConfiguration({ argv: ['--ts-config'], packageJson: {} }), () => {}, lifecycle);
+            const text = await fs.readFile('jsconfig.json', 'utf8');
+            assert.match(text, /\/\/ JS project/);
+            assert.match(text, /"checkJs":\s*false/);
+            assert.doesNotMatch(text, /"allowJs"/);
+            await assert.rejects(fs.access('tsconfig.json'));
+            assert.equal(await fs.readFile('../tsconfig.json', 'utf8'), parent);
+        });
+    });
+
+    test('reads ancestor configs without rewriting them and puts hook overrides in a local config', async () => {
+        await withTempDir(async () => {
+            const parent = '{ // Shared settings\n"compilerOptions":{"declaration":true}, }';
+            await fs.writeFile('tsconfig.json', parent);
+            await fs.mkdir('child');
+            process.chdir('child');
+            const configuration = resolveConfiguration({ argv: ['--ts-config'], packageJson: {} });
+            const resolved = await checkTsConfig(configuration, () => {}, emptyPluginLifecycle);
+            assert.equal(resolved.compilerOptions.declaration, true);
+            await assert.rejects(fs.access('tsconfig.json'));
+            const lifecycle = createBuildPluginLifecycle([
+                {
+                    processTsConfig({ config }) {
+                        config.compilerOptions.declaration = false;
+                    },
+                },
+            ]);
+            await checkTsConfig(configuration, () => {}, lifecycle);
+            assert.deepEqual(JSON.parse(await fs.readFile('tsconfig.json', 'utf8')), {
+                extends: '../tsconfig.json',
+                compilerOptions: { declaration: false },
+            });
+            assert.equal(await fs.readFile('../tsconfig.json', 'utf8'), parent);
+        });
+    });
+
+    for (const original of ['{"compilerOptions": }', '{"extends":"./missing.json"}']) {
+        test(`does not replace an invalid config: ${original}`, async () => {
+            await withTempDir(async () => {
+                await fs.writeFile('tsconfig.json', original);
+                await assert.rejects(() =>
+                    checkTsConfig(resolveConfiguration({ argv: ['--ts-config'], packageJson: {} }), () => {}, emptyPluginLifecycle)
+                );
+                assert.equal(await fs.readFile('tsconfig.json', 'utf8'), original);
+            });
+        });
+    }
+
+    test('creates a default config only when no local or inherited config exists', async () => {
+        await withTempDir(async () => {
+            await checkTsConfig(resolveConfiguration({ argv: ['--ts-config'], packageJson: {} }), () => {}, emptyPluginLifecycle);
+            const config = JSON.parse(await fs.readFile('tsconfig.json', 'utf8'));
+            assert.equal(config.compilerOptions.target, 'esnext');
+            assert.equal(config.compilerOptions.declaration, true);
+        });
+    });
 });
 
 describe('plugin lifecycle', () => {

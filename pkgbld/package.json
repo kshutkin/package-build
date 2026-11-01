@@ -16,6 +16,14 @@
             "types": "./types/index.d.ts",
             "default": "./src/options/index.js"
         },
+        "./json": {
+            "types": "./types/index.d.ts",
+            "default": "./src/json.js"
+        },
+        "./tsconfig": {
+            "types": "./types/index.d.ts",
+            "default": "./src/tsconfig.js"
+        },
         "./package.json": "./package.json"
     },
     "files": [
@@ -40,7 +48,7 @@
         "rollup"
     ],
     "scripts": {
-        "build": "dts-buddy types/index.d.ts -m pkgbld:src/index.js -m pkgbld/options:src/options/index.js && tsc --ignoreConfig --noEmit --strict --skipLibCheck false --module ESNext --moduleResolution bundler --target ESNext tests/types-consumer.ts",
+        "build": "dts-buddy types/index.d.ts -m pkgbld:src/index.js -m pkgbld/options:src/options/index.js -m pkgbld/json:src/json.js -m pkgbld/tsconfig:src/tsconfig.js && tsc --ignoreConfig --noEmit --strict --skipLibCheck false --module ESNext --moduleResolution bundler --target ESNext tests/types-consumer.ts",
         "lint": "eslint ./src",
         "prepack": "pkgprn --remove-sourcemaps",
         "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
@@ -62,6 +70,8 @@
         "@slimlib/refine-partition": "^2.0.2",
         "@slimlib/smart-mock": "^1.0.2",
         "is-builtin-module": "^5.0.0",
+        "jsonc-parser": "^3.3.1",
+        "get-tsconfig": "^4.14.3",
         "terser": "^5.51.2",
         "@niceties/ansi": "catalog:",
         "@niceties/node-parseargs-plus": "catalog:"

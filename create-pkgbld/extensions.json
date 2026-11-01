@@ -4,7 +4,7 @@
         {
             "name": "biome",
             "package": "create-pkgbld-extension-biome",
-            "version": "^0.1.0",
+            "version": "^0.1.0 || ^0.2.0",
             "description": "Biome linter and formatter",
             "tags": ["linter", "formatter"]
         },
