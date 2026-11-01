@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 
+import { isJsoncFile, toFormattedJsonc } from './json.js';
 import { toFormattedJson } from './options/index.js';
 
 /**
@@ -17,5 +18,5 @@ export async function writeJson(path, json) {
     } catch (/** @type {any} */ error) {
         if (error.code !== 'ENOENT') throw error;
     }
-    await fs.writeFile(path, toFormattedJson(json, current));
+    await fs.writeFile(path, isJsoncFile(path) ? toFormattedJsonc(json, current) : toFormattedJson(json, current));
 }

@@ -1,9 +1,11 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { fastIsEqual } from 'fast-is-equal';
 
-import { getJson } from './get-json.js';
-import { writeJson } from './write-json.js';
+import { toFormattedJsonc } from './json.js';
+import { toFormattedJson } from './options/index.js';
+import { getProjectTsConfig } from './tsconfig.js';
 
 /**
  * @typedef {import('@niceties/logger').Logger} Logger
@@ -46,34 +48,33 @@ export async function checkTsConfig(configuration, mainLogger, pluginLifecycle) 
     if (!configuration.typescript.updateConfig) {
         return;
     }
-    /** @type {JsonObject | undefined} */
-    let config,
-        needWrite = false;
-    try {
-        [, config] = await getJson('tsconfig.json');
-    } catch {
-        /*ignore*/
-    }
-    try {
-        [, config] = await getJson('jsconfig.json');
-        if (config && typeof config === 'object' && !Array.isArray(config)) {
-            config.allowJs = true;
-        }
-    } catch {
-        /*ignore*/
-    }
-    if (!config) {
-        config = /** @type {JsonObject} */ (createDefaultTsConfig(configuration.paths.sourceDir || 'src'));
-        needWrite = true;
+    const resolved = getProjectTsConfig();
+    const configPath = resolved?.path;
+    const current = configPath ? await fs.readFile(configPath, 'utf8') : undefined;
+    const config = resolved
+        ? /** @type {JsonObject} */ (/** @type {unknown} */ (resolved.config))
+        : /** @type {JsonObject} */ (createDefaultTsConfig(configuration.paths.sourceDir || 'src'));
+    if (configPath && path.basename(configPath) === 'jsconfig.json') {
+        config.compilerOptions ??= {};
+        const compilerOptions = /** @type {JsonObject} */ (config.compilerOptions);
+        compilerOptions.allowJs ??= true;
     }
     const originalConfig = structuredClone(config);
     pluginLifecycle.processTsConfig(config, configuration);
-    if (!fastIsEqual(originalConfig, config)) {
-        needWrite = true;
-    }
-    if (needWrite) {
-        mainLogger('no tsconfig.json or jsconfig.json and --no-ts-config not specified, writing tsconfig...');
-        await writeJson(path.resolve('tsconfig.json'), config);
+    if (!configPath || !fastIsEqual(originalConfig, config)) {
+        let outputPath = configPath ?? path.resolve('tsconfig.json');
+        let authored = current;
+        if (configPath && path.dirname(configPath) !== process.cwd()) {
+            outputPath = path.resolve(path.basename(configPath));
+            authored = toFormattedJson({ extends: path.relative(process.cwd(), configPath).replaceAll('\\', '/') });
+        }
+        mainLogger(
+            configPath
+                ? `updating ${outputPath}...`
+                : 'no tsconfig.json or jsconfig.json and --no-ts-config not specified, writing tsconfig...'
+        );
+        const text = toFormattedJsonc(config, authored, configPath ? originalConfig : undefined);
+        await fs.writeFile(outputPath, text);
         mainLogger('done');
     }
     return config;

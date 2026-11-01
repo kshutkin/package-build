@@ -29,7 +29,7 @@ export const setup = {
 export const remove = {
     devDependencies: ['@biomejs/biome'],
     scripts: ['lint', 'lint:fix'],
-    files: ['biome.json'],
+    files: ['biome.json', 'biome.jsonc'],
 };
 
 /**
@@ -38,5 +38,5 @@ export const remove = {
 export function detect(tree) {
     const pkg = tree.readJson('package.json');
     if (pkg && (pkg.devDependencies?.['@biomejs/biome'] || pkg.dependencies?.['@biomejs/biome'])) return true;
-    return tree.exists('biome.json');
+    return tree.exists('biome.json') || tree.exists('biome.jsonc');
 }

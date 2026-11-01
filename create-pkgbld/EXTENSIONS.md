@@ -210,8 +210,8 @@ calls `tree.commit()` once after all extensions have run.
 | `exists(path)` | True if the file exists (in tree or on disk). |
 | `delete(path)` | Stages a DELETE (or cancels a pending CREATE). |
 | `rename(oldPath, newPath)` | Move staged content. |
-| `readJson(path)` | Parse JSON. Returns `null` if missing. |
-| `updateJson(path, updater)` | Read, run updater(data), write back (formatted). |
+| `readJson(path, options?)` | Parse JSON or recognized JSONC configs. Returns `null` if missing. |
+| `updateJson(path, updater, options?)` | Read, run updater(data), and stage the result; JSONC edits preserve comments and formatting outside changed values. |
 | `addDependency(name, version, type?)` | type defaults to `'dependencies'`. |
 | `removeDependency(name, type?)` | |
 | `addScript(name, command)` | |
@@ -223,6 +223,19 @@ calls `tree.commit()` once after all extensions have run.
 Paths are project-root-relative. `resolveExtensionFile` is what you use
 inside a programmatic `setup` to read template files bundled with your
 extension package.
+
+JSONC is recognized for `.jsonc` files, `tsconfig.json`/`jsconfig.json` and dotted variants such as `tsconfig.base.json`,
+`.swcrc`, and JSON files under `.vscode`, `.cursor`, or `.zed`. For another configuration filename, pass `{ jsonc: true }`:
+
+```js
+tree.updateJson('configs/base.json', config => {
+    config.compilerOptions ??= {};
+    config.compilerOptions.strict = true;
+}, { jsonc: true });
+```
+
+Package metadata and other `.json` files use strict JSON by default. Invalid syntax is rejected in both modes. Declarative
+updates compare recognized JSONC configs by their values and retain existing comments when applying the proposed values.
 
 ### Template files
 

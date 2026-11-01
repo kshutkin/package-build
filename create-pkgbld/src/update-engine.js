@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { isJsoncFile, parseJson } from 'pkgbld/json';
+
 const ABSENT = Symbol('absent');
 
 /**
@@ -129,7 +131,20 @@ function readCurrent(resource, tree) {
 function applyValue(resource, value, tree) {
     if (resource.kind === 'file') {
         if (value === ABSENT) tree.delete(resource.path);
-        else tree.write(resource.path, /** @type {string} */ (value));
+        else {
+            const text = /** @type {string} */ (value);
+            if (isJsoncFile(resource.path) && tree.exists(resource.path)) {
+                try {
+                    const next = parseJson(text, true);
+                    tree.readJson(resource.path);
+                    tree.updateJson(resource.path, () => next);
+                    return;
+                } catch {
+                    // Invalid current or proposed configs remain whole-file replacements.
+                }
+            }
+            tree.write(resource.path, text);
+        }
         return;
     }
     tree.updateJson('package.json', pkg => {
@@ -156,9 +171,12 @@ function applyValue(resource, value, tree) {
 /** @param {unknown} left @param {unknown} right @param {any} resource */
 function sameValue(left, right, resource) {
     if (left === ABSENT || right === ABSENT) return left === right;
-    if (resource.kind === 'file' && resource.path.endsWith('.json')) {
+    if (resource.kind === 'file' && (resource.path.endsWith('.json') || isJsoncFile(resource.path))) {
         try {
-            return fingerprint(JSON.parse(/** @type {string} */ (left))) === fingerprint(JSON.parse(/** @type {string} */ (right)));
+            const jsonc = isJsoncFile(resource.path);
+            return (
+                fingerprint(parseJson(/** @type {string} */ (left), jsonc)) === fingerprint(parseJson(/** @type {string} */ (right), jsonc))
+            );
         } catch {
             return left === right;
         }

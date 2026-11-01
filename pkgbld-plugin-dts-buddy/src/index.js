@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import { createBundle } from 'dts-buddy';
+import { getProjectTsConfig } from 'pkgbld/tsconfig';
 
 /**
  * @typedef {import('pkgbld').BuildConfigurationDraft} BuildConfigurationDraft
@@ -69,7 +70,7 @@ export function create() {
             return;
         }
 
-        await createBundle(config);
+        await createBundle({ ...config, project: getProjectTsConfig()?.path ?? config.project });
     }
 
     return {

@@ -619,6 +619,128 @@ describe('SWC dependency transforms', () => {
     }
 });
 
+describe('TypeScript config resolution and edits', () => {
+    test('DTS Buddy builds declarations using the discovered ancestor config', async () => {
+        await withTempDir(async () => {
+            await fs.writeFile('tsconfig.json', '{"compilerOptions":{"declaration":true,"target":"ESNext"}}');
+            await fs.mkdir('child/src', { recursive: true });
+            process.chdir('child');
+            await fs.writeFile('src/index.ts', 'export const value: number = 42;');
+            const plugin = createDtsBuddyPlugin();
+            const pluginLifecycle = createBuildPluginLifecycle([plugin]);
+            const configuration = resolveBuildConfiguration({ argv: ['--ts-config'], packageJson: { name: 'fixture' }, pluginLifecycle });
+            plugin.processPackageJson({
+                packageJson: { name: 'fixture' },
+                entries: { values: [{ name: 'index', sourcePath: './src/index.ts' }] },
+            });
+            await checkTsConfig(configuration, () => {}, pluginLifecycle);
+            await plugin.buildEnd();
+            assert.match(await fs.readFile('dist/index.d.ts', 'utf8'), /value: number/);
+            await assert.rejects(fs.access('tsconfig.json'));
+        });
+    });
+
+    test('resolves extends for hooks and writes only their edits while preserving JSONC', async () => {
+        await withTempDir(async () => {
+            const original = '{\n  // Keep project settings\n  "extends": "./base.json",\n  "compilerOptions": {"strict": true,},\n}\n';
+            const base = '{ // Shared defaults\n"compilerOptions": {"target": "ES2022", "declaration": true}, }';
+            await fs.writeFile('tsconfig.json', original);
+            await fs.writeFile('base.json', base);
+            const lifecycle = createBuildPluginLifecycle([
+                {
+                    processTsConfig({ config }) {
+                        assert.equal(config.compilerOptions.target, 'es2022');
+                        assert.equal(config.compilerOptions.declaration, true);
+                        config.compilerOptions.declaration = false;
+                        delete config.compilerOptions.strict;
+                    },
+                },
+            ]);
+            const configuration = resolveConfiguration({ argv: ['--ts-config'], packageJson: {} });
+            await checkTsConfig(configuration, () => {}, lifecycle);
+            const text = await fs.readFile('tsconfig.json', 'utf8');
+            assert.match(text, /\/\/ Keep project settings/);
+            assert.match(text, /"extends": "\.\/base.json"/);
+            assert.match(text, /"declaration": false/);
+            assert.doesNotMatch(text, /"strict"|"target"|"useDefineForClassFields"/);
+            assert.equal(await fs.readFile('base.json', 'utf8'), base);
+        });
+    });
+
+    test('prefers a local jsconfig over an ancestor tsconfig and updates the jsconfig itself', async () => {
+        await withTempDir(async () => {
+            const parent = '{"compilerOptions":{"target":"ES2020"}}';
+            await fs.writeFile('tsconfig.json', parent);
+            await fs.mkdir('child');
+            process.chdir('child');
+            await fs.writeFile('jsconfig.json', '{ // JS project\n"compilerOptions":{"checkJs":true}, }');
+            const lifecycle = createBuildPluginLifecycle([
+                {
+                    processTsConfig({ config }) {
+                        assert.equal(config.compilerOptions.checkJs, true);
+                        assert.equal(config.compilerOptions.allowJs, true);
+                        config.compilerOptions.checkJs = false;
+                    },
+                },
+            ]);
+            await checkTsConfig(resolveConfiguration({ argv: ['--ts-config'], packageJson: {} }), () => {}, lifecycle);
+            const text = await fs.readFile('jsconfig.json', 'utf8');
+            assert.match(text, /\/\/ JS project/);
+            assert.match(text, /"checkJs":\s*false/);
+            assert.doesNotMatch(text, /"allowJs"/);
+            await assert.rejects(fs.access('tsconfig.json'));
+            assert.equal(await fs.readFile('../tsconfig.json', 'utf8'), parent);
+        });
+    });
+
+    test('reads ancestor configs without rewriting them and puts hook overrides in a local config', async () => {
+        await withTempDir(async () => {
+            const parent = '{ // Shared settings\n"compilerOptions":{"declaration":true}, }';
+            await fs.writeFile('tsconfig.json', parent);
+            await fs.mkdir('child');
+            process.chdir('child');
+            const configuration = resolveConfiguration({ argv: ['--ts-config'], packageJson: {} });
+            const resolved = await checkTsConfig(configuration, () => {}, emptyPluginLifecycle);
+            assert.equal(resolved.compilerOptions.declaration, true);
+            await assert.rejects(fs.access('tsconfig.json'));
+            const lifecycle = createBuildPluginLifecycle([
+                {
+                    processTsConfig({ config }) {
+                        config.compilerOptions.declaration = false;
+                    },
+                },
+            ]);
+            await checkTsConfig(configuration, () => {}, lifecycle);
+            assert.deepEqual(JSON.parse(await fs.readFile('tsconfig.json', 'utf8')), {
+                extends: '../tsconfig.json',
+                compilerOptions: { declaration: false },
+            });
+            assert.equal(await fs.readFile('../tsconfig.json', 'utf8'), parent);
+        });
+    });
+
+    for (const original of ['{"compilerOptions": }', '{"extends":"./missing.json"}']) {
+        test(`does not replace an invalid config: ${original}`, async () => {
+            await withTempDir(async () => {
+                await fs.writeFile('tsconfig.json', original);
+                await assert.rejects(() =>
+                    checkTsConfig(resolveConfiguration({ argv: ['--ts-config'], packageJson: {} }), () => {}, emptyPluginLifecycle)
+                );
+                assert.equal(await fs.readFile('tsconfig.json', 'utf8'), original);
+            });
+        });
+    }
+
+    test('creates a default config only when no local or inherited config exists', async () => {
+        await withTempDir(async () => {
+            await checkTsConfig(resolveConfiguration({ argv: ['--ts-config'], packageJson: {} }), () => {}, emptyPluginLifecycle);
+            const config = JSON.parse(await fs.readFile('tsconfig.json', 'utf8'));
+            assert.equal(config.compilerOptions.target, 'esnext');
+            assert.equal(config.compilerOptions.declaration, true);
+        });
+    });
+});
+
 describe('plugin lifecycle', () => {
     test('applies package, tsconfig, Rollup, and output hooks', async () => {
         await withTempDir(async () => {

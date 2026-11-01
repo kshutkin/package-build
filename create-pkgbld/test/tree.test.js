@@ -101,6 +101,44 @@ describe('Tree core ops', () => {
 });
 
 describe('Tree JSON + package helpers', () => {
+    for (const filename of ['tsconfig.json', 'jsconfig.json', 'tsconfig.base.json', 'biome.jsonc', '.vscode/settings.json', '.swcrc']) {
+        test(`reads and edits JSONC in ${filename} without losing comments`, async () => {
+            const file = path.join(dir, filename);
+            await fs.mkdir(path.dirname(file), { recursive: true });
+            const original = '{\r\n\t// Keep this explanation\r\n\t"nested": { "enabled": true, },\r\n\t"list": [1, 2,],\r\n}\r\n';
+            await fs.writeFile(file, original);
+            const tree = new Tree(dir);
+            assert.deepStrictEqual(tree.readJson(filename), { nested: { enabled: true }, list: [1, 2] });
+            tree.updateJson(filename, value => value);
+            assert.deepStrictEqual(tree.listChanges(), []);
+            tree.updateJson(filename, value => {
+                value.nested.enabled = false;
+                value.nested.added = true;
+                value.list.pop();
+                value.list.push(3, 4);
+            });
+            assert.deepStrictEqual(tree.readJson(filename), { nested: { enabled: false, added: true }, list: [1, 3, 4] });
+            assert.match(tree.read(filename), /\/\/ Keep this explanation/);
+            assert.doesNotMatch(tree.read(filename), /(?<!\r)\n/);
+            assert.match(tree.read(filename), /\r\n\t/);
+        });
+    }
+
+    test('supports explicit JSONC for custom configuration names and rejects malformed input', () => {
+        const tree = new Tree(dir);
+        tree.write('config.json', '{ // custom config\n"enabled": true, }');
+        assert.throws(() => tree.readJson('config.json'), SyntaxError);
+        assert.deepStrictEqual(tree.readJson('config.json', { jsonc: true }), { enabled: true });
+        tree.updateJson('config.json', value => ({ ...value, enabled: false }), { jsonc: true });
+        assert.match(tree.read('config.json'), /\/\/ custom config/);
+        assert.equal(tree.readJson('config.json', { jsonc: true }).enabled, false);
+        tree.write('bad.jsonc', '{ "enabled": }');
+        assert.throws(() => tree.readJson('bad.jsonc'), SyntaxError);
+        assert.throws(() => tree.updateJson('bad.jsonc', value => value), SyntaxError);
+        tree.write('package.json', '{ // invalid package metadata\n"name": "example", }');
+        assert.throws(() => tree.readJson('package.json'), SyntaxError);
+    });
+
     test('readJson / updateJson round-trip', async () => {
         await fs.writeFile(path.join(dir, 'x.json'), JSON.stringify({ a: 1 }));
         const tree = new Tree(dir);

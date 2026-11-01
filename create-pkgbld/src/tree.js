@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+import { isJsoncFile, parseJson, toFormattedJsonc } from 'pkgbld/json';
 import { toFormattedJson } from 'pkgbld/options';
 
 import { LOCK_FILE } from './project-lock.js';
@@ -136,23 +137,26 @@ export class Tree {
 
     /**
      * @param {string} p
+     * @param {{ jsonc?: boolean }} [options]
      * @returns {any | null}
      */
-    readJson(p) {
+    readJson(p, options = {}) {
         const content = this.read(p);
         if (content === null) return null;
-        return JSON.parse(content);
+        return parseJson(content, options.jsonc ?? isJsoncFile(p));
     }
 
     /**
      * @param {string} p
      * @param {(data: any) => any} updater
+     * @param {{ jsonc?: boolean }} [options]
      */
-    updateJson(p, updater) {
+    updateJson(p, updater, options = {}) {
         const current = this.read(p);
-        const data = current === null ? {} : JSON.parse(current);
+        const jsonc = options.jsonc ?? isJsoncFile(p);
+        const data = current === null ? {} : parseJson(current, jsonc);
         const updated = updater(data) ?? data;
-        const formatted = toFormattedJson(updated, current);
+        const formatted = jsonc ? toFormattedJsonc(updated, current) : toFormattedJson(updated, current);
         if (formatted === current) return;
         this.write(p, formatted);
     }
