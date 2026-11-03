@@ -12,7 +12,7 @@
     },
     "devDependencies": {
         "@changesets/cli": "^3.0.2",
-        "@types/node": "^26.4.1",
+        "@types/node": "26.x",
         "@biomejs/biome": "2.5.12",
         "pkgbld-plugin-swc": "workspace:*",
         "typescript": "catalog:"

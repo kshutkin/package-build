@@ -1,5 +1,7 @@
 # cli-test-helper
 
+[![Branch coverage](https://raw.githubusercontent.com/kshutkin/package-build/coverage/cli-test-helper/badge.svg)](https://github.com/kshutkin/package-build/tree/coverage/cli-test-helper/coverage)
+
 It is a very simple helper module to test command line tools.
 
 # Installation

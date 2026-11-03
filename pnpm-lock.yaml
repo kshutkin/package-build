@@ -42,7 +42,7 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       '@types/node':
-        specifier: ^26.4.1
+        specifier: 26.x
         version: 26.4.1
       pkgbld-plugin-swc:
         specifier: workspace:*

@@ -11,7 +11,7 @@
     "types": "index.d.ts",
     "scripts": {
         "build": "tsc && dts-buddy index.d.ts -m cli-test-helper:index.js",
-        "test": "c8 --src=. --all -r=html node test.js",
+        "test": "c8 --src=. --all -r=html -r=json-summary node test.js",
         "prepack": "pkgprn"
     },
     "author": "Konstantin Shutkin",

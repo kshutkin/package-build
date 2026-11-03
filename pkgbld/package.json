@@ -51,7 +51,7 @@
         "build": "dts-buddy types/index.d.ts -m pkgbld:src/index.js -m pkgbld/options:src/options/index.js -m pkgbld/json:src/json.js -m pkgbld/tsconfig:src/tsconfig.js && tsc --ignoreConfig --noEmit --strict --skipLibCheck false --module ESNext --moduleResolution bundler --target ESNext tests/types-consumer.ts",
         "lint": "eslint ./src",
         "prepack": "pkgprn --remove-sourcemaps",
-        "test": "c8 --src=. --all -r=html node --env-file=ci.env tests/test.js"
+        "test": "c8 --src=. --all -r=html -r=json-summary node --env-file=ci.env tests/test.js"
     },
     "dependencies": {
         "@niceties/logger": "^2.1.1",

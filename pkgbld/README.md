@@ -1,5 +1,7 @@
 # pkgbld
 
+[![Branch coverage](https://raw.githubusercontent.com/kshutkin/package-build/coverage/pkgbld/badge.svg)](https://github.com/kshutkin/package-build/tree/coverage/pkgbld/coverage)
+
 _Build your libraries with ease_
 
 Rollup-based build tool for building libraries based on package.json config and simple CLI options.

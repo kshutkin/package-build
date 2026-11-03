@@ -1,5 +1,7 @@
 # xc6
 
+[![Branch coverage](https://raw.githubusercontent.com/kshutkin/package-build/coverage/xc6/badge.svg)](https://github.com/kshutkin/package-build/tree/coverage/xc6/coverage)
+
 eXecute c(ommand) (xc6) is a command line tool to execute commands in a package.json script or a shell script.
 
 Why:

@@ -21,7 +21,7 @@
         "c6s"
     ],
     "scripts": {
-        "test": "c8 --src=. --all -r=html node test.js",
+        "test": "c8 --src=. --all -r=html -r=json-summary node test.js",
         "lint": "eslint .",
         "prepack": "pkgprn"
     },

@@ -1,15 +1,42 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ],
-  "packageRules": [
-    {
-      "description": "Keep TypeScript within dts-buddy's supported peer range",
-      "matchPackageNames": [
-        "typescript"
-      ],
-      "allowedVersions": "<7"
-    }
-  ]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["config:recommended"],
+    "vulnerabilityAlerts": {
+        "enabled": true
+    },
+    "packageRules": [
+        {
+            "description": "Keep TypeScript within dts-buddy's supported peer range",
+            "matchPackageNames": ["typescript"],
+            "allowedVersions": "<7"
+        },
+        {
+            "description": "Keep the existing Node declaration major and refresh it through lockfile updates",
+            "matchPackageNames": ["@types/node"],
+            "allowedVersions": "26.x",
+            "rangeStrategy": "update-lockfile"
+        },
+        {
+            "description": "Update Slimlib runtime dependencies only outside their declared compatibility ranges",
+            "matchPackageNames": ["@slimlib/**"],
+            "rangeStrategy": "replace"
+        },
+        {
+            "description": "Allow security updates only for Changesets, Biome, and the Rollup bundler",
+            "matchPackageNames": ["@changesets/**", "@biomejs/biome", "rollup"],
+            "enabled": false
+        },
+        {
+            "description": "Disable ordinary dts-buddy updates by default and bump its range for eligible updates",
+            "matchPackageNames": ["dts-buddy"],
+            "enabled": false,
+            "rangeStrategy": "bump"
+        },
+        {
+            "description": "Allow ordinary dts-buddy minor updates only",
+            "matchPackageNames": ["dts-buddy"],
+            "matchUpdateTypes": ["minor"],
+            "enabled": true
+        }
+    ]
 }
