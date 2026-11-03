@@ -11,7 +11,7 @@ catalogs:
       version: 1.1.2
     '@niceties/node-parseargs-plus':
       specifier: ^0.6.0
-      version: 0.6.0
+      version: 0.6.1
     c8:
       specifier: ^12.0.0
       version: 12.0.0
@@ -76,7 +76,7 @@ importers:
         version: 1.1.2
       '@niceties/node-parseargs-plus':
         specifier: 'catalog:'
-        version: 0.6.0
+        version: 0.6.1
       find-cache-directory:
         specifier: 'catalog:'
         version: 6.0.0
@@ -147,7 +147,7 @@ importers:
         version: 2.1.1
       '@niceties/node-parseargs-plus':
         specifier: 'catalog:'
-        version: 0.6.0
+        version: 0.6.1
       '@rollup-extras/plugin-binify':
         specifier: ^2.0.0
         version: 2.0.0(rollup@4.63.1)
@@ -456,8 +456,8 @@ packages:
     resolution: {integrity: sha512-D4r9IJSxFxCB/60TJT4J5OI8+G8P9LLxPv2OaS3FNmM4bffCsJFvvX1uF4wXzf3QuqorsukBE8MbilHiVAVhJg==}
     engines: {node: '>=18.3.0'}
 
-  '@niceties/node-parseargs-plus@0.6.0':
-    resolution: {integrity: sha512-wob8hWIyQvF4P7DMYX01ifeSTDnWDW3QUigrKEclnedRZArcnCPi9P7HMM7IKrVfnmhqyJX8nxk/TALClRmI6A==}
+  '@niceties/node-parseargs-plus@0.6.1':
+    resolution: {integrity: sha512-0qa7Ff7E3ZSQvnq2W8nUM7jDgOcuzdLoO7I2Yvp/BQi5wYf3hWmDiKkGcLCpdgpa3IGzlVYxXvf5VZg/vzj9Dw==}
     engines: {node: '>=18.3.0'}
 
   '@pnpm/deps.graph-sequencer@1100.0.1':
@@ -1492,7 +1492,7 @@ snapshots:
     dependencies:
       '@niceties/ansi': 1.1.2
 
-  '@niceties/node-parseargs-plus@0.6.0':
+  '@niceties/node-parseargs-plus@0.6.1':
     dependencies:
       '@niceties/ansi': 1.1.2
 
