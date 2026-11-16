@@ -8,7 +8,7 @@ catalogs:
   default:
     '@niceties/ansi':
       specifier: ^1.1.2
-      version: 1.1.2
+      version: 1.2.0
     '@niceties/node-parseargs-plus':
       specifier: ^0.6.0
       version: 0.6.0
@@ -73,7 +73,7 @@ importers:
     dependencies:
       '@niceties/ansi':
         specifier: 'catalog:'
-        version: 1.1.2
+        version: 1.2.0
       '@niceties/node-parseargs-plus':
         specifier: 'catalog:'
         version: 0.6.0
@@ -138,7 +138,7 @@ importers:
     dependencies:
       '@niceties/ansi':
         specifier: 'catalog:'
-        version: 1.1.2
+        version: 1.2.0
       '@niceties/draftlog-appender':
         specifier: ^2.1.1
         version: 2.1.1(@niceties/logger@2.1.1)
@@ -434,8 +434,8 @@ packages:
     os: [linux]
     libc: [glibc]
 
-  '@niceties/ansi@1.1.2':
-    resolution: {integrity: sha512-4SZgmseZqfGAIrcXmfVes+Uj51KMUQNZ3X31faRB8g2tyebDzW+zlkeg1qmhilrgJOi3nm6EOMlkfJVrgiBzZg==}
+  '@niceties/ansi@1.2.0':
+    resolution: {integrity: sha512-Tyif8At8ue7H3oB7WOCK0CtbOCy1WuoWhSTNGMSQa+H0ze4R2/V1kjQLh5Eoog1mUwTVesNg9hxt6Lu1iyI55Q==}
     engines: {node: '>=15'}
 
   '@niceties/draftlog-appender@2.1.1':
@@ -1472,7 +1472,7 @@ snapshots:
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@niceties/ansi@1.1.2': {}
+  '@niceties/ansi@1.2.0': {}
 
   '@niceties/draftlog-appender@2.1.1(@niceties/logger@2.1.1)':
     dependencies:
@@ -1486,15 +1486,15 @@ snapshots:
 
   '@niceties/logger@2.1.1':
     dependencies:
-      '@niceties/ansi': 1.1.2
+      '@niceties/ansi': 1.2.0
 
   '@niceties/node-parseargs-plus@0.5.1':
     dependencies:
-      '@niceties/ansi': 1.1.2
+      '@niceties/ansi': 1.2.0
 
   '@niceties/node-parseargs-plus@0.6.0':
     dependencies:
-      '@niceties/ansi': 1.1.2
+      '@niceties/ansi': 1.2.0
 
   '@pnpm/deps.graph-sequencer@1100.0.1': {}
 
